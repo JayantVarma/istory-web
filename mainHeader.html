@@ -1,0 +1,42 @@
+<html>
+<head>
+	<link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/2.6.0/build/fonts/fonts-min.css" />
+	<link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/2.6.0/build/treeview/assets/skins/sam/treeview.css" />
+	<script type="text/javascript" src="http://yui.yahooapis.com/2.6.0/build/yahoo-dom-event/yahoo-dom-event.js"></script>
+	<script type="text/javascript" src="http://yui.yahooapis.com/2.6.0/build/treeview/treeview-min.js"></script>
+	<link rel="stylesheet" href="http://yui.yahooapis.com/2.5.1/build/reset-fonts-grids/reset-fonts-grids.css" type="text/css">
+	<script type="text/javascript" src="http://yui.yahooapis.com/2.6.0/build/json/json-min.js"></script>
+	<script type="text/javascript" src="http://yui.yahooapis.com/2.6.0/build/connection/connection-min.js"></script>
+	<link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/2.6.0/build/container/assets/container.css">
+	<script type="text/javascript" src="http://yui.yahooapis.com/2.6.0/build/animation/animation-min.js"></script>
+	<script type="text/javascript" src="http://yui.yahooapis.com/2.6.0/build/container/container-min.js"></script>
+	<link type="text/css" rel="stylesheet" href="/stylesheets/main.css" />
+	<style type="text/css">
+	/*margin and padding on body element
+	  can introduce errors in determining
+	  element position and are not recommended;
+	  we turn them off as a foundation for YUI
+	  CSS treatments. */
+		.table1 { text-align:center; border-collapse:separate; border-spacing:10pt 0pt; }
+		.table2 { width:100%; text-align:left; border-collapse:separate; border-spacing:25pt 1pt; }
+		#treeDiv1 {background: #dddddd; padding:1em;}
+		.workArea { font-size: large; text-align: left; }
+		#deletePage, #editPage, #addPage, #addPageElementText, #addPageElementImage, #addPageElementChoice {cursor:pointer; padding:0px; text-align:center; }
+		#addPageSubmit, #deletePageSubmit {cursor:pointer; }
+		.myButton { cursor:pointer; padding:2px; }
+		.workAreaPageEl { text-align:center; border-collapse:separate; border-spacing:5pt 5pt; }
+		.titleTD { text-align:left; font-size: x-large; border-spacing:10pt 0pt; }
+		.titleTD2 { text-align:left; font-size: large; border-spacing:10pt 0pt; }
+		body { font-family: Verdana, Helvetica, sans-serif; background-color: #dddddd; margin:0; padding:0; }
+		.ygtvlabel, .ygtvlabel:link, .ygtvlabel:visited, .ygtvlabel:hover { background-color: transparent; }
+	</style>
+</head>
+<body class="yui-skin-sam">
+<a href="/">iStory</a>
+ | <a href="{{ loginURL }}">{{ login }}</a>
+{% if loggedIn %}
+ {{ currentUser }}
+ | <a href="{{ addAdventureURL }}">{{ addAdventure }}</a>
+ | <a href="{{ myStoriesURL }}">{{ myStories }}</a>
+{% endif %}
+<hr>

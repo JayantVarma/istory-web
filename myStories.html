@@ -1,0 +1,9 @@
+{% for adventure in adventures %}
+	<b><a href="/addAdventure?key={{ adventure.key }}">{{ adventure.title }}</a></b><br>
+	By: {{ adventure.author }}<br>
+	Version: {{ adventure.version }}<br>
+	Date Created: {{ adventure.date }}<br>
+	<pre>{{ adventure.desc|escape }}</pre>
+	<a href="/storyEditor?myAdventureKey={{ adventure.key }}">Story Editor</a><br>
+	<hr>
+{% endfor %}

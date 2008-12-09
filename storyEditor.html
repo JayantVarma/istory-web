@@ -1,0 +1,599 @@
+{% if error %}
+<h5>{{ error }}</h5>
+{% endif %}
+
+<table class="table1" align="center" width="100%"><tr>
+	<td>
+		<table class="table1" align="center">
+			<tr class="titleTD"><td>Title:<td><b>{{ adventure.title }}</b></td></tr>
+			<tr class="titleTD2"><td>Page:<td id="currentPage"></td></tr>
+		</table>
+	</td>
+	<td>
+		<table class="table1"><tr>
+			<td id="addPage"><img alt="Add Page" src="stylesheets/addPage.png"><br>Add Page</td>
+			<td id="editPage"><img alt="Edit Page" src="stylesheets/editPage.png"><br>Edit Page</td>
+			<td id="deletePage"><img alt="Delete Page" src="stylesheets/deletePage.png"><br>Delete Page</td>
+		</tr></table>
+	</td>
+</tr></table>
+<hr>
+
+<div id="doc" class="yui-t2">
+	<div id="bd">
+		<div id="yui-main">
+			<div class="yui-b">
+				<div class="yui-g">
+					<div id="workArea"></div>
+				</div>
+			</div>
+		</div>
+		<div class="yui-b">
+			<div class=" yui-skin-sam">
+				<div id="treeDiv1"></div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div id="pageWorkArea" style="display: none">
+<table class="workAreaPageEl">
+<tr>
+	<td class="titleTD2" style="text-align: right">
+		Add something<br>to this page:
+	</td>
+	<td>
+		<table class="table1"><tr>
+			<td id="addPageElementText"><img alt="Add Text" src="stylesheets/addText.png"><br>Text</td>
+			<td id="addPageElementImage"><img alt="Add Image" src="stylesheets/addImage.png"><br>Image</td>
+			<td id="addPageElementChoice"><img alt="Add Choice" src="stylesheets/addChoice.png"><br>Choice</td>
+		</tr></table>
+	</td>
+</tr>
+<tr><td colspan="2" id="pageElementsWorkArea"><hr></td></tr>
+</table>
+</div>
+
+<script type="text/javascript">
+
+//global variable to allow console inspection of tree:
+var tree;
+
+//anonymous function wraps the remainder of the logic:
+(function() {
+	var labelClick = false;
+	var currentPage = {
+		name : null,
+		key : null,
+		nodeIndex : null
+	};
+	var numPages = 0;
+	var currentNodeIndex = null;
+	var getNameFromPageElementType = function(type) {
+		if (!type) { return null }
+		else if (type == 1) { return "Text" }
+		else if (type == 2) { return "Image" }
+		else if (type == 3) { return "Choice" }
+	}
+	var keyToNodeMap = {};
+	var nodeToKeyMap = {};
+	var domIdToKeyMap = {};
+
+	var resetWorkArea = function(updateStr, clear, nodeIndex) {
+		obj = document.getElementById('workArea');
+		obj.innerHTML = "";
+		obj.className = null;
+		if (updateStr) {
+			obj.className = "workArea";
+			obj.innerHTML = updateStr;
+		}
+		else if (!numPages) {
+			obj.className = "workArea";
+			obj.innerHTML = "Add a page to get started.";
+		}
+		else if (!clear) {
+			obj.className = "workArea";
+			obj.innerHTML = "Click on a page to work on it.";
+		}
+		if (nodeIndex) {
+			myLastNode = tree.getNodeByIndex(currentNodeIndex);
+			myLastNode.label = currentPage.name;
+			tree.draw();
+		}
+	}
+	
+	//create and add the page element editing stuff to the work area
+	var addPageElementToWorkArea = function(pageElement, idx) {
+		//idx is the node.index of the page element in the tree view
+		pageElementsWorkArea = document.getElementById('pageElementsWorkArea');
+		newDiv = document.createElement('div');
+		newDiv.id = "DIV" + pageElement.key;
+		pageElementsWorkArea.appendChild(newDiv);
+		//alert(pageElement.dataType);
+		//myHTML = '<div id="DIV' + pageElement.key + '"><hr>';
+		//myHTML = '</tr></td><tr><td colspan="2" align="center">';
+		myHTML = '<table><tr>';
+		myHTML += '<td value=' + pageElement.key + '>';
+		myHTML += '<img alt="Move Up" class="myButton" src="stylesheets/up.png" id="up' + idx + '"><br>';
+		myHTML += '<img alt="Disable" class="myButton" src="stylesheets/delete2.png" id="disable' + idx + '"><br>';
+		myHTML += '<img alt="Move Down" class="myButton" src="stylesheets/down.png" id="down' + idx + '"><br>';
+		myHTML += '<img alt="Save" class="myButton" src="stylesheets/save.png" id="save' + idx + '">';
+		myHTML += '</td><td>';
+		if (pageElement.dataType == 1) {
+			//text
+			myHTML += '<textarea id="element' + idx + '" name="element' + idx + '" rows="15" cols="60">' + pageElement.dataA + '</textarea>';
+		}
+		myHTML += '<div class="titleTD2" id="belowElWorkArea' + idx + '" style="text-align: center"></div>';
+		myHTML += '</td></tr></table><hr>';
+		//myHTML += '</div>';
+		newDiv.innerHTML += myHTML;
+		domIdToKeyMap['up' + idx] = pageElement.key;
+		domIdToKeyMap['disable' + idx] = pageElement.key;
+		domIdToKeyMap['delete' + idx] = pageElement.key;
+		domIdToKeyMap['down' + idx] = pageElement.key;
+		domIdToKeyMap['save' + idx] = pageElement.key;
+		YAHOO.util.Event.addListener("up" + idx, "click", pageElUp);
+		YAHOO.util.Event.addListener("disable" + idx, "click", pageElDisable);
+		YAHOO.util.Event.addListener("down" + idx, "click", pageElDown);
+		YAHOO.util.Event.addListener("save" + idx, "click", pageElSave);
+		new YAHOO.widget.Tooltip("tooltipUp", { showdelay: 500, context:"up" + idx, text:"Move Up"} );
+		new YAHOO.widget.Tooltip("tooltipDisable", { showdelay: 500, context:"disable" + idx, text:"Disable Element"} );
+		new YAHOO.widget.Tooltip("tooltipDown", { showdelay: 500, context:"down" + idx, text:"Move Down"} );
+		new YAHOO.widget.Tooltip("tooltipSave", { showdelay: 500, context:"save" + idx, text:"Save"} );
+		//if the page element is already disabled, we need to disable it in the html
+		if (pageElement.enabled == 0) { disablePageEl(idx); }
+	}
+	var pageElUp = function(e) {
+		alert('pageElUp');
+	}
+	var pageElDown = function(e) {
+		alert('pageElDown');
+	}
+	var pageElDisable = function(e) {
+		obj = YAHOO.util.Event.getTarget(e);
+		myKey = domIdToKeyMap[obj.id];
+		myHTML = "myElKey=" + myKey;
+		pageElDisableCallbacks.argument.key = myKey
+		pageElDisableCallbacks.argument.nodeIndex = keyToNodeMap[myKey].index;
+		YAHOO.util.Connect.asyncRequest('POST', '/disablePageElement', pageElDisableCallbacks, myHTML);
+	}
+	var disablePageEl = function(idx) {
+		newDiv = document.createElement('div');
+		belowWorkArea = document.getElementById('belowElWorkArea' + idx);
+		belowWorkArea.appendChild(newDiv);
+		newDiv.innerHTML = '<table class="table2"><tr><td>This element is disabled. Delete it?<br>To re-enable, just save.</td><td><img align="Absmiddle" alt="Delete Element" class="myButton" src="stylesheets/delete.png" id="delete' + idx + '"></td></tr></table>';
+		//newDiv.innerHTML += '<br>To re-enable, just save.'
+		YAHOO.util.Event.addListener("delete" + idx, "click", pageElDelete);
+		new YAHOO.widget.Tooltip("tooltipDelete", { showdelay: 500, context:"delete" + idx, text:"Delete Element"} );		
+	}
+	var pageElDisableCallbacks = {
+		success : function (o) {
+			YAHOO.log("RAW JSON DATA: " + o.responseText);
+			var m = [];
+			try { m = YAHOO.lang.JSON.parse(o.responseText); }
+			catch (x) {
+				alert("JSON Parse failed! " + x);
+				return;
+			}
+			disablePageEl(o.argument.nodeIndex);
+		},
+		failure : function (o) {
+			alert("disablePageElement was not successful.");
+		},
+		argument : {
+			"nodeIndex": null,
+			"key": null,
+		},
+		timeout : 3000
+	}
+	var pageElDelete = function(e) {
+		obj = YAHOO.util.Event.getTarget(e);
+		myKey = domIdToKeyMap[obj.id];
+		myHTML = "myElKey=" + myKey;
+		pageElDeleteCallbacks.argument.key = myKey
+		pageElDeleteCallbacks.argument.nodeIndex = keyToNodeMap[myKey].index;
+		YAHOO.util.Connect.asyncRequest('POST', '/deletePageElement', pageElDeleteCallbacks, myHTML);
+	}
+	var pageElDeleteCallbacks = {
+		success : function (o) {
+			YAHOO.log("RAW JSON DATA: " + o.responseText);
+			// Process the JSON data returned from the server
+			var m = [];
+			try {
+				m = YAHOO.lang.JSON.parse(o.responseText);
+			}
+			catch (x) {
+				alert("JSON Parse failed! " + x);
+				return;
+			}
+			YAHOO.log("PARSED DATA: " + YAHOO.lang.dump(m.key + ' ' + m.name));
+			{
+				myNode = tree.getNodeByIndex(o.argument.nodeIndex);
+				if (myNode) {
+					tree.removeNode(myNode, true);
+				}
+				myDiv = document.getElementById('DIV' + o.argument.key);
+				myDiv.style.display = "none";
+			}
+			tree.draw();
+		},
+		failure : function (o) {
+			alert("deletePageElement was not successful.");
+		},
+		argument : {
+			"nodeIndex": null,
+			"key": null,
+		},
+		timeout : 3000
+	}
+	var pageElSave = function(e) {
+		obj = YAHOO.util.Event.getTarget(e);
+		myKey = domIdToKeyMap[obj.id];
+		text = document.getElementById('element' + keyToNodeMap[myKey].index);
+		myHTML = "myPageElKey=" + myKey
+			+ "&text=" + escape(text.value);
+		pageElSaveCallbacks.argument.key = myKey
+		pageElSaveCallbacks.argument.nodeIndex = keyToNodeMap[myKey].index;
+		YAHOO.util.Connect.asyncRequest('POST', '/savePageElement', pageElSaveCallbacks, myHTML);
+	}
+	var pageElSaveCallbacks = {
+		success : function (o) {
+			YAHOO.log("RAW JSON DATA: " + o.responseText);
+			// Process the JSON data returned from the server
+			var m = [];
+			try {
+				m = YAHOO.lang.JSON.parse(o.responseText);
+			}
+			catch (x) {
+				alert("JSON Parse failed! " + x);
+				return;
+			}
+			YAHOO.log("PARSED DATA: " + YAHOO.lang.dump(m.key + ' ' + m.name));
+			{
+				belowWorkArea = document.getElementById('belowElWorkArea' + o.argument.nodeIndex);
+				belowWorkArea.innerHTML = 'Saved.';
+				myTreeNode = tree.getNodeByIndex(o.argument.nodeIndex);
+				myTreeNode.label = getDescForChildNode(m, 1);
+				tree.draw();
+			}
+		},
+		failure : function (o) {
+			alert("deletePageElement was not successful.");
+		},
+		argument : {
+			"nodeIndex": null,
+			"key": null,
+		},
+		timeout : 3000
+	}
+
+	//ADD PAGE ELEMENTS TO THE ADVENTURE PAGE
+	var setupWorkArea = function() {
+		workArea = document.getElementById('workArea');
+		pageWorkArea = document.getElementById('pageWorkArea');
+		workArea.innerHTML = pageWorkArea.innerHTML;
+		YAHOO.util.Event.addListener("addPageElementText", "click", addPageElement);
+		YAHOO.util.Event.addListener("addPageElementImage", "click", addPageElement);
+		YAHOO.util.Event.addListener("addPageElementChoice", "click", addPageElement);
+		//new YAHOO.widget.Tooltip("tooltipAddText", { showdelay: 500, context:"addPageElementText", text:"Add A Text Page Element"} );
+		//new YAHOO.widget.Tooltip("tooltipAddImage", { showdelay: 500, context:"addPageElementImage", text:"Add An Image Page Element"} );
+		//new YAHOO.widget.Tooltip("tooltipAddChoice", { showdelay: 500, context:"addPageElementChoice", text:"Add A Choice Page Element"} );
+
+	}	
+	var addPageElement = function(e) {
+		obj = YAHOO.util.Event.getTarget(e);
+		if (!obj.id) {
+			obj = obj.parentNode;
+		}
+		myTreeNode = tree.getNodeByIndex(currentNodeIndex);
+		myPageOrder = myTreeNode.children.length;
+		myPageOrder++;
+		//alert(myPageOrder);
+		pageKeyHTML = "myPageKey=" + currentPage.key
+					+ "&elementType=" + obj.id
+					+ "&pageOrder=" + myPageOrder
+		addPageElementCallbacks.argument.nodeIndex = currentNodeIndex;
+		YAHOO.util.Connect.asyncRequest('POST', '/addPageElement', addPageElementCallbacks, pageKeyHTML);
+	}
+	var addPageElementCallbacks = {
+		success : function (o) {
+			YAHOO.log("RAW JSON DATA: " + o.responseText);
+			// Process the JSON data returned from the server
+			var m = [];
+			try {
+				m = YAHOO.lang.JSON.parse(o.responseText);
+			}
+			catch (x) {
+				alert("JSON Parse failed!");
+				alert(x);
+				return;
+			}
+			YAHOO.log("PARSED DATA: " + YAHOO.lang.dump(m.key + ' ' + m.name));
+			{
+				myNode = tree.getNodeByIndex(o.argument.nodeIndex);
+				newNodeIndex = addChildNode(m.dataA, m.dataType, myNode, m);
+				//workAreaElementCount = workAreaElements.push(m);
+				addPageElementToWorkArea(m, newNodeIndex);
+			}
+			tree.draw();
+		},
+		failure : function (o) {
+			alert("addPageElement was not successful.");
+		},
+		argument : { "nodeIndex": null },
+		timeout : 3000
+	}
+	var getDescForChildNode = function(description, datatype) {
+		nodeDesc = null;
+		if (description) {
+			prefix = 't: ';
+			if (datatype == 2) { prefix = 'i: '; }
+			else if (datatype == 3) { prefix = 'c: '; }
+			nodeDesc = description.substr(0, 9);
+			nodeDesc = prefix + nodeDesc.replace(/\n/g, ' ');
+		}
+		else {
+			nodeDesc = getNameFromPageElementType(datatype);
+		}
+		return nodeDesc;		
+	}
+	var addChildNode = function(description, datatype, node, pageEl) {
+		nodeDesc = getDescForChildNode(description, datatype);
+		var newNode = new YAHOO.widget.TextNode(nodeDesc, node, true);
+		nodeToKeyMap[newNode.index] = pageEl;
+		keyToNodeMap[pageEl.key] = newNode;
+		newNode.value = pageEl;
+		return newNode.index;
+	}
+
+	var deletePage = function(e) {
+		resetWorkArea(null, 1);
+		if (!currentPage.key) {
+			return;
+		}
+		obj = document.getElementById('workArea');
+		obj.innerHTML = "<table class=\"table1\"><tr height=\"50\"><td>Are you sure you want to delete page \"" + currentPage.name + "\"?<br>This operation cannot be undone.</td><td id=\"deletePageSubmit\"><img src=\"stylesheets/delete.png\"><br>Delete</td></tr></table>";
+		YAHOO.util.Event.addListener("deletePageSubmit", "click", deletePageSubmit);
+		//new YAHOO.widget.Tooltip("tooltipDeletePageSubmit", { showdelay: 500, context:"deletePageSubmit", text:"Delete This Page For Good"} );
+	}
+	var addPage = function(e) {
+		//obj = YUE.getTarget(e);
+		resetWorkArea(null, 1, currentNodeIndex);
+		if (currentPage.key) {
+			curPage = document.getElementById('currentPage');
+			curPage.innerHTML = '';
+		}
+		currentPage.name = '';
+		currentPage.key = '';
+		currentPage.nodeIndex = '';
+		currentNodeIndex = '';
+		addOrUpdatePage();
+	}
+	var editPage = function(e) {
+		if (currentPage.key) {
+			addOrUpdatePage();
+		}
+		else {
+			//alert("no page selected");
+		}
+	}
+	var addOrUpdatePage = function(pageKey) {
+		resetWorkArea(null, 1);
+		pageNameHTML = '';
+		pageKeyHTML = '';
+		if (currentPage.key) {
+			pageNameHTML = ' value="' + currentPage.name + '"';
+		}
+		obj = document.getElementById('workArea');
+		obj.innerHTML = '<form id="addPageForm" method="post" action="javascript:addPageSubmitFunction()"><table class="table1"><tr height="50"><td class="titleTD2">Name of page:<br><input type="text" id="newPageName"' + pageNameHTML + '></td><td id="addPageSubmit"><img src="stylesheets/save.png"><br>Save</td></tr></table></form>';
+		YAHOO.util.Event.addListener("addPageSubmit", "click", addPageSubmit);
+		YAHOO.util.Event.on('addPageForm', 'submit', function(e) {
+			YAHOO.util.Event.stopEvent(e);
+			addPageSubmit();
+		});
+		document.getElementById('newPageName').focus();
+		//new YAHOO.widget.Tooltip("tooltipAddPageSubmit", { showdelay: 500, context:"addPageSubmit", text:"Save"} );
+	}
+			
+	var addPageSubmit = function(e) {
+		//myAdventureKey myPageKey pageName
+		pageKeyHTML = '';
+		if (currentPage.key) {
+			pageKeyHTML = "&myPageKey=" + currentPage.key;
+		}
+		addPageCallbacks.argument.nodeIndex = currentNodeIndex;
+		YAHOO.util.Connect.asyncRequest('POST', '/addPage', addPageCallbacks,
+			"myAdventureKey={{ adventure.key }}"
+			+ pageKeyHTML
+			+ "&pageName=" + document.getElementById('newPageName').value
+		);
+	}
+	var addPageCallbacks = {
+		success : function (o) {
+			YAHOO.log("RAW JSON DATA: " + o.responseText);
+			// Process the JSON data returned from the server
+			var m = [];
+			try {
+				m = YAHOO.lang.JSON.parse(o.responseText);
+			}
+			catch (x) {
+				alert("JSON Parse failed!");
+				alert(x);
+				return;
+			}
+			YAHOO.log("PARSED DATA: " + YAHOO.lang.dump(m.key + ' ' + m.name));
+			{
+				//alert(m.key + ' ' + m.name);
+				//alert(currentNodeIndex + '|' + o.argument.nodeIndex);
+				myNode = tree.getNodeByIndex(o.argument.nodeIndex);
+				if (myNode) {
+					myNode.label = m.name;
+				}
+				else {
+					var tmpNode = new YAHOO.widget.TextNode(m.name, tree.getRoot(), false);
+					tmpNode.value = m.key;
+					nodeClick(tmpNode);
+				}
+			}
+			tree.draw();
+		},
+		failure : function (o) {
+			alert("addPage was not successful.");
+		},
+		argument : { "nodeIndex": null },
+		timeout : 3000
+	}
+	
+	var deletePageSubmit = function(e) {
+		//alert("addPageSubmit");
+		//myAdventureKey myPageKey pageName
+		pageKeyHTML = "myPageKey=" + currentPage.key;
+		deletePageCallbacks.argument.nodeIndex = currentNodeIndex;
+		YAHOO.util.Connect.asyncRequest('POST', '/deletePage', deletePageCallbacks, pageKeyHTML);
+	}
+	var deletePageCallbacks = {
+		success : function (o) {
+			YAHOO.log("RAW JSON DATA: " + o.responseText);
+			// Process the JSON data returned from the server
+			var m = [];
+			try {
+				m = YAHOO.lang.JSON.parse(o.responseText);
+			}
+			catch (x) {
+				alert("JSON Parse failed!");
+				alert(x);
+				return;
+			}
+			YAHOO.log("PARSED DATA: " + YAHOO.lang.dump(m.key + ' ' + m.name));
+			{
+				myNode = tree.getNodeByIndex(o.argument.nodeIndex);
+				if (myNode) {
+					tree.removeNode(myNode, true);
+				}
+			}
+			curPage = document.getElementById('currentPage');
+			curPage.innerHTML = '';
+			currentPage.key = null;
+			currentPage.page = null;
+			currentPage.nodeIndex = null;
+			currentNodeIndex = null;
+			tree.draw();
+			resetWorkArea("Page deleted.");
+		},
+		failure : function (o) {
+			alert("removePage was not successful.");
+		},
+		argument : { "nodeIndex": null },
+		timeout : 3000
+	}
+
+	// Define the callbacks for the asyncRequest
+	var callbacks = {
+		success : function (o) {
+			YAHOO.log("RAW JSON DATA: " + o.responseText);
+			// Process the JSON data returned from the server
+			var messages = [];
+			try {
+				messages = YAHOO.lang.JSON.parse(o.responseText);
+			}
+			catch (x) {
+				alert("JSON Parse failed!");
+				alert(x);
+				return;
+			}
+			YAHOO.log("PARSED DATA: " + YAHOO.lang.dump(messages));
+			tree = new YAHOO.widget.TreeView("treeDiv1");
+			// The returned data was parsed into an array of objects.
+			// Add a P element for each received message
+			for (var i = 0, len = messages.length; i < len; ++i) {
+				var m = messages[i];
+				//m.name m.key
+				var tmpNode = new YAHOO.widget.TextNode(m.name, tree.getRoot(), true);
+				tmpNode.value = m.key;
+				numPages++;
+				for (var x = 0, xLen = m.elements.length; x < xLen; ++x) {
+					var mm = m.elements[x];
+					//this is how you build child nodes
+					//new YAHOO.widget.TextNode("blah", tmpNode, true);
+					addChildNode(mm.dataA, mm.dataType, tmpNode, mm);
+				}
+			}
+			tree.draw();
+			resetWorkArea();
+
+			// Expand and collapse happen prior to the actual expand/collapse,
+			// and can be used to cancel the operation
+			tree.subscribe("expand", function(node) {
+				// return false to cancel the expand
+				if (labelClick) {
+					labelclick = false;
+					return false;
+				}
+				labelClick = false;
+				return true;
+			});
+
+			tree.subscribe("collapse", function(node) {
+				if (labelClick) {
+					labelclick = false;
+					return false;
+				}
+				labelClick = false;
+				return true;
+			});
+			//tree.subscribe("clickEvent", function(node) {
+			//	alert("clickEvent");
+			//});
+			// Trees with TextNodes will fire an event for when the label is clicked:
+			tree.subscribe("labelClick", function(node) {
+				nodeClick(node);
+			});
+        },
+
+		failure : function (o) {
+			if (!YAHOO.util.Connect.isCallInProgress(o)) {
+				alert("Async call failed!");
+			}
+		},		
+		timeout : 3000
+	}
+	var nodeClick = function(node) {
+		labelClick = true;
+		if (node.parent.toString() != "RootNode") {
+			return;
+		}
+		YAHOO.log(node.index + " label was clicked", "info", "example");
+		resetWorkArea(null, 1, currentNodeIndex);
+		curPage = document.getElementById('currentPage');
+		curPage.innerHTML = node.label;
+		currentPage.key = node.value;
+		currentPage.name = node.label;
+		currentPage.nodeIndex = node.index;
+		currentNodeIndex = node.index;
+		node.label = "<b>" + node.label + "</b>";
+		setupWorkArea();
+		for (var x = 0; x < node.children.length; x++) {
+			childNode = node.children[x];
+			//workAreaElementCount = workAreaElements.push(childNode.value);
+			addPageElementToWorkArea(childNode.value, childNode.index);
+		}
+		tree.draw();		
+	}
+
+	//function to initialize the tree:
+	function treeInit() {
+		// Make the call to the server for JSON data
+		YAHOO.util.Connect.asyncRequest('GET',"/getPages?myAdventureKey={{ adventure.key }}", callbacks);
+		YAHOO.util.Event.addListener("deletePage", "click", deletePage);
+		YAHOO.util.Event.addListener("addPage", "click", addPage);
+		YAHOO.util.Event.addListener("editPage", "click", editPage);
+		resetWorkArea();
+		//new YAHOO.widget.Tooltip("tooltipDeletePage", { showdelay: 500, context:"deletePage", text:"Delete This Page"} );
+		//new YAHOO.widget.Tooltip("tooltipAddPage", { showdelay: 500, context:"addPage", text:"Add A New Page"} );
+		//new YAHOO.widget.Tooltip("tooltipEditPage", { showdelay: 500, context:"editPage", text:"Edit This Page's Name"} );
+	}
+
+	//Add an onDOMReady handler to build the tree when the document is ready
+	YAHOO.util.Event.onDOMReady(treeInit);
+})();
+</script>
