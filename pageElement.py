@@ -64,35 +64,61 @@ class DisablePageElement(webapp.RequestHandler):
 
 class SavePageElement(webapp.RequestHandler):
   def post(self):
-	logging.error("SavePageElement: being")
+	#this method supports adding or updating page elements
+	elementTypes = {
+		"addPageElementText": 1,
+		"addPageElementImage": 2,
+		"addPageElementChoice": 3,
+	}
+	logging.error("SavePageElement begin")
 	myPageElKey = self.request.get('myPageElKey')
-	pageElement = db.Model.get(myPageElKey)
-	adventure = pageElement.adventure
-	if not pageElement:
-		logging.error("SavePageElement: key passed in did not exist in DB")
-		return
+	pageElement = None
+	page = None
+	adventure = None
+	if myPageElKey:
+		#existing page element
+		pageElement = db.Model.get(myPageElKey)
+		page = pageElement.page
+		adventure = pageElement.adventure
+	else:
+		#new page element
+		logging.error("SavePageElement: key passed in did not exist in DB, must be new")
+		myPageKey = self.request.get('myPageKey')
+		if (not myPageKey):
+			logging.error("SavePageELement: expected myPageKey but it is null")
+			return
+		page = db.Model.get(myPageKey)
+		adventure = page.adventure
+		pageElement = adventureModel.PageElement()
+		#we dont want to change these things so we only set them when the page element is new
+		pageElement.adventure = adventure.key()
+		dataType = self.request.get('elementType')
+		try:
+			pageElement.dataType = int(dataType)
+		except:
+			logging.error("SavePageElement: expected elementType because new pageElement, but did not get it")
+			return
+
 	if users.get_current_user():
 		if adventure.realAuthor and adventure.realAuthor != users.get_current_user():
 			return
 	else:
 		return
-	pageElement.enabled = 1
-	if pageElement.dataType == 1:
-		#text
-		pageElement.dataA = self.request.get('text')
-	elif pageElement.dataType == 2:
-		#image
-		pageElement.dataType = self.request.get('imageFilename')
-	elif pageElement.dataType == 3:
-		#choice
-		pageElement.dataA = self.request.get('text')
-		pageElement.dataB = self.request.get('pageNumber')
+
+	if not adventure or not page:
+		logging.error("SavePageElement: could not find page or adventure. myPageKey(" + myPageKey + ")")
+
+	pageElement.page = page.key()
+	myPageOrder = self.request.get('pageOrder')
+	pageElement.pageOrder = int(myPageOrder or 1)
+	pageElement.dataA = self.request.get('dataA')
+	pageElement.dataB = self.request.get('dataB')
+	pageElement.enabled = 1;
 	pageElement.put()
 	logging.error("dataA: " + pageElement.dataA)
 	logging.error("dataB: " + pageElement.dataB)
-	self.response.out.write(simplejson.dumps(pageElement.dataA[0:20]))
-	logging.error("SavePageELement: returning json: " + simplejson.dumps(pageElement.dataA[0:20]))
-
+	self.response.out.write(simplejson.dumps(pageElement.toDict()))
+	logging.error("AddPageElement: returning json: " + simplejson.dumps(pageElement.toDict()))
 
 class AddPageElement(webapp.RequestHandler):
   def post(self):

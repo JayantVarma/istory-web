@@ -69,15 +69,20 @@ var tree;
 	};
 	var numPages = 0;
 	var currentNodeIndex = null;
-	var getNameFromPageElementType = function(type) {
-		if (!type) { return null }
-		else if (type == 1) { return "Text" }
-		else if (type == 2) { return "Image" }
-		else if (type == 3) { return "Choice" }
+	var pageElementTypeToNameMap = {
+		1: "Text",
+		2: "Image",
+		3: "Choice",
+	};
+	var pageElementIdToTypeMap = {
+		"addPageElementText": 1,
+		"addPageElementImage": 2,
+		"addPageElementChoice": 3,
 	}
 	var keyToNodeMap = {};
 	var nodeToKeyMap = {};
 	var domIdToKeyMap = {};
+	var domIdToNodeIndexMap = {};
 
 	var resetWorkArea = function(updateStr, clear, nodeIndex) {
 		obj = document.getElementById('workArea');
@@ -107,13 +112,11 @@ var tree;
 		//idx is the node.index of the page element in the tree view
 		pageElementsWorkArea = document.getElementById('pageElementsWorkArea');
 		newDiv = document.createElement('div');
-		newDiv.id = "DIV" + pageElement.key;
+		newDiv.id = "DIV" + idx;
 		pageElementsWorkArea.appendChild(newDiv);
 		//alert(pageElement.dataType);
-		//myHTML = '<div id="DIV' + pageElement.key + '"><hr>';
-		//myHTML = '</tr></td><tr><td colspan="2" align="center">';
 		myHTML = '<table><tr>';
-		myHTML += '<td value=' + pageElement.key + '>';
+		myHTML += '<td>';
 		myHTML += '<img alt="Move Up" class="myButton" src="stylesheets/up.png" id="up' + idx + '"><br>';
 		myHTML += '<img alt="Disable" class="myButton" src="stylesheets/delete2.png" id="disable' + idx + '"><br>';
 		myHTML += '<img alt="Move Down" class="myButton" src="stylesheets/down.png" id="down' + idx + '"><br>';
@@ -121,17 +124,23 @@ var tree;
 		myHTML += '</td><td>';
 		if (pageElement.dataType == 1) {
 			//text
-			myHTML += '<textarea id="element' + idx + '" name="element' + idx + '" rows="15" cols="60">' + pageElement.dataA + '</textarea>';
+			myHTML += '<textarea id="element' + idx + '" name="element' + idx + '" rows="15" cols="60">';
+			if (pageElement.dataA) { myHTML += pageElement.dataA; }
+			myHTML += '</textarea>';
 		}
 		myHTML += '<div class="titleTD2" id="belowElWorkArea' + idx + '" style="text-align: center"></div>';
 		myHTML += '</td></tr></table><hr>';
-		//myHTML += '</div>';
 		newDiv.innerHTML += myHTML;
 		domIdToKeyMap['up' + idx] = pageElement.key;
 		domIdToKeyMap['disable' + idx] = pageElement.key;
 		domIdToKeyMap['delete' + idx] = pageElement.key;
 		domIdToKeyMap['down' + idx] = pageElement.key;
 		domIdToKeyMap['save' + idx] = pageElement.key;
+		domIdToNodeIndexMap['up' + idx] = idx;
+		domIdToNodeIndexMap['disable' + idx] = idx;
+		domIdToNodeIndexMap['delete' + idx] = idx;
+		domIdToNodeIndexMap['down' + idx] = idx;
+		domIdToNodeIndexMap['save' + idx] = idx;
 		YAHOO.util.Event.addListener("up" + idx, "click", pageElUp);
 		YAHOO.util.Event.addListener("disable" + idx, "click", pageElDisable);
 		YAHOO.util.Event.addListener("down" + idx, "click", pageElDown);
@@ -141,7 +150,7 @@ var tree;
 		new YAHOO.widget.Tooltip("tooltipDown", { showdelay: 500, context:"down" + idx, text:"Move Down"} );
 		new YAHOO.widget.Tooltip("tooltipSave", { showdelay: 500, context:"save" + idx, text:"Save"} );
 		//if the page element is already disabled, we need to disable it in the html
-		if (pageElement.enabled == 0) { disablePageEl(idx); }
+		if (pageElement.enabled && pageElement.enabled == 0) { markPageElAsDisabled(idx); }
 	}
 	var pageElUp = function(e) {
 		alert('pageElUp');
@@ -152,12 +161,17 @@ var tree;
 	var pageElDisable = function(e) {
 		obj = YAHOO.util.Event.getTarget(e);
 		myKey = domIdToKeyMap[obj.id];
-		myHTML = "myElKey=" + myKey;
-		pageElDisableCallbacks.argument.key = myKey
-		pageElDisableCallbacks.argument.nodeIndex = keyToNodeMap[myKey].index;
-		YAHOO.util.Connect.asyncRequest('POST', '/disablePageElement', pageElDisableCallbacks, myHTML);
+		if (myKey) {
+			myHTML = "myElKey=" + myKey;
+			pageElDisableCallbacks.argument.key = myKey
+			pageElDisableCallbacks.argument.nodeIndex = keyToNodeMap[myKey].index;
+			YAHOO.util.Connect.asyncRequest('POST', '/disablePageElement', pageElDisableCallbacks, myHTML);			
+		}
+		else {
+			markPageElAsDisabled(domIdToNodeIndexMap[obj.id]);
+		}
 	}
-	var disablePageEl = function(idx) {
+	var markPageElAsDisabled = function(idx) {
 		newDiv = document.createElement('div');
 		belowWorkArea = document.getElementById('belowElWorkArea' + idx);
 		belowWorkArea.appendChild(newDiv);
@@ -175,7 +189,7 @@ var tree;
 				alert("JSON Parse failed! " + x);
 				return;
 			}
-			disablePageEl(o.argument.nodeIndex);
+			markPageElAsDisabled(o.argument.nodeIndex);
 		},
 		failure : function (o) {
 			alert("disablePageElement was not successful.");
@@ -186,13 +200,29 @@ var tree;
 		},
 		timeout : 3000
 	}
+	var removePageElementNodeFromTree = function(nodeIndex) {
+		myNode = tree.getNodeByIndex(nodeIndex);
+		if (myNode) {
+			tree.removeNode(myNode, true);
+		}
+		tree.draw();
+		pageElementsWorkArea = document.getElementById('pageElementsWorkArea');
+		myDiv = document.getElementById('DIV' + nodeIndex);
+		pageElementsWorkArea.removeChild(myDiv);
+	}
 	var pageElDelete = function(e) {
 		obj = YAHOO.util.Event.getTarget(e);
 		myKey = domIdToKeyMap[obj.id];
-		myHTML = "myElKey=" + myKey;
-		pageElDeleteCallbacks.argument.key = myKey
-		pageElDeleteCallbacks.argument.nodeIndex = keyToNodeMap[myKey].index;
-		YAHOO.util.Connect.asyncRequest('POST', '/deletePageElement', pageElDeleteCallbacks, myHTML);
+		if (myKey) {
+			myHTML = "myElKey=" + myKey;
+			pageElDeleteCallbacks.argument.key = myKey
+			pageElDeleteCallbacks.argument.nodeIndex = keyToNodeMap[myKey].index;
+			YAHOO.util.Connect.asyncRequest('POST', '/deletePageElement', pageElDeleteCallbacks, myHTML);
+		}
+		else {
+			nodeIndex = domIdToNodeIndexMap[obj.id];
+			removePageElementNodeFromTree(nodeIndex);
+		}
 	}
 	var pageElDeleteCallbacks = {
 		success : function (o) {
@@ -207,15 +237,7 @@ var tree;
 				return;
 			}
 			YAHOO.log("PARSED DATA: " + YAHOO.lang.dump(m.key + ' ' + m.name));
-			{
-				myNode = tree.getNodeByIndex(o.argument.nodeIndex);
-				if (myNode) {
-					tree.removeNode(myNode, true);
-				}
-				myDiv = document.getElementById('DIV' + o.argument.key);
-				myDiv.style.display = "none";
-			}
-			tree.draw();
+			removePageElementNodeFromTree(o.argument.nodeIndex);
 		},
 		failure : function (o) {
 			alert("deletePageElement was not successful.");
@@ -228,41 +250,56 @@ var tree;
 	}
 	var pageElSave = function(e) {
 		obj = YAHOO.util.Event.getTarget(e);
-		myKey = domIdToKeyMap[obj.id];
-		text = document.getElementById('element' + keyToNodeMap[myKey].index);
-		myHTML = "myPageElKey=" + myKey
-			+ "&text=" + escape(text.value);
-		pageElSaveCallbacks.argument.key = myKey
-		pageElSaveCallbacks.argument.nodeIndex = keyToNodeMap[myKey].index;
+		myPageElKey = domIdToKeyMap[obj.id];
+		myPageKey = nodeToKeyMap[currentNodeIndex];
+		myPageElNodeIndex = domIdToNodeIndexMap[obj.id];
+		myHTML = "myPageKey=" + myPageKey;
+		if (myPageElKey) {
+			//existing node
+			myHTML += "&myPageElKey=" + myPageElKey;
+			pageElSaveCallbacks.argument.key = myPageElKey
+		}
+		else {
+			//new node
+			myNode = tree.getNodeByIndex(myPageElNodeIndex);
+			myHTML += "&elementType=" + myNode.value.dataType;
+				+ "&pageOrder=" + myNode.parent.children.length;
+		}
+		pageElSaveCallbacks.argument.nodeIndex = myPageElNodeIndex;
+		pageElSaveCallbacks.argument.pageKey = myPageKey;
+		pageElSaveCallbacks.argument.pageNodeIndex = currentNodeIndex;
+		text = document.getElementById('element' + myPageElNodeIndex);
+		myHTML += "&dataA=" + escape(text.value);
 		YAHOO.util.Connect.asyncRequest('POST', '/savePageElement', pageElSaveCallbacks, myHTML);
 	}
 	var pageElSaveCallbacks = {
 		success : function (o) {
 			YAHOO.log("RAW JSON DATA: " + o.responseText);
 			// Process the JSON data returned from the server
-			var m = [];
+			var pageElement = [];
 			try {
-				m = YAHOO.lang.JSON.parse(o.responseText);
+				pageElement = YAHOO.lang.JSON.parse(o.responseText);
 			}
 			catch (x) {
 				alert("JSON Parse failed! " + x);
 				return;
 			}
-			YAHOO.log("PARSED DATA: " + YAHOO.lang.dump(m.key + ' ' + m.name));
+			YAHOO.log("PARSED DATA: " + YAHOO.lang.dump(pageElement.key + ' ' + pageElement.name));
 			{
 				belowWorkArea = document.getElementById('belowElWorkArea' + o.argument.nodeIndex);
 				belowWorkArea.innerHTML = 'Saved.';
 				myTreeNode = tree.getNodeByIndex(o.argument.nodeIndex);
-				myTreeNode.label = getDescForChildNode(m, 1);
-				tree.draw();
+				addOrUpdateChildNode(pageElement.dataA, pageElement.dataType, null, pageElement, myTreeNode);
 			}
 		},
 		failure : function (o) {
-			alert("deletePageElement was not successful.");
+			alert("savePageElement was not successful.");
 		},
 		argument : {
 			"nodeIndex": null,
 			"key": null,
+			"pageNodeIndex": null,
+			"pageKey": null,
 		},
 		timeout : 3000
 	}
@@ -281,20 +318,20 @@ var tree;
 
 	}	
 	var addPageElement = function(e) {
-		obj = YAHOO.util.Event.getTarget(e);
-		if (!obj.id) {
-			obj = obj.parentNode;
+		targetObj = YAHOO.util.Event.getTarget(e);
+		if (!targetObj.id) {
+			targetObj = targetObj.parentNode;
 		}
-		myTreeNode = tree.getNodeByIndex(currentNodeIndex);
-		myPageOrder = myTreeNode.children.length;
-		myPageOrder++;
-		//alert(myPageOrder);
-		pageKeyHTML = "myPageKey=" + currentPage.key
-					+ "&elementType=" + obj.id
-					+ "&pageOrder=" + myPageOrder
-		addPageElementCallbacks.argument.nodeIndex = currentNodeIndex;
-		YAHOO.util.Connect.asyncRequest('POST', '/addPageElement', addPageElementCallbacks, pageKeyHTML);
+		dataType = pageElementIdToTypeMap[targetObj.id];
+		myNode = tree.getNodeByIndex(currentNodeIndex);
+		pageElement = {
+			"dataType": dataType,
+		}
+		newNodeIndex = addOrUpdateChildNode("New " + pageElementTypeToNameMap[dataType], dataType, myNode, pageElement);
+		newNode = tree.getNodeByIndex(newNodeIndex);
+		addPageElementToWorkArea(pageElement, newNodeIndex);
 	}
+
 	var addPageElementCallbacks = {
 		success : function (o) {
 			YAHOO.log("RAW JSON DATA: " + o.responseText);
@@ -309,13 +346,6 @@ var tree;
 				return;
 			}
 			YAHOO.log("PARSED DATA: " + YAHOO.lang.dump(m.key + ' ' + m.name));
-			{
-				myNode = tree.getNodeByIndex(o.argument.nodeIndex);
-				newNodeIndex = addChildNode(m.dataA, m.dataType, myNode, m);
-				//workAreaElementCount = workAreaElements.push(m);
-				addPageElementToWorkArea(m, newNodeIndex);
-			}
-			tree.draw();
 		},
 		failure : function (o) {
 			alert("addPageElement was not successful.");
@@ -333,17 +363,26 @@ var tree;
 			nodeDesc = prefix + nodeDesc.replace(/\n/g, ' ');
 		}
 		else {
-			nodeDesc = getNameFromPageElementType(datatype);
+			nodeDesc = pageElementTypeToNameMap[datatype];
 		}
 		return nodeDesc;		
 	}
-	var addChildNode = function(description, datatype, node, pageEl) {
+	var addOrUpdateChildNode = function(description, datatype, node, pageElement, currentNode) {
+		//pageElement is from the data model, adventureModel.py
 		nodeDesc = getDescForChildNode(description, datatype);
-		var newNode = new YAHOO.widget.TextNode(nodeDesc, node, true);
-		nodeToKeyMap[newNode.index] = pageEl;
-		keyToNodeMap[pageEl.key] = newNode;
-		newNode.value = pageEl;
-		return newNode.index;
+		if (!currentNode) {
+			var currentNode = new YAHOO.widget.TextNode(nodeDesc, node, true);
+		}
+		else {
+			currentNode.label = nodeDesc;
+		}
+		if (pageElement) {
+			nodeToKeyMap[currentNode.index] = pageElement.key;
+			keyToNodeMap[pageElement.key] = currentNode;
+			currentNode.value = pageElement;
+		}
+		tree.draw()
+		return currentNode.index;
 	}
 
 	var deletePage = function(e) {
@@ -430,12 +469,12 @@ var tree;
 					myNode.label = m.name;
 				}
 				else {
-					var tmpNode = new YAHOO.widget.TextNode(m.name, tree.getRoot(), false);
-					tmpNode.value = m.key;
-					nodeClick(tmpNode);
+					myNode = new YAHOO.widget.TextNode(m.name, tree.getRoot(), false);
+					myNode.value = m.key;
 				}
+				currentPage.name = myNode.label;
+				nodeClick(myNode);
 			}
-			tree.draw();
 		},
 		failure : function (o) {
 			alert("addPage was not successful.");
@@ -515,7 +554,8 @@ var tree;
 					var mm = m.elements[x];
 					//this is how you build child nodes
 					//new YAHOO.widget.TextNode("blah", tmpNode, true);
-					addChildNode(mm.dataA, mm.dataType, tmpNode, mm);
+					// mm is the page element object from the data model
+					addOrUpdateChildNode(mm.dataA, mm.dataType, tmpNode, mm);
 				}
 			}
 			tree.draw();
@@ -571,6 +611,7 @@ var tree;
 		currentPage.nodeIndex = node.index;
 		currentNodeIndex = node.index;
 		node.label = "<b>" + node.label + "</b>";
+		nodeToKeyMap[node.index] = node.value;
 		setupWorkArea();
 		for (var x = 0; x < node.children.length; x++) {
 			childNode = node.children[x];
