@@ -600,7 +600,10 @@ var tree;
 	var nodeClick = function(node) {
 		labelClick = true;
 		if (node.parent.toString() != "RootNode") {
-			return;
+			node = node.parent;
+			if (node.parent.toString() != "RootNode") {
+				return;
+			}
 		}
 		YAHOO.log(node.index + " label was clicked", "info", "example");
 		resetWorkArea(null, 1, currentNodeIndex);
