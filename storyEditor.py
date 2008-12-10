@@ -84,4 +84,4 @@ class StoryEditor(webapp.RequestHandler):
 	main.printHeader(self)
 	path = os.path.join(os.path.dirname(__file__), 'storyEditor.html')
 	self.response.out.write(template.render(path, template_values))
-	main.printFooter(self, None)
+	main.printFooter(self, template_values)
