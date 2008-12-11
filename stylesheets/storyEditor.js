@@ -16,6 +16,7 @@ var currentPage = {
 	key : null,
 	nodeIndex : null
 };
+var tabIndex = 1;
 var numPages = 0;
 var currentNodeIndex = null;
 var pageElementTypeToNameMap = {
@@ -73,9 +74,42 @@ var addPageElementToWorkArea = function(pageElement, idx) {
 	myHTML += '</td><td>';
 	if (pageElement.dataType == 1) {
 		//text
-		myHTML += '<textarea id="element' + idx + '" name="element' + idx + '" rows="15" cols="60">';
+		myHTML += '<textarea tabindex="' + tabIndex + '" id="dataA' + idx + '" name="dataA' + idx + '" rows="15" cols="60">';
+		tabIndex++;
 		if (pageElement.dataA) { myHTML += pageElement.dataA; }
 		myHTML += '</textarea>';
+	}
+	else if (pageElement.dataType == 2) {
+		//image
+	}
+	else if (pageElement.dataType == 3) {
+		//choice
+		myHTML += '<table class="table3"><tr><td>Choice Description:</td><td><input tabindex="' + tabIndex + '" type="text" name="dataA' + idx + '" id="dataA' + idx + '"';
+		tabIndex++;
+		if (pageElement.dataA) { myHTML += ' value="' + pageElement.dataA + '"'; }
+		myHTML += '></tr>';
+		myHTML += '<tr><td>Go To:</td><td><select tabindex="' + tabIndex + '" name="dataB' + idx + '" id="dataB' + idx + '">';
+		tabIndex++;
+		//use the tree view to loop through the nodes and build a select list of every "page"
+		for (var i = 0; i < tree.getRoot().children.length; i++) {
+			var myChildNode = tree.getRoot().children[i];
+			//set the option value's description to the node label
+			//unless the node is the selected node, then it's label will be bold
+			//so we need to get the name from the currentPage object
+			var myNodeName = myChildNode.label;
+			if (myChildNode.index == currentNodeIndex) {
+				myNodeName = currentPage.name;
+			}
+			myHTML += '  <option value="' + myChildNode.value + '"';
+			if (pageElement.dataB == myChildNode.value) {
+				myHTML += ' SELECTED';
+			}
+			myHTML += '>' + myNodeName;
+		}
+		myHTML += '</select></td></tr></table>';
+	}
+	else {
+		alert("tried to add pageElement of unknown type: " + pageElement.dataType);
 	}
 	myHTML += '<div class="titleTD2" id="belowElWorkArea' + idx + '" style="text-align: center"></div>';
 	myHTML += '</td></tr></table><hr>';
@@ -98,6 +132,19 @@ var addPageElementToWorkArea = function(pageElement, idx) {
 	new YAHOO.widget.Tooltip("tooltipDisable", { showdelay: 500, context:"disable" + idx, text:"Disable Element"} );
 	new YAHOO.widget.Tooltip("tooltipDown", { showdelay: 500, context:"down" + idx, text:"Move Down"} );
 	new YAHOO.widget.Tooltip("tooltipSave", { showdelay: 500, context:"save" + idx, text:"Save"} );
+	//set the focus to the dropdown box if its there (for choice elements), so the screen moves down a bit further
+	if (!pageElement.dataA) {
+		var focusOBJb = YAHOO.util.Dom.get('dataB' + idx);
+		if (focusOBJb) { focusOBJb.focus(); }
+		//set the focus to the newly created text box
+		var focusOBJa = YAHOO.util.Dom.get('dataA' + idx);
+		focusOBJa.focus();	
+	}
+	else if (pageElement.dataType == 1)
+	{
+		var focusOBJa = YAHOO.util.Dom.get('dataA' + idx);
+		focusOBJa.focus();
+	}
 	//if the page element is already disabled, we need to disable it in the html
 	if (pageElement.enabled && pageElement.enabled == 0) { markPageElAsDisabled(idx); }
 }
@@ -124,7 +171,7 @@ var markPageElAsDisabled = function(idx) {
 	var newDiv = document.createElement('div');
 	var belowWorkArea = YAHOO.util.Dom.get('belowElWorkArea' + idx);
 	belowWorkArea.appendChild(newDiv);
-	newDiv.innerHTML = '<table class="table2"><tr><td>This element is disabled. Delete it?<br>To re-enable, just save.</td><td><img align="Absmiddle" alt="Delete Element" class="myButton" src="stylesheets/delete.png" id="delete' + idx + '"></td></tr></table>';
+	newDiv.innerHTML = '<table class="table2"><tr><td>This element is disabled. Delete it?<br>To re-enable, just save.</td><td><div class="icon-delete" alt="Delete Element" class="myButton" id="delete' + idx + '"></div></td></tr></table>';
 	//newDiv.innerHTML += '<br>To re-enable, just save.'
 	YAHOO.util.Event.addListener("delete" + idx, "click", pageElDelete);
 	new YAHOO.widget.Tooltip("tooltipDelete", { showdelay: 500, context:"delete" + idx, text:"Delete Element"} );		
@@ -217,8 +264,14 @@ var pageElSave = function(e) {
 	pageElSaveCallbacks.argument.nodeIndex = myPageElNodeIndex;
 	pageElSaveCallbacks.argument.pageKey = myPageKey;
 	pageElSaveCallbacks.argument.pageNodeIndex = currentNodeIndex;
-	var text = YAHOO.util.Dom.get('element' + myPageElNodeIndex);
-	myHTML += "&dataA=" + escape(text.value);
+	var dataA = YAHOO.util.Dom.get('dataA' + myPageElNodeIndex);
+	if (dataA) {
+		myHTML += "&dataA=" + escape(dataA.value);		
+	}
+	var dataB = YAHOO.util.Dom.get('dataB' + myPageElNodeIndex);
+	if (dataB) {
+		myHTML += "&dataB=" + escape(dataB.value);		
+	}
 	YAHOO.util.Connect.asyncRequest('POST', '/savePageElement', pageElSaveCallbacks, myHTML);
 }
 var pageElSaveCallbacks = {
@@ -514,11 +567,6 @@ var callbacks = {
 		// and can be used to cancel the operation
 		tree.subscribe("expand", function(node) {
 			// return false to cancel the expand
-			if (labelClick) {
-				labelclick = false;
-				return false;
-			}
-			labelClick = false;
 			return true;
 		});
 
@@ -554,6 +602,7 @@ var nodeClick = function(node) {
 			return;
 		}
 	}
+	tabIndex = 1;
 	YAHOO.log(node.index + " label was clicked", "info", "example");
 	resetWorkArea(null, 1, currentNodeIndex);
 	var curPage = YAHOO.util.Dom.get('currentPage');
