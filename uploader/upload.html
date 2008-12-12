@@ -1,0 +1,66 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+	<title>Image Uploading</title>
+    <link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/combo?2.6.0/build/reset-fonts-grids/reset-fonts-grids.css"> 
+    <link rel="stylesheet" type="text/css" href="upload.css" />
+</head>
+<body>
+    <div id="doc">
+        <div id="hd">
+            <h1>UPLOAD SOME IMAGES ALREADY</h1>
+
+        </div>
+        
+        <div id="bd">
+            <div id="btn_container">
+                <div id="btn_overlay"></div>
+                <button id="browse">Browse</button>
+            </div>
+            
+            <ul id="files">
+                <li id="file_skeleton"><div></div></li>
+
+                <li id="upload_skeleton" class='uploaded'>
+                    <a><img src="%thb" alt="%name%"/></a>
+                    <div>
+                        <p>
+                            <label for="_url">Image URL</label>
+                            <input  id="_url" value="" />
+                        </p>
+                        <p class="thb">
+
+                            <label for="_thb">Thumb Link</label>
+                            <input  id="_thb" value=""/>
+                        </p>
+                        <p class="fimg">
+                            <label for="_fimg">Forum Image</label>
+                            <input  id="_fimg" value=""/>
+                        </p>
+                        <p class="fthb">
+
+                            <label for="_fthb">Forum Thumb</label>
+                            <input  id="_fthb" value=""/>
+                        </p>
+                    </div>
+                </li>
+            </ul>
+                
+            <button id="upload">Upload</button>
+            <button id="cancel">Cancel</button>
+
+            <button id="export">Export All</button>
+            
+            <textarea id="export_text"></textarea>
+        </div>
+        
+        <div id="ft">
+            <div id="uploader"></div>
+        </div>
+    </div>
+    <script type="text/javascript" src="http://yui.yahooapis.com/combo?2.6.0/build/yahoo-dom-event/yahoo-dom-event.js&2.6.0/build/json/json-min.js&2.6.0/build/element/element-beta-min.js&2.6.0/build/uploader/uploader-experimental.js"></script> 
+    <script type="text/javascript" src="upload.js"></script>
+
+</body>
+</html>

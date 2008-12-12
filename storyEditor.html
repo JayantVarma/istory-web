@@ -58,49 +58,51 @@
 </div>
 
 <div id="uploader_holder" style="display: none">
-	<div id="doc">
-		<div id="hd">
-			<h1>Upload An Image</h1>
-		</div>
-		
-		<div id="bd">
-			<button id="browse">Browse</button>
-			
-			<ul id="files">
-				<li id="file_skeleton"><div></div></li>
-				<li id="upload_skeleton" class='uploaded'>
-					<a><img src="%thb" alt="%name%"/></a>
-					<div>
-						<p>
-							<label for="_url">Image URL</label>
-							<input  id="_url" value="" />
-						</p>
-						<p class="thb">
-							<label for="_thb">Thumb Link</label>
-							<input  id="_thb" value=""/>
-						</p>
-						<p class="fimg">
-							<label for="_fimg">Forum Image</label>
-							<input  id="_fimg" value=""/>
-						</p>
-						<p class="fthb">
-							<label for="_fthb">Forum Thumb</label>
-							<input  id="_fthb" value=""/>
-						</p>
-					</div>
-				</li>
-			</ul>
-				
-			<button id="upload">Upload</button>
-			<button id="cancel">Cancel</button>
-			<button id="export">Export All</button>
-			
-			<textarea id="export_text"></textarea>
-		</div>
-		
-		<div id="ft">
-			<div id="uploader"></div>
-		</div>
+	<div id="hdUploader">
+	    <h1>Upload Your Image</h1>
+	</div>
+	<div id="bdUploader">
+	    <div id="btn_container">
+	        <div id="btn_overlay"></div>
+	        <button id="browse">Browse</button>
+	    </div>
+    
+	    <ul id="files">
+	        <li id="file_skeleton"><div></div></li>
+
+	        <li id="upload_skeleton" class='uploaded'>
+	            <a><img src="%thb" alt="%name%"/></a>
+	            <div>
+	                <p>
+	                    <label for="_url">Image URL</label>
+	                    <input  id="_url" value="" />
+	                </p>
+	                <p class="thb">
+
+	                    <label for="_thb">Thumb Link</label>
+	                    <input  id="_thb" value=""/>
+	                </p>
+	                <p class="fimg">
+	                    <label for="_fimg">Forum Image</label>
+	                    <input  id="_fimg" value=""/>
+	                </p>
+	                <p class="fthb">
+
+	                    <label for="_fthb">Forum Thumb</label>
+	                    <input  id="_fthb" value=""/>
+	                </p>
+	            </div>
+	        </li>
+	    </ul>
+        
+	    <button id="upload">Upload</button>
+	    <button id="cancel">Cancel</button>
+	    <button id="export">Export All</button>
+	    <textarea id="export_text"></textarea>
+	</div>
+
+	<div id="ft">
+	    <div id="uploader"></div>
 	</div>
 </div>
 
