@@ -57,6 +57,10 @@ var resetWorkArea = function(updateStr, clear, nodeIndex) {
 	}
 }
 
+var divButtonFunction = function(id, iconName) {
+	return '<div class="' + iconName + '" alt="Delete Element" id="' + id + '" onmouseover="this.className=\'' + iconName + 'MO\'" onmouseout="this.className=\'' + iconName + '\'"></div>';
+}
+
 //create and add the page element editing stuff to the work area
 var addPageElementToWorkArea = function(pageElement, idx) {
 	//idx is the node.index of the page element in the tree view
@@ -67,10 +71,10 @@ var addPageElementToWorkArea = function(pageElement, idx) {
 	//alert(pageElement.dataType);
 	var myHTML = '<table><tr>';
 	myHTML += '<td>';
-	myHTML += '<img alt="Move Up" class="myButton" src="stylesheets/up.png" id="up' + idx + '"><br>';
-	myHTML += '<img alt="Disable" class="myButton" src="stylesheets/delete2.png" id="disable' + idx + '"><br>';
-	myHTML += '<img alt="Move Down" class="myButton" src="stylesheets/down.png" id="down' + idx + '"><br>';
-	myHTML += '<img alt="Save" class="myButton" src="stylesheets/save.png" id="save' + idx + '">';
+	myHTML += divButtonFunction('up'+idx, 'icon-elUp');
+	myHTML += divButtonFunction('disable'+idx, 'icon-elDelete');
+	myHTML += divButtonFunction('down'+idx, 'icon-elDown');
+	myHTML += divButtonFunction('save'+idx, 'icon-save');
 	myHTML += '</td><td>';
 	if (pageElement.dataType == 1) {
 		//text
@@ -171,7 +175,7 @@ var markPageElAsDisabled = function(idx) {
 	var newDiv = document.createElement('div');
 	var belowWorkArea = YAHOO.util.Dom.get('belowElWorkArea' + idx);
 	belowWorkArea.appendChild(newDiv);
-	newDiv.innerHTML = '<table class="table2"><tr><td>This element is disabled. Delete it?<br>To re-enable, just save.</td><td><div class="icon-delete" alt="Delete Element" class="myButton" id="delete' + idx + '"></div></td></tr></table>';
+	newDiv.innerHTML = '<table class="table2"><tr><td>This element is disabled. Delete it?<br>To re-enable, just save.</td><td class="myButton">' + divButtonFunction('delete'+idx, 'icon-delete') + '</td></tr></table>';
 	//newDiv.innerHTML += '<br>To re-enable, just save.'
 	YAHOO.util.Event.addListener("delete" + idx, "click", pageElDelete);
 	new YAHOO.widget.Tooltip("tooltipDelete", { showdelay: 500, context:"delete" + idx, text:"Delete Element"} );		
@@ -393,7 +397,7 @@ var deletePage = function(e) {
 		return;
 	}
 	var obj = YAHOO.util.Dom.get('workArea');
-	obj.innerHTML = "<table class=\"table1\"><tr height=\"50\"><td>Are you sure you want to delete page \"" + currentPage.name + "\"?<br>This operation cannot be undone.</td><td id=\"deletePageSubmit\"><img src=\"stylesheets/delete.png\"><br>Delete</td></tr></table>";
+	obj.innerHTML = "<table class=\"table1\"><tr height=\"50\"><td>Are you sure you want to delete page \"" + currentPage.name + "\"?<br>This operation cannot be undone.</td><td class=\"myButton\">" +  divButtonFunction('deletePageSubmit', 'icon-delete') + "Delete</td></tr></table>";
 	YAHOO.util.Event.addListener("deletePageSubmit", "click", deletePageSubmit);
 	//new YAHOO.widget.Tooltip("tooltipDeletePageSubmit", { showdelay: 500, context:"deletePageSubmit", text:"Delete This Page For Good"} );
 }
@@ -426,7 +430,7 @@ var addOrUpdatePage = function(pageKey) {
 		pageNameHTML = ' value="' + currentPage.name + '"';
 	}
 	var obj = YAHOO.util.Dom.get('workArea');
-	obj.innerHTML = '<form id="addPageForm" method="post" action="javascript:addPageSubmitFunction()"><table class="table1"><tr height="50"><td class="titleTD2">Name of page:<br><input type="text" id="newPageName"' + pageNameHTML + '></td><td id="addPageSubmit"><img src="stylesheets/save.png"><br>Save</td></tr></table></form>';
+	obj.innerHTML = '<form id="addPageForm" method="post" action="javascript:addPageSubmitFunction()"><table class="table1"><tr height="50"><td class="titleTD2">Name of page:<br><input type="text" id="newPageName"' + pageNameHTML + '></td><td class="myButton">' + divButtonFunction('addPageSubmit', 'icon-save') + 'Save</td></tr></table></form>';
 	YAHOO.util.Event.addListener("addPageSubmit", "click", addPageSubmit);
 	YAHOO.util.Event.on('addPageForm', 'submit', function(e) {
 		YAHOO.util.Event.stopEvent(e);

@@ -2,7 +2,8 @@
 <h5>{{ error }}</h5>
 {% endif %}
 
-<table class="table1" align="center" width="100%"><tr>
+<div class="div1">
+<table class="table1" align="center"><tr>
 	<td>
 		<table class="table1" align="center">
 			<tr class="titleTD"><td>Title:<td><b>{{ adventure.title }}</b></td></tr>
@@ -11,12 +12,12 @@
 	</td>
 	<td>
 		<table class="table1"><tr>
-			<td id="addPage"><img alt="Add Page" src="stylesheets/addPage.png"><br>Add Page</td>
-			<td id="editPage"><img alt="Edit Page" src="stylesheets/editPage.png"><br>Edit Page</td>
-			<td id="deletePage"><img alt="Delete Page" src="stylesheets/deletePage.png"><br>Delete Page</td>
+			<td id="addPage"><div class="icon-addPage" onmouseover="this.className='icon-addPageMO'" onmouseout="this.className='icon-addPage'"></div>Add Page</td>
+			<td id="editPage"><div class="icon-editPage" onmouseover="this.className='icon-editPageMO'" onmouseout="this.className='icon-editPage'"></div>Edit Page</td>
+			<td id="deletePage"><div class="icon-deletePage" onmouseover="this.className='icon-deletePageMO'" onmouseout="this.className='icon-deletePage'"></div>Delete Page</td>
 		</tr></table>
 	</td>
-</tr></table>
+</tr></table></div>
 <hr>
 
 <div id="doc" class="yui-t2">
@@ -40,17 +41,19 @@
 <table class="workAreaPageEl">
 <tr>
 	<td class="titleTD2" style="text-align: right">
-		Add something<br>to this page:
-	</td>
-	<td>
-		<table class="table1"><tr>
-			<td id="addPageElementText"><img alt="Add Text" src="stylesheets/addText.png"><br>Text</td>
-			<td id="addPageElementImage"><img alt="Add Image" src="stylesheets/addImage.png"><br>Image</td>
-			<td id="addPageElementChoice"><img alt="Add Choice" src="stylesheets/addChoice.png"><br>Choice</td>
-		</tr></table>
+		<div>
+			<table><tr>
+				<td>Add something<br>to this page:</td>
+				<td><table class="table1"><tr>
+					<td id="addPageElementText"><div class="icon-addText" onmouseover="this.className='icon-addTextMO'" onmouseout="this.className='icon-addText'"></div>Text</td>
+					<td id="addPageElementImage"><div class="icon-addImage" onmouseover="this.className='icon-addImageMO'" onmouseout="this.className='icon-addImage'"></div>Image</td>
+					<td id="addPageElementChoice"><div class="icon-addChoice" onmouseover="this.className='icon-addChoiceMO'" onmouseout="this.className='icon-addChoice'"></div>Choice</td>
+				</table></td>
+			</td></table>
+		</div>
 	</td>
 </tr>
-<tr><td colspan="2" id="pageElementsWorkArea"><hr></td></tr>
+<tr><td id="pageElementsWorkArea"><hr></td></tr>
 </table>
 </div>
 
