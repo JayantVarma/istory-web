@@ -57,12 +57,27 @@
 </table>
 </div>
 
+<div id="uploader" style="display: none">
+	<div class="tdCenter">
+		<div id="fileProgress" style="border: black 1px solid; width:300px; height:40px;float:left">
+			<div id="fileName" style="text-align:center; margin:5px; font-size:15px; width:290px; height:25px; overflow:hidden"></div>
+			<div id="progressBar" style="width:300px;height:5px;background-color:#CCCCCC"></div>
+		</div>
+		<div id="uploaderUI" style="width:100px;height:40px;margin-left:5px;float:left"></div>
+		<div class="uploadButton" style="float:left"><a class="rolloverButton" href="#" onClick="upload(); return false;"></a></div>
+		<div class="clearButton" style="float:left"><a class="rolloverButton" href="#" onClick="handleClearFiles(); return false;"></a></div>
+	</div>
+</div>
+
 <script src="http://yui.yahooapis.com/2.6.0/build/yahoo-dom-event/yahoo-dom-event.js"></script>
 <script src="http://yui.yahooapis.com/2.6.0/build/treeview/treeview-min.js"></script>
 <script src="http://yui.yahooapis.com/2.6.0/build/json/json-min.js"></script>
 <script src="http://yui.yahooapis.com/2.6.0/build/connection/connection-min.js"></script>
 <script src="http://yui.yahooapis.com/2.6.0/build/animation/animation-min.js"></script>
 <script src="http://yui.yahooapis.com/2.6.0/build/container/container-min.js"></script>
+<script src="http://yui.yahooapis.com/2.6.0/build/element/element-beta-min.js"></script>
+<script src="http://yui.yahooapis.com/2.6.0/build/uploader/uploader-experimental.js"></script>
+
 <script type="text/javascript">
 {% if adventure.key %}    var MY_ADVENTURE_KEY = "{{ adventure.key }}";{% endif %}
 </script>

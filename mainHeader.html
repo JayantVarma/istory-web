@@ -5,6 +5,7 @@
 	<link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/2.6.0/build/treeview/assets/skins/sam/treeview.css" />
 	<link rel="stylesheet" href="http://yui.yahooapis.com/2.5.1/build/reset-fonts-grids/reset-fonts-grids.css" type="text/css">
 	<link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/2.6.0/build/container/assets/container.css">
+
 	<link type="text/css" rel="stylesheet" href="/stylesheets/main.css" />
 	<style type="text/css">
 	/*margin and padding on body element
@@ -24,6 +25,7 @@
 	.workAreaPageEl { text-align:left; border-collapse:separate; border-spacing:5pt 5pt; }
 	.titleTD { text-align:left; font-size: x-large; border-spacing:10pt 0pt; }
 	.titleTD2 { text-align:left; font-size: large; border-spacing:10pt 0pt; }
+	.tdCenter { margin-left:auto; margin-right:auto; text-align:center; }
 	body { font-family: Verdana, Helvetica, sans-serif; background-color: #dddddd; margin:0; padding:0; }
 	.ygtvlabel, .ygtvlabel:link, .ygtvlabel:visited, .ygtvlabel:hover { background-color: transparent; }
 	
@@ -52,6 +54,20 @@
 	.div64 { vertical-align:center; text-align:center; margin-left:auto; margin-right:auto; height:66px; width:100px; }
 	.div48 { vertical-align:center; text-align:center; margin-left:auto; margin-right:auto; height:50px; width:80px; }
 	.htmlnodelabel { margin-left: 20px; }
+	
+	.uploadButton a, .clearButton a {
+		display:block;
+		width:100px;
+		height:40px;
+		text-decoration: none;
+		margin-left:5px;
+	}
+	.uploadButton a { background: url("uploader/uploadFileButton.png") 0 0 no-repeat; }
+	.clearButton a { background: url("uploader/clearListButton.png") 0 0 no-repeat; }
+	.uploadButton a:visited, .clearButton a:visited { background-position: 0 0; }
+	.uploadButton a:hover, .clearButton a:hover { background-position: 0 -40px; }
+	.uploadButton a:active, .clearButton a:active { background-position: 0 -80px; }
+
 	</style>
 </head>
 <body class="yui-skin-sam">

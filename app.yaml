@@ -7,6 +7,9 @@ handlers:
 - url: /stylesheets
   static_dir: stylesheets
 
+- url: /uploader
+  static_dir: uploader
+
 - url: /.*
   script: main.py
 
