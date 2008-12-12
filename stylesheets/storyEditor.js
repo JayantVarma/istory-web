@@ -34,20 +34,6 @@ var nodeToKeyMap = {};
 var domIdToKeyMap = {};
 var domIdToNodeIndexMap = {};
 
-//create the image uploader object from the swf
-//it has to be global
-YAHOO.widget.Uploader.SWFURL = "uploader/uploader.swf";
-var uploader = new YAHOO.widget.Uploader( "uploaderUI", "uploader/selectFileButton.png" );
-//add handlers for the image uploader
-uploader.addListener('contentReady', handleContentReady);
-uploader.addListener('fileSelect',onFileSelect)
-uploader.addListener('uploadStart',onUploadStart);
-uploader.addListener('uploadProgress',onUploadProgress);
-uploader.addListener('uploadCancel',onUploadCancel);
-uploader.addListener('uploadComplete',onUploadComplete);
-uploader.addListener('uploadCompleteData',onUploadResponse);
-uploader.addListener('uploadError', onUploadError);
-
 var resetWorkArea = function(updateStr, clear, nodeIndex) {
 	var obj = YAHOO.util.Dom.get('workArea');
 	obj.innerHTML = "";
@@ -100,7 +86,7 @@ var addPageElementToWorkArea = function(pageElement, idx) {
 	else if (pageElement.dataType == 2) {
 		//image
 		//add the image uploader HTML
-		var uploaderHTML = YAHOO.util.Dom.get('uploader');
+		var uploaderHTML = YAHOO.util.Dom.get('uploader_holder');
 		myHTML += uploaderHTML.innerHTML;
 	}
 	else if (pageElement.dataType == 3) {
@@ -172,75 +158,6 @@ var focusObject = function (focusObject) {
 	var focusOBJ = YAHOO.util.Dom.get(focusObject);
 	if (focusOBJ) { focusOBJ.focus(); }	
 }
-
-// THIS IS ALL FOR THE IMAGE UPLOADER
-function handleContentReady () {
-	// Allows the uploader to send log messages to trace, as well as to YAHOO.log
-	uploader.setAllowLogging(true);
-	
-	// Restrict selection to a single file (that's what it is by default,
-	// just demonstrating how).
-	uploader.setAllowMultipleFiles(false);
-	
-	// New set of file filters.
-	var ff = new Array({description:"Images", extensions:"*.jpg;*.png;*.gif"});
-	                   //{description:"Videos", extensions:"*.avi;*.mov;*.mpg"});
-	                   
-	// Apply new set of file filters to the uploader.
-	uploader.setFileFilters(ff);
-}
-var fileID;
-function onFileSelect(event) {
-	for (var item in event.fileList) {
-	    if(YAHOO.lang.hasOwnProperty(event.fileList, item)) {
-			YAHOO.log(event.fileList[item].id);
-			fileID = event.fileList[item].id;
-		}
-	}
-	uploader.disable();
-	
-	var filename = document.getElementById("fileName");
-	filename.innerHTML = event.fileList[fileID].name;
-	
-	var progressbar = document.getElementById("progressBar");
-	progressbar.innerHTML = "";
-}
-function upload() {
-	if (fileID != null) {
-		uploader.upload(fileID, "http://www.yswfblog.com/upload/upload_simple.php");
-		fileID = null;
-	}
-}
-function handleClearFiles() {
-	uploader.clearFileList();
-	uploader.enable();
-	fileID = null;
-}
-function onUploadProgress(event) {
-	var prog = Math.round(300*(event["bytesLoaded"]/event["bytesTotal"]));
-	var progbar = "<div style=\"background-color: #f00; height: 5px; width: " + prog + "px\"/>";
-	var progressbar = document.getElementById("progressBar");
-	progressbar.innerHTML = progbar;
-}
-function onUploadComplete(event) {
-	uploader.clearFileList();
-	uploader.enable();
-	var progbar = "<div style=\"background-color: #f00; height: 5px; width: 300px\"/>";
-	var progressbar = document.getElementById("progressBar");
-	progressbar.innerHTML = progbar;
-}
-function onUploadStart(event) {	
-}
-function onUploadError(event) {
-}
-function onUploadCancel(event) {
-}
-function onUploadResponse(event) {
-}
-//DONE WITH IMAGE UPLOADER
-
-
-
 
 var pageElUp = function(e) {
 	alert('pageElUp');

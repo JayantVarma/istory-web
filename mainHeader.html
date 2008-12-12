@@ -1,74 +1,12 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
 <html lang="en">
 <head>
-	<link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/2.6.0/build/fonts/fonts-min.css" />
-	<link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/2.6.0/build/treeview/assets/skins/sam/treeview.css" />
-	<link rel="stylesheet" href="http://yui.yahooapis.com/2.5.1/build/reset-fonts-grids/reset-fonts-grids.css" type="text/css">
+	<link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/2.6.0/build/fonts/fonts-min.css">
+	<link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/2.6.0/build/treeview/assets/skins/sam/treeview.css">
+	<link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/2.5.1/build/reset-fonts-grids/reset-fonts-grids.css">
 	<link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/2.6.0/build/container/assets/container.css">
-
-	<link type="text/css" rel="stylesheet" href="/stylesheets/main.css" />
-	<style type="text/css">
-	/*margin and padding on body element
-	  can introduce errors in determining
-	  element position and are not recommended;
-	  we turn them off as a foundation for YUI
-	  CSS treatments. */
-	.div1 { marglin-left:auto; margin-right:auto; text-align:center; }
-	.table1 { font-size:small; text-align:center; border-collapse:separate; border-spacing:10pt 0pt; }
-	.table2 { margin-left:auto; margin-right:auto; width:100%; text-align:left; border-collapse:separate; border-spacing:25pt 1pt; }
-	.table3 { margin-left:auto; margin-right:auto; font-size: large; text-align:right; border-collapse:separate; border-spacing:10pt 5pt; }
-	#treeDiv1 {background: #dddddd; padding:1em;}
-	.workArea { font-size: large; text-align: left; }
-	#deletePage, #editPage, #addPage, #addPageElementText, #addPageElementImage, #addPageElementChoice {cursor:pointer; padding:0px; text-align:center; }
-	#addPageSubmit, #deletePageSubmit {cursor:pointer; }
-	.myButton { cursor:pointer; }
-	.workAreaPageEl { text-align:left; border-collapse:separate; border-spacing:5pt 5pt; }
-	.titleTD { text-align:left; font-size: x-large; border-spacing:10pt 0pt; }
-	.titleTD2 { text-align:left; font-size: large; border-spacing:10pt 0pt; }
-	.tdCenter { margin-left:auto; margin-right:auto; text-align:center; }
-	body { font-family: Verdana, Helvetica, sans-serif; background-color: #dddddd; margin:0; padding:0; }
-	.ygtvlabel, .ygtvlabel:link, .ygtvlabel:visited, .ygtvlabel:hover { background-color: transparent; }
-	
-	.icon-deletePage { display:block; height:64px; width:64px; background: transparent url(stylesheets/icons.png) 0px 0px no-repeat; }
-	.icon-editPage   { display:block; height:64px; width:64px; background: transparent url(stylesheets/icons.png) 0px -64px no-repeat; }
-	.icon-addPage    { display:block; height:64px; width:64px; background: transparent url(stylesheets/icons.png) 0px -128px no-repeat; }
-	.icon-save       { display:block; height:48px; width:43px; background: transparent url(stylesheets/icons.png) 0 -192px no-repeat; }
-	.icon-delete     { display:block; height:48px; width:43px; background: transparent url(stylesheets/icons.png) 0 -256px no-repeat; }
-	.icon-addImage   { display:block; height:48px; width:41px; background: transparent url(stylesheets/icons.png) 0 -320px no-repeat; }
-	.icon-addText    { display:block; height:48px; width:41px; background: transparent url(stylesheets/icons.png) 0 -384px no-repeat; }
-	.icon-addChoice  { display:block; height:48px; width:41px; background: transparent url(stylesheets/icons.png) 0 -448px no-repeat; }
-	.icon-elDelete   { display:block; height:48px; width:41px; background: transparent url(stylesheets/icons.png) 0 -512px no-repeat; }
-	.icon-elUp       { display:block; height:48px; width:41px; background: transparent url(stylesheets/icons.png) 0 -576px no-repeat; }
-	.icon-elDown     { display:block; height:48px; width:41px; background: transparent url(stylesheets/icons.png) 0 -640px no-repeat; }
-	.icon-deletePageMO { display:block; height:64px; width:64px; background: transparent url(stylesheets/icons.png) -64px 0px no-repeat; }
-	.icon-editPageMO   { display:block; height:64px; width:64px; background: transparent url(stylesheets/icons.png) -64px -64px no-repeat; }
-	.icon-addPageMO    { display:block; height:64px; width:64px; background: transparent url(stylesheets/icons.png) -64px -128px no-repeat; }
-	.icon-saveMO       { display:block; height:48px; width:43px; background: transparent url(stylesheets/icons.png) -64px -192px no-repeat; }
-	.icon-deleteMO     { display:block; height:48px; width:43px; background: transparent url(stylesheets/icons.png) -64px -256px no-repeat; }
-	.icon-addImageMO   { display:block; height:48px; width:41px; background: transparent url(stylesheets/icons.png) -64px -320px no-repeat; }
-	.icon-addTextMO    { display:block; height:48px; width:41px; background: transparent url(stylesheets/icons.png) -64px -384px no-repeat; }
-	.icon-addChoiceMO  { display:block; height:48px; width:41px; background: transparent url(stylesheets/icons.png) -64px -448px no-repeat; }
-	.icon-elDeleteMO   { display:block; height:48px; width:41px; background: transparent url(stylesheets/icons.png) -64px -512px no-repeat; }
-	.icon-elUpMO       { display:block; height:48px; width:41px; background: transparent url(stylesheets/icons.png) -64px -576px no-repeat; }
-	.icon-elDownMO     { display:block; height:48px; width:41px; background: transparent url(stylesheets/icons.png) -64px -640px no-repeat; }
-	.div64 { vertical-align:center; text-align:center; margin-left:auto; margin-right:auto; height:66px; width:100px; }
-	.div48 { vertical-align:center; text-align:center; margin-left:auto; margin-right:auto; height:50px; width:80px; }
-	.htmlnodelabel { margin-left: 20px; }
-	
-	.uploadButton a, .clearButton a {
-		display:block;
-		width:100px;
-		height:40px;
-		text-decoration: none;
-		margin-left:5px;
-	}
-	.uploadButton a { background: url("uploader/uploadFileButton.png") 0 0 no-repeat; }
-	.clearButton a { background: url("uploader/clearListButton.png") 0 0 no-repeat; }
-	.uploadButton a:visited, .clearButton a:visited { background-position: 0 0; }
-	.uploadButton a:hover, .clearButton a:hover { background-position: 0 -40px; }
-	.uploadButton a:active, .clearButton a:active { background-position: 0 -80px; }
-
-	</style>
+	<link rel="stylesheet" type="text/css" href="/stylesheets/main.css">
+	<link rel="stylesheet" type="text/css" href="/uploader/upload.css">	
 </head>
 <body class="yui-skin-sam">
 <a href="/">iStory</a>
