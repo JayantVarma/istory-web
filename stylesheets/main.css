@@ -1,27 +1,8 @@
-html {
-	font-family: Verdana, Helvetica, sans-serif;
-	background-color: #dddddd;
-	margin:0;
-	padding:0;
-}
-
-body { font-family: Verdana, Helvetica, sans-serif; background-color: #dddddd; margin:0; padding:0; }
-
-#treeDiv1 {background: #dddddd; padding:1em;}
-#deletePage, #editPage, #addPage, #addPageElementText, #addPageElementImage, #addPageElementChoice {cursor:pointer; padding:0px; text-align:center; }
-#addPageSubmit, #deletePageSubmit {cursor:pointer; }
-
-.div1 { marglin-left:auto; margin-right:auto; text-align:center; }
-.table1 { font-size:small; text-align:center; border-collapse:separate; border-spacing:10pt 0pt; }
-.table2 { margin-left:auto; margin-right:auto; width:100%; text-align:left; border-collapse:separate; border-spacing:25pt 1pt; }
-.table3 { margin-left:auto; margin-right:auto; font-size: large; text-align:right; border-collapse:separate; border-spacing:10pt 5pt; }
-.workArea { font-size: large; text-align: left; }
-.myButton { cursor:pointer; }
-.workAreaPageEl { text-align:left; border-collapse:separate; border-spacing:5pt 5pt; }
-.titleTD { text-align:left; font-size: x-large; border-spacing:10pt 0pt; }
-.titleTD2 { text-align:left; font-size: large; border-spacing:10pt 0pt; }
-.tdCenter { margin-left:auto; margin-right:auto; text-align:center; }
-.ygtvlabel, .ygtvlabel:link, .ygtvlabel:visited, .ygtvlabel:hover { background-color: transparent; }
+body { text-align:center; }
+img { vertical-align: text-top; }
+.myHeader { width:800px; position:relative; margin-left:0px; margin-right:0px; text-align:left; border:1px solid;}
+.myHeaderLogo { width:380px; height:200px position:absolute; margin: 0px; border:1px solid;}
+.myHeaderMenu { width:380px; height:200px margin:0px; border:1px solid; }
 
 .icon-deletePage { display:block; height:64px; width:64px; background: transparent url(icons.png) 0px 0px no-repeat; }
 .icon-editPage   { display:block; height:64px; width:64px; background: transparent url(icons.png) 0px -64px no-repeat; }
@@ -45,6 +26,23 @@ body { font-family: Verdana, Helvetica, sans-serif; background-color: #dddddd; m
 .icon-elDeleteMO   { display:block; height:48px; width:41px; background: transparent url(icons.png) -64px -512px no-repeat; }
 .icon-elUpMO       { display:block; height:48px; width:41px; background: transparent url(icons.png) -64px -576px no-repeat; }
 .icon-elDownMO     { display:block; height:48px; width:41px; background: transparent url(icons.png) -64px -640px no-repeat; }
+#deletePage, #editPage, #addPage, #addPageElementText, #addPageElementImage, #addPageElementChoice {cursor:pointer; padding:0px; text-align:center; }
+#addPageSubmit, #deletePageSubmit {cursor:pointer; }
+.myButton { cursor:pointer; }
+
+.ygtvlabel, .ygtvlabel:link, .ygtvlabel:visited, .ygtvlabel:hover { background-color: transparent; }
+#treeDiv1 {background: #dddddd; padding:1em;}
+.htmlnodelabel { margin-left: 20px; }
+
+.div1 { margin-left:auto; margin-right:auto; text-align:center; }
+.table1 { font-size:small; text-align:center; border-collapse:separate; border-spacing:10pt 0pt; }
+.table2 { margin-left:auto; margin-right:auto; width:100%; text-align:left; border-collapse:separate; border-spacing:25pt 1pt; }
+.table3 { margin-left:auto; margin-right:auto; font-size: large; text-align:right; border-collapse:separate; border-spacing:10pt 5pt; }
+.workArea { font-size: large; text-align: left; }
+.workAreaPageEl { text-align:left; border-collapse:separate; border-spacing:5pt 5pt; }
+.titleTD { text-align:left; font-size: x-large; border-spacing:10pt 0pt; }
+.titleTD2 { text-align:left; font-size: large; border-spacing:10pt 0pt; }
+.tdCenter { margin-left:auto; margin-right:auto; text-align:center; }
+
 .div64 { vertical-align:middle; text-align:center; margin-left:auto; margin-right:auto; height:66px; width:100px; }
 .div48 { vertical-align:middle; text-align:center; margin-left:auto; margin-right:auto; height:50px; width:80px; }
-.htmlnodelabel { margin-left: 20px; }

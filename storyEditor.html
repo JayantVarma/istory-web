@@ -1,41 +1,35 @@
 {% if error %}
-<h5>{{ error }}</h5>
-{% endif %}
+<h1>{{ error }}</h1>
+{% else %}
 
-<div class="div1">
-<table class="table1" align="center"><tr>
-	<td>
-		<table class="table1" align="center">
-			<tr class="titleTD"><td>Title:<td><b>{{ adventure.title }}</b></td></tr>
-			<tr class="titleTD2"><td>Page:<td id="currentPage"></td></tr>
-		</table>
-	</td>
-	<td>
-		<table class="table1"><tr>
-			<td id="addPage"><div class="icon-addPage" onmouseover="this.className='icon-addPageMO'" onmouseout="this.className='icon-addPage'"></div>Add Page</td>
-			<td id="editPage"><div class="icon-editPage" onmouseover="this.className='icon-editPageMO'" onmouseout="this.className='icon-editPage'"></div>Edit Page</td>
-			<td id="deletePage"><div class="icon-deletePage" onmouseover="this.className='icon-deletePageMO'" onmouseout="this.className='icon-deletePage'"></div>Delete Page</td>
-		</tr></table>
-	</td>
-</tr></table></div>
-<hr>
-
-<div id="doc" class="yui-t2">
-	<div id="bd">
-		<div id="yui-main">
-			<div class="yui-b">
-				<div class="yui-g">
-					<div id="workArea"></div>
-				</div>
-			</div>
-		</div>
-		<div class="yui-b">
-			<div class=" yui-skin-sam">
-				<div id="treeDiv1"></div>
-			</div>
-		</div>
-	</div>
+<div>
+	Title: {{ adventure.title }}
+	Page: <div id="currentPage"></div>
+	<div id="addPage"><div class="icon-addPage" onmouseover="this.className='icon-addPageMO'" onmouseout="this.className='icon-addPage'"></div>Add Page</div>
+	<div id="editPage"><div class="icon-editPage" onmouseover="this.className='icon-editPageMO'" onmouseout="this.className='icon-editPage'"></div>Edit Page</div>
+	<div id="deletePage"><div class="icon-deletePage" onmouseover="this.className='icon-deletePageMO'" onmouseout="this.className='icon-deletePage'"></div>Delete Page</div>
 </div>
+
+<table>
+	<tr>
+		<td>
+			<div class="treeDiv1">
+			</div>
+		</td>
+		<td>
+			<div class="workArea">
+			</div>
+		</td>
+	</tr>
+	<tr>
+		<td colspan="2" style="vertical-align: bottom">
+			<div class="footer">
+			Footer
+			</div>
+		</td>
+	</tr>
+</table>
+
 
 <div id="pageWorkArea" style="display: none">
 <table class="workAreaPageEl">
@@ -106,17 +100,14 @@
 	</div>
 </div>
 
-<script src="http://yui.yahooapis.com/2.6.0/build/yahoo-dom-event/yahoo-dom-event.js"></script>
-<script src="http://yui.yahooapis.com/2.6.0/build/treeview/treeview-min.js"></script>
-<script src="http://yui.yahooapis.com/2.6.0/build/json/json-min.js"></script>
-<script src="http://yui.yahooapis.com/2.6.0/build/connection/connection-min.js"></script>
-<script src="http://yui.yahooapis.com/2.6.0/build/animation/animation-min.js"></script>
-<script src="http://yui.yahooapis.com/2.6.0/build/container/container-min.js"></script>
-<script src="http://yui.yahooapis.com/2.6.0/build/element/element-beta-min.js"></script>
-<script src="http://yui.yahooapis.com/2.6.0/build/uploader/uploader-experimental.js"></script>
+<!-- Combo-handled YUI JS files: -->
+<script type="text/javascript" src="http://yui.yahooapis.com/combo?2.6.0/build/utilities/utilities.js&2.6.0/build/container/container-min.js&2.6.0/build/json/json-min.js&2.6.0/build/treeview/treeview-min.js"></script>
+
 
 <script type="text/javascript">
 {% if adventure.key %}	var MY_ADVENTURE_KEY = "{{ adventure.key }}";{% endif %}
 </script>
 <script src="stylesheets/storyEditor.js"></script>
 <script src="uploader/upload.js"></script>
+
+{% endif %}

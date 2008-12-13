@@ -1,19 +1,27 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html lang="en">
 <head>
-	<link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/2.6.0/build/fonts/fonts-min.css">
-	<link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/2.6.0/build/treeview/assets/skins/sam/treeview.css">
-	<link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/2.5.1/build/reset-fonts-grids/reset-fonts-grids.css">
-	<link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/2.6.0/build/container/assets/container.css">
+	<!-- Combo-handled YUI CSS files: -->
+	<link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/combo?2.6.0/build/reset-fonts/reset-fonts.css&2.6.0/build/container/assets/skins/sam/container.css&2.6.0/build/treeview/assets/skins/sam/treeview.css">
 	<link rel="stylesheet" type="text/css" href="/stylesheets/main.css">
 	<link rel="stylesheet" type="text/css" href="/uploader/upload.css">	
 </head>
-<body class="yui-skin-sam">
-<a href="/">iStory</a>
- | <a href="{{ loginURL }}">{{ login }}</a>
-{% if loggedIn %}
- {{ currentUser }}
- | <a href="{{ addAdventureURL }}">{{ addAdventure }}</a>
- | <a href="{{ myStoriesURL }}">{{ myStories }}</a>
-{% endif %}
-<hr>
+<body>
+
+<div class="myHeader">
+	<div class="myHeaderLogo">
+		<span><a href="/" alt="iStory home"><img src="/stylesheets/iStoryLogo.png"></a></span>
+	</div>
+	<div class="myHeaderMenu">
+		<span>
+		<ul><li><a href="{{ loginURL }}">{{ login }}</a>
+		{% if loggedIn %}
+		{{ currentUser }}
+		<li><a href="{{ addAdventureURL }}">{{ addAdventure }}</a>
+		<li><a href="{{ myStoriesURL }}">{{ myStories }}</a>
+		{% endif %}
+		</ul>
+		</span>
+	</div>
+</div>

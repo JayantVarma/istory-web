@@ -18,6 +18,8 @@ class GetPages(webapp.RequestHandler):
 	error = None
 	myAdventureKey = self.request.get('myAdventureKey')
 	adventure = db.Model.get(myAdventureKey)
+	if adventure == None:
+		return
 	if users.get_current_user() != adventure.realAuthor:
 		adventure = None
 
@@ -71,8 +73,9 @@ class StoryEditor(webapp.RequestHandler):
 		adventure = db.Model.get(myAdventureKey)
 	else:
 		error = 'error: no adventure key passed in'
-
-	if users.get_current_user() != adventure.realAuthor:
+	if adventure == None:
+		error = 'error: could not find Adventure ' + myAdventureKey + ' in the database'
+	elif users.get_current_user() != adventure.realAuthor:
 		error = 'error: you do not own this story'
 		adventure = None
 
