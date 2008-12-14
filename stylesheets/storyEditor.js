@@ -152,7 +152,7 @@ var addPageElementToWorkArea = function(pageElement, idx) {
 	else if (pageElement.dataType == 2) {
 		//image
 		//redirect you to the image manager
-		myHTML += '<a href="/imageManager?myAdventureKey=' + MY_ADVENTURE_KEY + '">Image Manager';
+		myHTML += '<a href="/imageManager?myAdventureKey=' + MY_ADVENTURE_KEY + '">Image Manager</a>';
 	}
 	else if (pageElement.dataType == 3) {
 		//choice
@@ -233,10 +233,104 @@ var focusObject = function (focusObject) {
 }
 
 var pageElUp = function(e) {
-	alert('pageElUp');
+	var obj = YAHOO.util.Event.getTarget(e);
+	//get key of current page element
+	var myKey = domIdToKeyMap[obj.id];
+	var myPage = tree.getNodeByIndex(currentNodeIndex);
+	var myChildren = myPage.children;
+	var newOrder = 0;
+	for (var i = 0; i < myChildren.length; i++) {
+		childNodeIndex = myChildren[i].index;
+		nodeKey = nodeToKeyMap[childNodeIndex];
+		//alert("pageUP " + i + " " + myChildren[i] + " " + nodeKey);
+		if (nodeKey == myKey) {
+			//alert("this is the node we clicked on");
+			//this is the page element that we clicked on
+			//get the previous sibling, remove this node from the tree, then insert it before the previous sibling
+			var myNode = myChildren[i];
+			var previousSibling = myNode.previousSibling;
+			if (previousSibling) {
+				tree.removeNode(myNode, false);
+				//alert("inserting node(" + myNode + ") before old node(" + previousSibling + ")");
+				var insertedNode = myNode.insertBefore(previousSibling);
+				//alert(insertedNode);
+				//now we just need to re-order the html DIVs so the work area display is adjusted with the new order
+				//DIV ID is DIV + node index
+				//get the previous DIV, remove this DIV from the parent DIV, then insert it before the previous DIV
+				myDiv = YAHOO.util.Dom.get('DIV' + childNodeIndex);
+				myParentDiv = myDiv.parentNode;
+				myPreviousDiv = YAHOO.util.Dom.getPreviousSibling(myDiv);
+				if (myPreviousDiv) {
+					removedNode = myParentDiv.removeChild(myDiv);
+					myParentDiv.insertBefore(removedNode, myPreviousDiv);
+				}
+			}
+			var myHTML = "myElKey=" + myKey + "&myNewOrder=" + (newOrder-1);
+			YAHOO.util.Connect.asyncRequest('POST', '/movePageElement', moveCallbacks, myHTML);
+			break;
+		}
+		newOrder++;
+	}
+	tree.draw();
+}
+var moveCallbacks = {
+	success : function (o) {
+		YAHOO.log("RAW JSON DATA: " + o.responseText);
+		// Process the JSON data returned from the server
+		var pageElement = [];
+		try {
+			pageElement = YAHOO.lang.JSON.parse(o.responseText);
+		}
+		catch (x) {
+			alert("JSON Parse failed! " + x);
+			return;
+		}
+		YAHOO.log("PARSED DATA: " + YAHOO.lang.dump(pageElement.key + ' ' + pageElement.name));
+		{
+		}
+	},
+	failure : function (o) {
+		alert("MovePageElement was not successful.");
+	},
+	argument : { },
+	timeout : 3000
 }
 var pageElDown = function(e) {
-	alert('pageElDown');
+	var obj = YAHOO.util.Event.getTarget(e);
+	//get key of current page element
+	var myKey = domIdToKeyMap[obj.id];
+	var myPage = tree.getNodeByIndex(currentNodeIndex);
+	var myChildren = myPage.children;
+	var newOrder = 0;
+	for (var i = 0; i < myChildren.length; i++) {
+		childNodeIndex = myChildren[i].index;
+		nodeKey = nodeToKeyMap[childNodeIndex];
+		if (nodeKey == myKey) {
+			//this is the page element that we clicked on
+			//get the next sibling, remove this node from the tree, then insert it after the next sibling
+			var myNode = myChildren[i];
+			var nextSibling = myNode.nextSibling;
+			if (nextSibling) {
+				tree.removeNode(myNode, false);
+				myNode.insertAfter(nextSibling);
+				//now we just need to re-order the html DIVs so the work area display is adjusted with the new order
+				//DIV ID is DIV + node index
+				//get the next DIV, remove this DIV from the parent DIV, then insert it after the next DIV
+				myDiv = YAHOO.util.Dom.get('DIV' + childNodeIndex);
+				myParentDiv = myDiv.parentNode;
+				myNextDiv = YAHOO.util.Dom.getNextSibling(myDiv);
+				if (myNextDiv) {
+					removedNode = myParentDiv.removeChild(myDiv);
+					myParentDiv.insertBefore(removedNode, myNextDiv.nextSibling);
+				}
+			}
+			var myHTML = "myElKey=" + myKey + "&myNewOrder=" + (newOrder+1);
+			YAHOO.util.Connect.asyncRequest('POST', '/movePageElement', moveCallbacks, myHTML);
+			break;
+		}
+		newOrder++;
+	}
+	tree.draw();
 }
 var pageElDisable = function(e) {
 	var obj = YAHOO.util.Event.getTarget(e);

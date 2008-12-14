@@ -28,6 +28,7 @@ class GetPages(webapp.RequestHandler):
 	pages = pagesQuery.fetch(9999)
 	elQuery = adventureModel.PageElement.all()
 	elQuery.filter('adventure = ', adventure.key())
+	elQuery.order('pageOrder')
 	elements = elQuery.fetch(9999)
 	pagesJSON = []
 	for page in pages:

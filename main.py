@@ -62,6 +62,7 @@ application = webapp.WSGIApplication(
 		('/deletePageElement', pageElement.DeletePageElement),
 		('/savePageElement', pageElement.SavePageElement),
 		('/imageManager', upload.ImageManager),
+		('/movePageElement', pageElement.MovePageElement),
 	],
 	debug=True)
 

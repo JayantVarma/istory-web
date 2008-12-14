@@ -12,6 +12,68 @@ from django.utils import simplejson
 import adventureModel
 import main
 
+class MovePageElement(webapp.RequestHandler):
+  def post(self):
+	logging.error("MovePageElement: begin")
+	myElKey = self.request.get('myElKey')
+	myNewOrderString = self.request.get('myNewOrder')
+	adventure = None;
+	changingPageEl = None;
+	if myElKey and myNewOrderString:
+		logging.error("MovePageElement: myElKey found: " + myElKey)
+		changingPageEl = db.Model.get(myElKey)
+		adventure = changingPageEl.adventure
+	else:
+		logging.error("MovePageElement: myElKey or myNewOrder not passed in")
+		logging.error(myElKey + " " + myNewOrder)
+		return
+	if users.get_current_user():
+		if adventure.realAuthor and adventure.realAuthor != users.get_current_user():
+			return
+	myNewOrder = int(myNewOrderString)
+	elQuery = adventureModel.PageElement.all()
+	elQuery.filter('adventure = ', changingPageEl.adventure.key())
+	elQuery.filter('page = ', changingPageEl.page.key())
+	elQuery.order('pageOrder')
+	elements = elQuery.fetch(9999)
+	# now re-arrange the elements to be in the right order
+	elementsArray = []
+	counter = 0
+	stagingElement = None
+	for element in elements:
+		element.pageOrder = counter
+		if (changingPageEl.key() == element.key()):
+			if (counter > 0 and myNewOrder < counter):
+				oldElement = elementsArray.pop()
+				element.pageOrder = counter - 1
+				elementsArray.append(element)
+				if (oldElement):
+					oldElement.pageOrder = counter
+					elementsArray.append(oldElement)
+			elif (myNewOrder > counter):
+				element.pageOrder = element.pageOrder + 1
+				stagingElement = element
+		elif stagingElement:
+			stagingElement.pageOrder = counter
+			elementsArray.append(stagingElement)
+			stagingElement = None
+			element.pageOrder = element.pageOrder - 1
+			elementsArray.append(element)
+		else:
+			elementsArray.append(element)
+		counter = counter + 1
+
+	# print the new element order out
+	counter = 0
+	jsonArray = []
+	for element in elementsArray:
+		logging.error("MovePageElement: elementsArray[" + str(counter) + "] order(" + str(element.pageOrder) + ") : " + element.dataA)
+		counter = counter + 1
+		element.put()
+		jsonArray.append(element.toDict())
+	self.response.out.write(simplejson.dumps(jsonArray))
+	logging.error(simplejson.dumps(jsonArray))
+
 class DeletePageElement(webapp.RequestHandler):
   def post(self):
 	logging.error("DeletePageElement: begin")
