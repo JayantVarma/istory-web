@@ -12,6 +12,7 @@ import myStories
 import addPage
 import storyEditor
 import pageElement
+import upload
 
 def printHeader(self):
 
@@ -60,6 +61,7 @@ application = webapp.WSGIApplication(
 		('/disablePageElement', pageElement.DisablePageElement),
 		('/deletePageElement', pageElement.DeletePageElement),
 		('/savePageElement', pageElement.SavePageElement),
+		('/imageManager', upload.ImageManager),
 	],
 	debug=True)
 

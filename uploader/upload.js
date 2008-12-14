@@ -96,7 +96,6 @@ YAHOO.upload = {
     
     //general function that wires up anything that depends on the SWF being ready to rock
     swfReady : function(e) {
-	    alert("ready");
         YUE.on('browse', 'click',  YAHOO.upload.browse, null, YAHOO.upload);
     },
     

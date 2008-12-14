@@ -1,6 +1,14 @@
-{% if cacheHits %}
-<div class="cache">CacheHits({{ cacheHits }}) CacheMisses({{ cacheMisses }})</div>
-{% endif %}
-<div class="foooter">iStory source code is available from <a href="http://code.google.com/p/istory-web">Google code</a></div>
+	<!-- end #mainContent --></div>
+	<!-- This clearing element should immediately follow the #mainContent div in order to force the #container div to contain all child floats --><br class="clearfloat" />
+	<div class="footer">
+		<table width="100%"><tr>
+		<td>iStory source code is available from <a href="http://code.google.com/p/istory-web">Google code</a></td>
+		{% if cacheHits and 1%}
+		<td>CacheHits({{ cacheHits }}) CacheMisses({{ cacheMisses }})</td>
+		{% endif %}
+		</tr></table>
+	<!-- end #footer --></div>
+<!-- end #container --></div>
+
 </body>
 </html>

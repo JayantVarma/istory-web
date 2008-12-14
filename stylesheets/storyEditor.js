@@ -35,20 +35,25 @@ var domIdToKeyMap = {};
 var domIdToNodeIndexMap = {};
 
 var resetWorkArea = function(updateStr, clear, nodeIndex) {
-	var obj = YAHOO.util.Dom.get('workArea');
-	obj.innerHTML = "";
-	obj.className = null;
+	var workAreaHelper = YAHOO.util.Dom.get('workAreaHelper');
+	var workArea = YAHOO.util.Dom.get('workArea');
+	workAreaHelper.innerHTML = "";
+	workArea.innerHTML = "";
+	workArea.className = null;
 	if (updateStr) {
-		obj.className = "workArea";
-		obj.innerHTML = updateStr;
+		workArea.className = "workArea";
+		workAreaHelper.innerHTML = updateStr;
 	}
 	else if (!numPages) {
-		obj.className = "workArea";
-		obj.innerHTML = "Add a page to get started.";
+		workArea.className = "workArea";
+		workAreaHelper.innerHTML = "Create a new page to get started.";
+	}
+	else if (!clear && numPages) {
+		workArea.className = "workArea";
+		addPageElementsHelper();
 	}
 	else if (!clear) {
-		obj.className = "workArea";
-		obj.innerHTML = "Click on a page to work on it.";
+		workArea.className = "workArea";
 	}
 	if (nodeIndex) {
 		var myLastNode = tree.getNodeByIndex(currentNodeIndex);
@@ -61,37 +66,47 @@ var divButtonFunction = function(id, iconName) {
 	return '<div class="' + iconName + '" alt="Delete Element" id="' + id + '" onmouseover="this.className=\'' + iconName + 'MO\'" onmouseout="this.className=\'' + iconName + '\'"></div>';
 }
 
+var addPageElementsHelper = function() {
+	var workAreaHelper = YAHOO.util.Dom.get('workAreaHelper');
+	workAreaHelper.innerHTML = "";
+	if (currentNodeIndex) {
+		var myNode = tree.getNodeByIndex(currentNodeIndex);
+		var myNodeChildren = myNode.children.length;
+		if (myNodeChildren == 0) {
+			workAreaHelper.innerHTML = "Add some text, an image, or a choice to this page.";
+		}
+	}
+	else {
+		workAreaHelper.innerHTML = "Click on a page from the Table of Contents to work on it.";
+	}
+}
+
 //create and add the page element editing stuff to the work area
 var addPageElementToWorkArea = function(pageElement, idx) {
+	//remove the help text
+	addPageElementsHelper();
+
 	//idx is the node.index of the page element in the tree view
 	var pageElementsWorkArea = YAHOO.util.Dom.get('pageElementsWorkArea');
 	var newDiv = document.createElement('div');
 	newDiv.id = "DIV" + idx;
 	pageElementsWorkArea.appendChild(newDiv);
-	//alert(pageElement.dataType);
-	var myHTML = '<table><tr>';
-	myHTML += '<td>';
-	myHTML += divButtonFunction('up'+idx, 'icon-elUp');
-	myHTML += divButtonFunction('disable'+idx, 'icon-elDelete');
-	myHTML += divButtonFunction('down'+idx, 'icon-elDown');
-	myHTML += divButtonFunction('save'+idx, 'icon-save');
-	myHTML += '</td><td class="tdCenter">';
+	var myHTML = '<div>';
 	if (pageElement.dataType == 1) {
 		//text
-		myHTML += '<textarea tabindex="' + tabIndex + '" id="dataA' + idx + '" name="dataA' + idx + '" rows="15" cols="60">';
+		myHTML += '<textarea tabindex="' + tabIndex + '" id="dataA' + idx + '" name="dataA' + idx + '" rows="15" cols="48">';
 		tabIndex++;
 		if (pageElement.dataA) { myHTML += pageElement.dataA; }
 		myHTML += '</textarea>';
 	}
 	else if (pageElement.dataType == 2) {
 		//image
-		//add the image uploader HTML
-		var uploaderHTML = YAHOO.util.Dom.get('uploader_holder');
-		myHTML += uploaderHTML.innerHTML;
+		//redirect you to the image manager
+		myHTML += '<a href="/imageManager?myAdventureKey=' + MY_ADVENTURE_KEY + '">Image Manager';
 	}
 	else if (pageElement.dataType == 3) {
 		//choice
-		myHTML += '<table class="table3"><tr><td>Choice Description:</td><td><input tabindex="' + tabIndex + '" type="text" name="dataA' + idx + '" id="dataA' + idx + '"';
+		myHTML += '<table class="tableChoice"><tr><td>Choice Description:</td><td><input size="30" maxlength="50" tabindex="' + tabIndex + '" type="text" name="dataA' + idx + '" id="dataA' + idx + '"';
 		tabIndex++;
 		if (pageElement.dataA) { myHTML += ' value="' + pageElement.dataA + '"'; }
 		myHTML += '></tr>';
@@ -118,8 +133,16 @@ var addPageElementToWorkArea = function(pageElement, idx) {
 	else {
 		alert("tried to add pageElement of unknown type: " + pageElement.dataType);
 	}
-	myHTML += '<div class="titleTD2" id="belowElWorkArea' + idx + '" style="text-align: center"></div>';
-	myHTML += '</td></tr></table><hr>';
+	myHTML += '</div><div class="pageElementMenu"><table><tr>';
+	myHTML += "<td>Don't forget to save!</td>";
+	myHTML += '<td>' + divButtonFunction('up'+idx, 'icon-elUp') + '</td>';
+	myHTML += '<td>' + divButtonFunction('disable'+idx, 'icon-elDelete') + '</td>';
+	myHTML += '<td>' + divButtonFunction('down'+idx, 'icon-elDown') + '</td>';
+	myHTML += '<td>' + divButtonFunction('save'+idx, 'icon-save') + '</td>';
+	myHTML += '</tr></table></div>';
+
+	myHTML += '<div class="belowWorkArea" id="belowElWorkArea' + idx + '"></div>';
+	myHTML += '<hr>';
 	newDiv.innerHTML += myHTML;
 	domIdToKeyMap['up' + idx] = pageElement.key;
 	domIdToKeyMap['disable' + idx] = pageElement.key;
@@ -181,6 +204,7 @@ var pageElDisable = function(e) {
 var markPageElAsDisabled = function(idx) {
 	var newDiv = document.createElement('div');
 	var belowWorkArea = YAHOO.util.Dom.get('belowElWorkArea' + idx);
+	belowWorkArea.innerHTML = '';
 	belowWorkArea.appendChild(newDiv);
 	newDiv.innerHTML = '<table class="table2"><tr><td>This element is disabled. Delete it?<br>To re-enable, just save.</td><td class="myButton">' + divButtonFunction('delete'+idx, 'icon-delete') + '</td></tr></table>';
 	//newDiv.innerHTML += '<br>To re-enable, just save.'
@@ -319,16 +343,18 @@ var pageElSaveCallbacks = {
 
 //ADD PAGE ELEMENTS TO THE ADVENTURE PAGE
 var setupWorkArea = function() {
+	//look at the current node index and see if there are any child elements
+	//if there are, that means we already have page elements
+	//if not, we should display the getting started text
 	var workArea = YAHOO.util.Dom.get('workArea');
-	var pageWorkArea = YAHOO.util.Dom.get('pageWorkArea');
-	workArea.innerHTML = pageWorkArea.innerHTML;
+	workArea.innerHTML = '<div id="pageElementsWorkArea"></div>';
 	YAHOO.util.Event.addListener("addPageElementText", "click", addPageElement);
 	YAHOO.util.Event.addListener("addPageElementImage", "click", addPageElement);
 	YAHOO.util.Event.addListener("addPageElementChoice", "click", addPageElement);
 	//new YAHOO.widget.Tooltip("tooltipAddText", { showdelay: 500, context:"addPageElementText", text:"Add A Text Page Element"} );
 	//new YAHOO.widget.Tooltip("tooltipAddImage", { showdelay: 500, context:"addPageElementImage", text:"Add An Image Page Element"} );
 	//new YAHOO.widget.Tooltip("tooltipAddChoice", { showdelay: 500, context:"addPageElementChoice", text:"Add A Choice Page Element"} );
-
+	addPageElementsHelper();	
 }	
 var addPageElement = function(e) {
 	var targetObj = YAHOO.util.Event.getTarget(e);
@@ -437,7 +463,7 @@ var addOrUpdatePage = function(pageKey) {
 		pageNameHTML = ' value="' + currentPage.name + '"';
 	}
 	var obj = YAHOO.util.Dom.get('workArea');
-	obj.innerHTML = '<form id="addPageForm" method="post" action="javascript:addPageSubmitFunction()"><table class="table1"><tr height="50"><td class="titleTD2">Name of page:<br><input type="text" id="newPageName"' + pageNameHTML + '></td><td class="myButton">' + divButtonFunction('addPageSubmit', 'icon-save') + 'Save</td></tr></table></form>';
+	obj.innerHTML = '<form id="addPageForm" method="post" action="javascript:addPageSubmitFunction()"><table class="table1"><tr><td>Name of page:<br><input type="text" id="newPageName"' + pageNameHTML + '></td><td class="myButton">' + divButtonFunction('addPageSubmit', 'icon-save') + 'Save</td></tr></table></form>';
 	YAHOO.util.Event.addListener("addPageSubmit", "click", addPageSubmit);
 	YAHOO.util.Event.on('addPageForm', 'submit', function(e) {
 		YAHOO.util.Event.stopEvent(e);

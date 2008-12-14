@@ -1,113 +1,38 @@
-{% if error %}
-<h1>{{ error }}</h1>
-{% else %}
+	<!-- end #header --></div>
+	<div class="sidebar1">
+		<h3>Story Editor</h3>
+		<hr>
+		<h2>Table of Contents</h2>
+		<div id="treeDiv1"></div>
+	<!-- end #sidebar1 --></div>
 
-<div>
-	Title: {{ adventure.title }}
-	Page: <div id="currentPage"></div>
-	<div id="addPage"><div class="icon-addPage" onmouseover="this.className='icon-addPageMO'" onmouseout="this.className='icon-addPage'"></div>Add Page</div>
-	<div id="editPage"><div class="icon-editPage" onmouseover="this.className='icon-editPageMO'" onmouseout="this.className='icon-editPage'"></div>Edit Page</div>
-	<div id="deletePage"><div class="icon-deletePage" onmouseover="this.className='icon-deletePageMO'" onmouseout="this.className='icon-deletePage'"></div>Delete Page</div>
-</div>
-
-<table>
-	<tr>
-		<td>
-			<div class="treeDiv1">
-			</div>
-		</td>
-		<td>
-			<div class="workArea">
-			</div>
-		</td>
-	</tr>
-	<tr>
-		<td colspan="2" style="vertical-align: bottom">
-			<div class="footer">
-			Footer
-			</div>
-		</td>
-	</tr>
-</table>
-
-
-<div id="pageWorkArea" style="display: none">
-<table class="workAreaPageEl">
-<tr>
-	<td class="titleTD2" style="text-align: right">
+	<!-- begin #mainContent -->
+	<div class="mainContent">
 		<div>
-			<table><tr>
-				<td>Add something<br>to this page:</td>
-				<td><table class="table1"><tr>
-					<td id="addPageElementText"><div class="icon-addText" onmouseover="this.className='icon-addTextMO'" onmouseout="this.className='icon-addText'"></div>Text</td>
-					<td id="addPageElementImage"><div class="icon-addImage" onmouseover="this.className='icon-addImageMO'" onmouseout="this.className='icon-addImage'"></div>Image</td>
-					<td id="addPageElementChoice"><div class="icon-addChoice" onmouseover="this.className='icon-addChoiceMO'" onmouseout="this.className='icon-addChoice'"></div>Choice</td>
-				</table></td>
-			</td></table>
+		<table class="mainContentHeader"><tr>
+			<th colspan="6" style="text-align:right;">"{{ adventure.title }}"</td>
+		</tr><tr>
+			<th width="50%" colspan="3" style="text-align:left;">Page: <span id="currentPage"></span></td>
+			<th width="50%" colspan="3" style="text-align:right;">{{ adventure.realAuthor }}</td>
+		</tr><tr>
+			<td onmouseover="this.className='iconBG-light'" onmouseout="this.className='iconBG-dark'" id="addPageElementText"><div class="icon-addText" onmouseover="this.className='icon-addTextMO'" onmouseout="this.className='icon-addText'"></div>Add Text</td>
+			<td onmouseover="this.className='iconBG-light'" onmouseout="this.className='iconBG-dark'" id="addPageElementImage"><div class="icon-addImage" onmouseover="this.className='icon-addImageMO'" onmouseout="this.className='icon-addImage'"></div>Add Image</td>
+			<td onmouseover="this.className='iconBG-light'" onmouseout="this.className='iconBG-dark'" id="addPageElementChoice"><div class="icon-addChoice" onmouseover="this.className='icon-addChoiceMO'" onmouseout="this.className='icon-addChoice'"></div>Add Choice</td>
+			<td onmouseover="this.className='iconBG-light'" onmouseout="this.className='iconBG-dark'" id="addPage"><div class="icon-addPage" onmouseover="this.className='icon-addPageMO'" onmouseout="this.className='icon-addPage'"></div>New Page</td>
+			<td onmouseover="this.className='iconBG-light'" onmouseout="this.className='iconBG-dark'" id="editPage"><div class="icon-editPage" onmouseover="this.className='icon-editPageMO'" onmouseout="this.className='icon-editPage'"></div>Edit Page</td>
+			<td onmouseover="this.className='iconBG-light'" onmouseout="this.className='iconBG-dark'" id="deletePage"><div class="icon-deletePage" onmouseover="this.className='icon-deletePageMO'" onmouseout="this.className='icon-deletePage'"></div>Delete Page</td>
+		</tr></table>
 		</div>
-	</td>
-</tr>
-<tr><td id="pageElementsWorkArea"><hr></td></tr>
-</table>
-</div>
-
-<div id="uploader_holder" style="display: none">
-	<div id="hdUploader">
-	    <h1>Upload Your Image</h1>
-	</div>
-	<div id="bdUploader">
-	    <div id="btn_container">
-	        <div id="btn_overlay"></div>
-	        <button id="browse">Browse</button>
-	    </div>
-    
-	    <ul id="files">
-	        <li id="file_skeleton"><div></div></li>
-
-	        <li id="upload_skeleton" class='uploaded'>
-	            <a><img src="%thb" alt="%name%"/></a>
-	            <div>
-	                <p>
-	                    <label for="_url">Image URL</label>
-	                    <input  id="_url" value="" />
-	                </p>
-	                <p class="thb">
-
-	                    <label for="_thb">Thumb Link</label>
-	                    <input  id="_thb" value=""/>
-	                </p>
-	                <p class="fimg">
-	                    <label for="_fimg">Forum Image</label>
-	                    <input  id="_fimg" value=""/>
-	                </p>
-	                <p class="fthb">
-
-	                    <label for="_fthb">Forum Thumb</label>
-	                    <input  id="_fthb" value=""/>
-	                </p>
-	            </div>
-	        </li>
-	    </ul>
-        
-	    <button id="upload">Upload</button>
-	    <button id="cancel">Cancel</button>
-	    <button id="export">Export All</button>
-	    <textarea id="export_text"></textarea>
-	</div>
-
-	<div id="ft">
-	    <div id="uploader"></div>
-	</div>
-</div>
+		<div style="height:100%;">
+			<div id="workAreaHolder">
+				<div id="workAreaHelper"></div>
+				<div id="workArea"></div>
+			</div>
+		</div>
 
 <!-- Combo-handled YUI JS files: -->
 <script type="text/javascript" src="http://yui.yahooapis.com/combo?2.6.0/build/utilities/utilities.js&2.6.0/build/container/container-min.js&2.6.0/build/json/json-min.js&2.6.0/build/treeview/treeview-min.js"></script>
-
-
 <script type="text/javascript">
 {% if adventure.key %}	var MY_ADVENTURE_KEY = "{{ adventure.key }}";{% endif %}
 </script>
 <script src="stylesheets/storyEditor.js"></script>
-<script src="uploader/upload.js"></script>
-
-{% endif %}
