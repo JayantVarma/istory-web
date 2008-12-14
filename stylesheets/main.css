@@ -117,6 +117,10 @@ body  {
 .iconBG-dark {
 	background: #333333;
 }
+.iconBG-disabled {
+	background: #333333;
+	color: #999999;
+}
 
 img { vertical-align: bottom; }
 
@@ -143,6 +147,17 @@ img { vertical-align: bottom; }
 .icon-elDeleteMO   { display:block; height:48px; width:41px; background: transparent url(icons.png) -64px -512px no-repeat; }
 .icon-elUpMO       { display:block; height:48px; width:41px; background: transparent url(icons.png) -64px -576px no-repeat; }
 .icon-elDownMO     { display:block; height:48px; width:41px; background: transparent url(icons.png) -64px -640px no-repeat; }
+.icon-deletePageD { display:block; height:64px; width:64px; background: transparent url(icons.png) -128px 0px no-repeat; }
+.icon-editPageD   { display:block; height:64px; width:64px; background: transparent url(icons.png) -128px -64px no-repeat; }
+.icon-addPageD    { display:block; height:64px; width:64px; background: transparent url(icons.png) -128px -128px no-repeat; }
+.icon-saveD       { display:block; height:48px; width:43px; background: transparent url(icons.png) -128px -192px no-repeat; }
+.icon-deleteD     { display:block; height:48px; width:43px; background: transparent url(icons.png) -128px -256px no-repeat; }
+.icon-addImageD   { display:block; height:48px; width:41px; background: transparent url(icons.png) -128px -320px no-repeat; }
+.icon-addTextD    { display:block; height:48px; width:41px; background: transparent url(icons.png) -128px -384px no-repeat; }
+.icon-addChoiceD  { display:block; height:48px; width:41px; background: transparent url(icons.png) -128px -448px no-repeat; }
+.icon-elDeleteD   { display:block; height:48px; width:41px; background: transparent url(icons.png) -128px -512px no-repeat; }
+.icon-elUpD       { display:block; height:48px; width:41px; background: transparent url(icons.png) -128px -576px no-repeat; }
+.icon-elDownD     { display:block; height:48px; width:41px; background: transparent url(icons.png) -128px -640px no-repeat; }
 #deletePage, #editPage, #addPage, #addPageElementText, #addPageElementImage, #addPageElementChoice {
 	cursor:pointer; padding:0px;
 	text-align:center;

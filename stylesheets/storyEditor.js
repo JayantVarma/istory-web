@@ -40,6 +40,7 @@ var resetWorkArea = function(updateStr, clear, nodeIndex) {
 	workAreaHelper.innerHTML = "";
 	workArea.innerHTML = "";
 	workArea.className = null;
+	enableIcons();
 	if (updateStr) {
 		workArea.className = "workArea";
 		workAreaHelper.innerHTML = updateStr;
@@ -47,6 +48,7 @@ var resetWorkArea = function(updateStr, clear, nodeIndex) {
 	else if (!numPages) {
 		workArea.className = "workArea";
 		workAreaHelper.innerHTML = "Create a new page to get started.";
+		disableIcons();
 	}
 	else if (!clear && numPages) {
 		workArea.className = "workArea";
@@ -67,6 +69,7 @@ var divButtonFunction = function(id, iconName) {
 }
 
 var addPageElementsHelper = function() {
+	enableIcons();
 	var workAreaHelper = YAHOO.util.Dom.get('workAreaHelper');
 	workAreaHelper.innerHTML = "";
 	if (currentNodeIndex) {
@@ -78,7 +81,54 @@ var addPageElementsHelper = function() {
 	}
 	else {
 		workAreaHelper.innerHTML = "Click on a page from the Table of Contents to work on it.";
+		disableIcons();
 	}
+}
+
+var disableIcons = function()
+{
+	disableDiv('addPageElementText');
+	disableDiv('addPageElementImage');
+	disableDiv('addPageElementChoice');
+	disableDiv('deletePage');
+	disableDiv('editPage');
+}
+var enableIcons = function()
+{
+	enableDiv('addPageElementText');
+	enableDiv('addPageElementImage');
+	enableDiv('addPageElementChoice');
+	enableDiv('deletePage');
+	enableDiv('editPage');
+}
+
+var iconMO = function(td) {
+	if (currentNodeIndex || td.id == 'addPage') {
+		td.className = 'iconBG-light';
+		var icon = td.firstChild;
+		icon.className = icon.id + 'MO';
+	}
+}
+var iconMOreset = function(td) {
+	if (currentNodeIndex || td.id == 'addPage') {
+		td.className = 'iconBG-dark';
+		var icon = td.firstChild;
+		icon.className = icon.id;
+	}
+}
+var iconDisable = function(td) {
+	td.className = 'iconBG-disabled';
+	var icon = td.firstChild;
+	icon.className = icon.id + 'D';
+}
+
+var disableDiv = function(name) {
+	var td = YAHOO.util.Dom.get(name);
+	iconDisable(td);
+}
+var enableDiv = function(name) {
+	var td = YAHOO.util.Dom.get(name);
+	iconMOreset(td);
 }
 
 //create and add the page element editing stuff to the work area
@@ -358,10 +408,11 @@ var setupWorkArea = function() {
 }	
 var addPageElement = function(e) {
 	var targetObj = YAHOO.util.Event.getTarget(e);
-	if (!targetObj.id) {
-		targetObj = targetObj.parentNode;
-	}
 	var dataType = pageElementIdToTypeMap[targetObj.id];
+	if (!dataType) {
+		targetObj = targetObj.parentNode;
+		dataType = pageElementIdToTypeMap[targetObj.id];
+	}
 	var myNode = tree.getNodeByIndex(currentNodeIndex);
 	var pageElement = {
 		"dataType": dataType
