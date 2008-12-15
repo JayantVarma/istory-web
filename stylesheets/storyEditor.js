@@ -169,7 +169,7 @@ var addPageElementToWorkArea = function(pageElement, idx) {
 			pageElKey = pageElement.key;
 		}
 		//start the form
-		myHTML += '</div><form id="imageForm' + idx + '" action="javascript:uploadImage(' + idx + ')" enctype="multipart/form-data" method="post">';
+		myHTML += '</div><form id="imageForm' + idx + '" action="/upload" enctype="multipart/form-data" method="post">';
 		myHTML += '<table class="imageUploadForm">';
 		//if there are any images in the img cache, show them as a list
 		if (imgCache.length > 0) {
@@ -278,9 +278,9 @@ var addPageElementToWorkArea = function(pageElement, idx) {
 	if (pageElement.enabled && pageElement.enabled == 0) { markPageElAsDisabled(idx); }
 	
 	//now that the HTML is on the page, setup the image upload event handlers
-	YAHOO.util.Event.addListener("submit" + idx, "click", uploadImage);
+	//YAHOO.util.Event.addListener("submit" + idx, "click", uploadImage);
 	YAHOO.util.Event.on('imageForm' + idx, 'submit', function(e) {
-		//alert('imageForm' + idx + ': stopped event');
+		alert('imageForm' + idx + ': stopped event');
 		YAHOO.util.Event.stopEvent(e);
 		uploadImage(idx);
 	});
@@ -315,7 +315,7 @@ var uploadImage = function(index) {
 	var imageData = YUD.get('imageData' + index);
 	var formHasImageContent = false;
 	if (imageData.value) { formHasImageContent = true; }
-	//alert('e:' + index + ', uploadImage: ' + formHasImageContent + ', ' + imageData.value);
+	alert('e:' + index + ', uploadImage: ' + formHasImageContent + ', ' + imageData.value);
 	YAHOO.util.Connect.setForm(formID, formHasImageContent);
 	//save the index for later and upload the image data
 	uploadImageCallbacks.argument.nodeIndex = index;
