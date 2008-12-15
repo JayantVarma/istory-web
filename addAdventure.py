@@ -56,7 +56,7 @@ class AddAdventure(webapp.RequestHandler):
 		'adventure': adventure,
 	}
 
-	main.printHeader(self)
+	main.printHeader(self, 'Create A New Story')
 	path = os.path.join(os.path.dirname(__file__), 'addAdventure.html')
 	self.response.out.write(template.render(path, template_values))
 	main.printFooter(self, None)

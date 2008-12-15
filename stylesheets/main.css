@@ -255,3 +255,15 @@ img { vertical-align: bottom; }
 	padding-top:5px;
 	padding-bottom:5px;
 }
+.imageUploadForm {
+	background: #DDDDDD;
+}
+.imageUploadForm td {
+	padding:5px;
+}
+.imageUploadForm th {
+	text-align: center;
+	background: #CCCCCC;
+	font-weight: bold;
+	padding: 5px;
+}

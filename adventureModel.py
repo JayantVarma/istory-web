@@ -18,6 +18,21 @@ class Page(db.Model):
 			'name': self.name,
 		}
 
+class Image(db.Model):
+	adventure = db.ReferenceProperty(Adventure)
+	pageElement = db.StringProperty(multiline=False)
+	imageName = db.StringProperty(multiline=False)
+	imageData = db.BlobProperty()
+	realAuthor = db.UserProperty()
+	def toDict(self):
+		return {
+			'adventure': str(self.adventure.key()),
+			'imageName': self.imageName,
+			'realAuthor': str(self.realAuthor.nickname()),
+			'key': str(self.key()),
+			'pageElement': self.pageElement,
+		}
+
 class PageElement(db.Model):
 	page = db.ReferenceProperty(Page)
 	adventure = db.ReferenceProperty(Adventure)
@@ -25,8 +40,12 @@ class PageElement(db.Model):
 	pageOrder = db.IntegerProperty()
 	dataA = db.TextProperty()
 	dataB = db.TextProperty()
+	imageRef = db.ReferenceProperty(Image)
 	enabled = db.IntegerProperty()
 	def toDict(self):
+		imageRef = None
+		if self.imageRef:
+			imageRef = str(self.imageRef.key())
 		return {
 			'page': str(self.page.key()),
 			'adventure': str(self.adventure.key()),
@@ -36,4 +55,5 @@ class PageElement(db.Model):
 			'dataA': self.dataA,
 			'dataB': self.dataB,
 			'enabled': self.enabled,
+			'imageRef': imageRef,
 		}

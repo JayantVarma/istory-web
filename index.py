@@ -49,7 +49,7 @@ class Index(webapp.RequestHandler):
 		'cacheMisses': stats['misses'],
 	}
 
-	main.printHeader(self)
+	main.printHeader(self, 'Home')
 	path = os.path.join(os.path.dirname(__file__), 'index.html')
 	self.response.out.write(template.render(path, template_values))
 	main.printFooter(self, footer_template_values)

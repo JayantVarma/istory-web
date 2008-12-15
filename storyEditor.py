@@ -82,10 +82,10 @@ class StoryEditor(webapp.RequestHandler):
 
 	template_values = {
 		'adventure': adventure,
-		'error': error
+		'error': error,
 	}
 
-	main.printHeader(self)
+	main.printHeader(self, 'Story Editor')
 	path = os.path.join(os.path.dirname(__file__), 'storyEditor.html')
 	self.response.out.write(template.render(path, template_values))
 	main.printFooter(self, template_values)

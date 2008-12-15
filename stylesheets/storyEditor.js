@@ -1,6 +1,8 @@
 //Add an onDOMReady handler to build the tree when the document is ready
 YAHOO.util.Event.onDOMReady(treeInit);
 
+var YUD = YAHOO.util.Dom, YUE = YAHOO.util.Event, YUC = YAHOO.util.Connect;
+
 //global variable to allow console inspection of tree:
 var tree;
 
@@ -33,6 +35,9 @@ var keyToNodeMap = {};
 var nodeToKeyMap = {};
 var domIdToKeyMap = {};
 var domIdToNodeIndexMap = {};
+
+//cache for storing user images
+var imgCache = {};
 
 var resetWorkArea = function(updateStr, clear, nodeIndex) {
 	var workAreaHelper = YAHOO.util.Dom.get('workAreaHelper');
@@ -151,8 +156,51 @@ var addPageElementToWorkArea = function(pageElement, idx) {
 	}
 	else if (pageElement.dataType == 2) {
 		//image
-		//redirect you to the image manager
-		myHTML += '<a href="/imageManager?myAdventureKey=' + MY_ADVENTURE_KEY + '">Image Manager</a>';
+		var imageRef = '';
+		var imageName = '';
+		var pageElKey = '';
+		myHTML += '<div id="img' + idx + '">';
+		//if the page element already exists, show the current image
+		if (pageElement.imageRef) {
+			myHTML += '<br><img src="/images?imageKey=' + pageElement.imageRef + '" alt="' + pageElement.dataA + '"><br><br>';
+			imageRef = pageElement.imageRef;
+			imageName = pageElement.dataA;
+			pageElKey = pageElement.key;
+		}
+		//start the form
+		myHTML += '</div><form id="imageForm' + idx + '" action="/upload" enctype="multipart/form-data" method="post">';
+		myHTML += '<table class="imageUploadForm">';
+		//if there are any images in the img cache, show them as a list
+		if (imgCache.length > 0) {
+			myHTML += '<tr><th>Select An Existing Image</th></tr>';
+			myHTML += '<td><select name="imageList" onchange="imgListChanged(this,this.value,' + idx + ')">';
+			myHTML += '<option value="">-- Image List --';
+			for (var key in imgCache) {
+				if (key == 'length') { continue; }
+				myHTML += '<option value="' + key + '"';
+				if (key == imageRef) {
+					myHTML += ' SELECTED';
+				}
+				myHTML += '>' + imgCache[key];
+			}
+			myHTML += '</select></td></tr>';
+			//myHTML += '<tr><td><input type="submit" value="Use Image"></td></tr>';
+		}
+		//make the upload a new image form
+		myHTML += '<tr><th>Or Upload A New Image</th></tr>';
+		myHTML += '<tr><td><input id="imageData" type="file" name="imageData" /></td></tr>';
+		myHTML += '<tr><td>Image name: <input id="imageName' + idx + '" type="text" name="imageName" value="' + imageName + '"/></td></tr>';
+		myHTML += '<tr><td><input type="submit" value="Use / Upload / Rename Image"></td></tr></table>';
+		//also put the page key and page element order into the form
+		myHTML += '<input type="hidden" name="myPageElKey" value="' + pageElKey + '">';
+		myHTML += '<input type="hidden" name="myPageKey" value="' + nodeToKeyMap[currentNodeIndex] + '">';
+		myHTML += '<input type="hidden" name="myPageOrder" value="' + idx + '">';
+		myHTML += '<input type="hidden" id= "imageRef' + idx + '" name="imageRef" value="' + imageRef + '">';
+		myHTML += '</form>';
+		YAHOO.util.Event.on('imageForm' + idx, 'submit', function(e) {
+			YAHOO.util.Event.stopEvent(e);
+			uploadImage('imageForm' + idx, idx, 'img' + idx);
+		});
 	}
 	else if (pageElement.dataType == 3) {
 		//choice
@@ -194,11 +242,13 @@ var addPageElementToWorkArea = function(pageElement, idx) {
 	myHTML += '<div class="belowWorkArea" id="belowElWorkArea' + idx + '"></div>';
 	myHTML += '<hr>';
 	newDiv.innerHTML += myHTML;
-	domIdToKeyMap['up' + idx] = pageElement.key;
-	domIdToKeyMap['disable' + idx] = pageElement.key;
-	domIdToKeyMap['delete' + idx] = pageElement.key;
-	domIdToKeyMap['down' + idx] = pageElement.key;
-	domIdToKeyMap['save' + idx] = pageElement.key;
+	if (pageElement.key) {
+		domIdToKeyMap['up' + idx] = pageElement.key;
+		domIdToKeyMap['disable' + idx] = pageElement.key;
+		domIdToKeyMap['delete' + idx] = pageElement.key;
+		domIdToKeyMap['down' + idx] = pageElement.key;
+		domIdToKeyMap['save' + idx] = pageElement.key;
+	}
 	domIdToNodeIndexMap['up' + idx] = idx;
 	domIdToNodeIndexMap['disable' + idx] = idx;
 	domIdToNodeIndexMap['delete' + idx] = idx;
@@ -214,7 +264,10 @@ var addPageElementToWorkArea = function(pageElement, idx) {
 	new YAHOO.widget.Tooltip("tooltipSave", { showdelay: 500, context:"save" + idx, text:"Save"} );
 
 	//set the focus to the dropdown box if its there (for choice elements), so the screen moves down a bit further
-	if (!pageElement.dataA && pageElement.dataType != 2) {
+	if (pageElement.dataType == 2) {
+		focusObject('imageName' + idx);
+	}
+	else if (!pageElement.dataA) {
 		//set the focus to the newly created text box
 		focusObject('dataB' + idx);
 		focusObject('dataA' + idx);
@@ -227,9 +280,65 @@ var addPageElementToWorkArea = function(pageElement, idx) {
 	if (pageElement.enabled && pageElement.enabled == 0) { markPageElAsDisabled(idx); }
 }
 
+var imgListChanged = function(obj, value, idx) {
+	//check to see if the selected item is the -- Image List -- option
+	if (!value) { return; }
+	//update the img src from the img div
+	var imgDIV = YUD.get('img' + idx);
+	imgDIV.innerHTML = '<br><img src="/images?imageKey=' + value + '" alt="' + obj.options[obj.selectedIndex].innerHTML + '"><br><br>';
+	//update the image name in the form
+	var imgName = YUD.get('imageName' + idx);
+	imgName.value = obj.options[obj.selectedIndex].innerHTML;
+	//update the imageRef in the form
+	var imageRef = YUD.get('imageRef' + idx);
+	imageRef.value = value;
+}
+
 var focusObject = function (focusObject) {
 	var focusOBJ = YAHOO.util.Dom.get(focusObject);
-	if (focusOBJ) { focusOBJ.focus(); }	
+	if (focusOBJ) {
+		focusOBJ.focus();
+	}
+}
+
+var uploadImage = function(formID, index, currentImg) {
+	YAHOO.util.Connect.setForm(formID, true);
+	uploadImageCallbacks.argument.nodeIndex = index;
+	YAHOO.util.Connect.asyncRequest('POST', '/upload', uploadImageCallbacks);
+}
+
+var uploadImageCallbacks = {
+	upload : function (o) {
+		YAHOO.log("RAW JSON DATA: " + o.responseText);
+		var m = [];
+		try { m = YAHOO.lang.JSON.parse(o.responseText); }
+		catch (x) {
+			alert("JSON Parse failed! " + x);
+			return;
+		}
+		var idx = o.argument.nodeIndex;
+		//save the page element key, since it might be new
+		domIdToKeyMap['up' + idx] = m.pageElement;
+		domIdToKeyMap['disable' + idx] = m.pageElement;
+		domIdToKeyMap['delete' + idx] = m.pageElement;
+		domIdToKeyMap['down' + idx] = m.pageElement;
+		domIdToKeyMap['save' + idx] = m.pageElement;
+		//add the new img into the innerHTML of the img+idx div
+		var imgDIV = YUD.get('img' + idx);
+		imgDIV.innerHTML = '<br><img src="/images?imageKey=' + m.key + '" alt="' + m.imageName + '"><br><br>';
+		//modify the imageRef of the form to reflect the new values
+		var imageRef = YUD.get('imageRef' + idx);
+		imageRef.value = m.key;
+		//fire off a page element save, pass in the dom ID of the save button
+		pageElSave('save' + o.argument.nodeIndex);
+	},
+	failure : function (o) {
+		alert("uploadImage was not successful.");
+	},
+	argument : {
+		"nodeIndex": null
+	},
+	timeout : 3000
 }
 
 var pageElUp = function(e) {
@@ -425,6 +534,9 @@ var pageElDeleteCallbacks = {
 }
 var pageElSave = function(e) {
 	var obj = YAHOO.util.Event.getTarget(e);
+	if (!obj) {
+		obj = YUD.get(e);
+	}
 	var myPageElKey = domIdToKeyMap[obj.id];
 	var myPageKey = nodeToKeyMap[currentNodeIndex];
 	var myPageElNodeIndex = domIdToNodeIndexMap[obj.id];
@@ -437,19 +549,28 @@ var pageElSave = function(e) {
 	else {
 		//new node
 		var myNode = tree.getNodeByIndex(myPageElNodeIndex);
-		myHTML += "&elementType=" + myNode.value.dataType;
-			+ "&pageOrder=" + myNode.parent.children.length;
+		myHTML += "&elementType=" + myNode.value.dataType
+			+ "&pageOrder=" + mypageElNodeIndex;
 	}
 	pageElSaveCallbacks.argument.nodeIndex = myPageElNodeIndex;
 	pageElSaveCallbacks.argument.pageKey = myPageKey;
 	pageElSaveCallbacks.argument.pageNodeIndex = currentNodeIndex;
 	var dataA = YAHOO.util.Dom.get('dataA' + myPageElNodeIndex);
 	if (dataA) {
-		myHTML += "&dataA=" + escape(dataA.value);		
+		myHTML += "&dataA=" + escape(dataA.value);
 	}
 	var dataB = YAHOO.util.Dom.get('dataB' + myPageElNodeIndex);
 	if (dataB) {
-		myHTML += "&dataB=" + escape(dataB.value);		
+		myHTML += "&dataB=" + escape(dataB.value);
+	}
+	var imageRef = YAHOO.util.Dom.get('imageRef' + myPageElNodeIndex);
+	if (imageRef) {
+		myHTML += "&imageRef=" + escape(imageRef.value);
+	}
+	var imageName = YAHOO.util.Dom.get('imageName' + myPageElNodeIndex);
+	if (imageName) {
+		myHTML += "&imageName=" + escape(imageName.value);
+		imgCache[imageRef.value] = imageName.value;
 	}
 	YAHOO.util.Connect.asyncRequest('POST', '/savePageElement', pageElSaveCallbacks, myHTML);
 }
@@ -492,9 +613,6 @@ var setupWorkArea = function() {
 	//if not, we should display the getting started text
 	var workArea = YAHOO.util.Dom.get('workArea');
 	workArea.innerHTML = '<div id="pageElementsWorkArea"></div>';
-	YAHOO.util.Event.addListener("addPageElementText", "click", addPageElement);
-	YAHOO.util.Event.addListener("addPageElementImage", "click", addPageElement);
-	YAHOO.util.Event.addListener("addPageElementChoice", "click", addPageElement);
 	//new YAHOO.widget.Tooltip("tooltipAddText", { showdelay: 500, context:"addPageElementText", text:"Add A Text Page Element"} );
 	//new YAHOO.widget.Tooltip("tooltipAddImage", { showdelay: 500, context:"addPageElementImage", text:"Add An Image Page Element"} );
 	//new YAHOO.widget.Tooltip("tooltipAddChoice", { showdelay: 500, context:"addPageElementChoice", text:"Add A Choice Page Element"} );
@@ -543,7 +661,7 @@ var getDescForChildNode = function(description, datatype) {
 		var prefix = 't: ';
 		if (datatype == 2) { prefix = 'i: '; }
 		else if (datatype == 3) { prefix = 'c: '; }
-		nodeDesc = description.substr(0, 9);
+		nodeDesc = description.substr(0, 15);
 		nodeDesc = prefix + nodeDesc.replace(/\n/g, ' ');
 	}
 	else {
@@ -804,13 +922,43 @@ var nodeClick = function(node) {
 	tree.draw();		
 }
 
+var imagesByUserCallbacks = {
+	success : function (o) {
+		YAHOO.log("imagesByUserCallbacks RAW JSON DATA: " + o.responseText);
+		// Process the JSON data returned from the server
+		var images = [];
+		try {
+			images = YAHOO.lang.JSON.parse(o.responseText);
+		}
+		catch (x) {
+			alert("imagesByUserCallbacks JSON Parse failed! " + x);
+			return;
+		}
+		for (var i = 0, len = images.length; i < len; ++i) {
+			var image = images[i];
+			imgCache[image.key] = image.imageName;
+			imgCache.length = i;
+		}
+	},
+	failure : function (o) {
+		alert("imagesByUserCallbacks was not successful.");
+	},
+	argument : {
+	},
+	timeout : 3000
+}
+
 //function to initialize the tree:
 function treeInit() {
 	// Make the call to the server for JSON data
 	YAHOO.util.Connect.asyncRequest('GET',"/getPages?myAdventureKey=" + adventureKey, callbacks);
+	YAHOO.util.Connect.asyncRequest('GET',"/imagesByUser", imagesByUserCallbacks);
 	YAHOO.util.Event.addListener("deletePage", "click", deletePage);
 	YAHOO.util.Event.addListener("addPage", "click", addPage);
 	YAHOO.util.Event.addListener("editPage", "click", editPage);
+	YAHOO.util.Event.addListener("addPageElementText", "click", addPageElement);
+	YAHOO.util.Event.addListener("addPageElementImage", "click", addPageElement);
+	YAHOO.util.Event.addListener("addPageElementChoice", "click", addPageElement);
 	resetWorkArea();
 	//new YAHOO.widget.Tooltip("tooltipDeletePage", { showdelay: 500, context:"deletePage", text:"Delete This Page"} );
 	//new YAHOO.widget.Tooltip("tooltipAddPage", { showdelay: 500, context:"addPage", text:"Add A New Page"} );

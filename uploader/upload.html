@@ -4,6 +4,7 @@
 <head>
 	<title>Image Uploading</title>
     <link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/combo?2.6.0/build/reset-fonts-grids/reset-fonts-grids.css"> 
+    <link rel="stylesheet" type="text/css" href="upload.css" />
 </head>
 <body>
 <style type="text/css">
@@ -14,30 +15,42 @@
 
 #bd { text-align: center; padding: 20px 10px; }
 
-button { padding: 5px 10px 6px 30px; font-size: 161.6%; border: 1px solid #dedede; border-top: 1px solid #eee; border-left: 1px solid #eee;
-         line-height: 130%; text-decoration: none; font-weight: bold; color: #565656; cursor: pointer; background: #f5f5f5 no-repeat 10px; }
+button { 
+    padding: 5px 10px 6px 30px; 
+    font-size: 161.6%; 
+    border: 1px solid #dedede; 
+    border-top: 1px solid #eee; 
+    border-left: 1px solid #eee;
+    line-height: 130%; 
+    text-decoration: none; 
+    font-weight: bold; 
+    color: #565656; 
+    cursor: pointer; 
+    background: #f5f5f5 no-repeat 10px; 
+    z-index: 1; 
+}
 button:active { background-color: #6299c5; border: 1px solid #6299c5; color: #fff; }
 button:hover { background-color: #dff4ff; border: 1px solid #c2e1ef; color: #336699; }
 
 #btn_overlay { z-index: 2; position: absolute; }
 
-#browse { background-image: url(picture_add.png); }
-#upload { background-image: url(picture_save.png); }
-#cancel { background-image: url(cancel.png); }
-#export { background-image: url(images.png); }
+#browse { background-image: url(http://tivac.com/images/silk/picture_add.png); }
+#upload { background-image: url(http://tivac.com/images/silk/picture_save.png); }
+#cancel { background-image: url(http://tivac.com/images/silk/cancel.png); }
+#export { background-image: url(http://tivac.com/images/silk/images.png); }
 #upload, #cancel, #export { display: none; margin-left: auto; margin-right: auto; }
 
 #uploader { width: 0; height: 0; }
 
 #files { background-color: #EFEFEF; border: 1px solid #666; text-align: left; margin: 20px 0; padding: 10px 0; overflow: hidden; }
-#files li { margin: 5px 10px; padding: 0 0 5px 20px; cursor: pointer; background: url(picture.png) no-repeat; 
+#files li { margin: 5px 10px; padding: 0 0 5px 20px; cursor: pointer; background: url(http://tivac.com/images/silk/picture.png) no-repeat; 
             border-bottom: 1px solid #666; }
-#files li:hover { background: url(cross.png) no-repeat; }
+#files li:hover { background: url(http://tivac.com/images/silk/cross.png) no-repeat; }
 #files li.last { border: 0; }
-#files li div { vertical-align: middle; width: 100%; height: 20px; padding: 0 0 0 10px; background: url(progress.gif) repeat-y -600px 0; }
+#files li div { vertical-align: middle; width: 100%; height: 20px; padding: 0 0 0 10px; background: url(http://tivac.com/upload/progress.gif) repeat-y -688px 0; }
 
 #files li.uploaded { overflow: hidden; cursor: auto; }
-#files li.uploaded:hover { background-image: url(picture.png); }
+#files li.uploaded:hover { background-image: url(http://tivac.com/images/silk/picture.png); }
 #files li.uploaded a { float: left; }
 #files li.uploaded div { float: left; width: 450px; }
 #files li.uploaded div p { margin-bottom: 5px; }
@@ -48,11 +61,9 @@ button:hover { background-color: #dff4ff; border: 1px solid #c2e1ef; color: #336
 
 #export_text { width: 100%; height: 100px; margin-top: 20px; display: none; }
 </style>
-
     <div id="doc">
         <div id="hd">
             <h1>UPLOAD SOME IMAGES ALREADY</h1>
-
         </div>
         
         <div id="bd">
@@ -63,7 +74,6 @@ button:hover { background-color: #dff4ff; border: 1px solid #c2e1ef; color: #336
             
             <ul id="files">
                 <li id="file_skeleton"><div></div></li>
-
                 <li id="upload_skeleton" class='uploaded'>
                     <a><img src="%thb" alt="%name%"/></a>
                     <div>
@@ -72,7 +82,6 @@ button:hover { background-color: #dff4ff; border: 1px solid #c2e1ef; color: #336
                             <input  id="_url" value="" />
                         </p>
                         <p class="thb">
-
                             <label for="_thb">Thumb Link</label>
                             <input  id="_thb" value=""/>
                         </p>
@@ -81,7 +90,6 @@ button:hover { background-color: #dff4ff; border: 1px solid #c2e1ef; color: #336
                             <input  id="_fimg" value=""/>
                         </p>
                         <p class="fthb">
-
                             <label for="_fthb">Forum Thumb</label>
                             <input  id="_fthb" value=""/>
                         </p>
@@ -91,7 +99,6 @@ button:hover { background-color: #dff4ff; border: 1px solid #c2e1ef; color: #336
                 
             <button id="upload">Upload</button>
             <button id="cancel">Cancel</button>
-
             <button id="export">Export All</button>
             
             <textarea id="export_text"></textarea>
@@ -103,6 +110,5 @@ button:hover { background-color: #dff4ff; border: 1px solid #c2e1ef; color: #336
     </div>
     <script type="text/javascript" src="http://yui.yahooapis.com/combo?2.6.0/build/yahoo-dom-event/yahoo-dom-event.js&2.6.0/build/json/json-min.js&2.6.0/build/element/element-beta-min.js&2.6.0/build/uploader/uploader-experimental.js"></script> 
     <script type="text/javascript" src="upload.js"></script>
-
 </body>
 </html>

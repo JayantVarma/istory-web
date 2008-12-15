@@ -175,6 +175,14 @@ class SavePageElement(webapp.RequestHandler):
 	pageElement.pageOrder = int(myPageOrder or 1)
 	pageElement.dataA = self.request.get('dataA')
 	pageElement.dataB = self.request.get('dataB')
+	myImgRef = self.request.get('imageRef')
+	if myImgRef:
+		img = db.Model.get(myImgRef)
+		img.imageName = self.request.get('imageName')
+		img.pageElement = str(pageElement.key())
+		img.put()
+		pageElement.dataA = img.imageName
+		pageElement.imgRef = img.key()
 	pageElement.enabled = 1;
 	pageElement.put()
 	logging.error("dataA: " + pageElement.dataA)

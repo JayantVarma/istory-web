@@ -14,7 +14,7 @@ import storyEditor
 import pageElement
 import upload
 
-def printHeader(self):
+def printHeader(self, title):
 
 	addAdventureURL = '/addAdventure'
 	addAdventure = 'Create New Story'
@@ -39,7 +39,8 @@ def printHeader(self):
 		'addAdventureURL': addAdventureURL,
 		'addAdventure': addAdventure,
 		'myStoriesURL': myStoriesURL,
-		'myStories': myStories
+		'myStories': myStories,
+		'title': title
 	}
 	path = os.path.join(os.path.dirname(__file__), 'mainHeader.html')
 	self.response.out.write(template.render(path, template_values))
@@ -62,7 +63,10 @@ application = webapp.WSGIApplication(
 		('/deletePageElement', pageElement.DeletePageElement),
 		('/savePageElement', pageElement.SavePageElement),
 		('/imageManager', upload.ImageManager),
+		('/upload', upload.Uploader),
 		('/movePageElement', pageElement.MovePageElement),
+		('/images', upload.ImageServer),
+		('/imagesByUser', upload.ImagesByUser),
 	],
 	debug=True)
 

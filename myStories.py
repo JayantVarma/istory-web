@@ -58,7 +58,7 @@ class MyStories(webapp.RequestHandler):
 		'cacheMisses': stats['misses'],
 	}
 
-	main.printHeader(self)
+	main.printHeader(self, 'My Stories')
 	path = os.path.join(os.path.dirname(__file__), 'myStories.html')
 	self.response.out.write(template.render(path, template_values))
 	main.printFooter(self, footer_template_values)

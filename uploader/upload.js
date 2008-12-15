@@ -135,7 +135,7 @@ YAHOO.upload = {
     
     //TODO: Handle error, reset?
     onUploadError : function(e) {
-        
+        alert("upload error: " + e);
     },
     
     //TODO: Clean up the page state

@@ -111,7 +111,7 @@ class AddPage(webapp.RequestHandler):
 		'page': page,
 	}
 
-	main.printHeader(self)
+	main.printHeader(self, 'Add A Page')
 	path = os.path.join(os.path.dirname(__file__), 'addPage.html')
 	self.response.out.write(template.render(path, template_values))
 	main.printFooter(self, None)
