@@ -169,7 +169,7 @@ var addPageElementToWorkArea = function(pageElement, idx) {
 			pageElKey = pageElement.key;
 		}
 		//start the form
-		myHTML += '</div><form id="imageForm' + idx + '" action="/upload" enctype="multipart/form-data" method="post">';
+		myHTML += '</div><form id="imageForm' + idx + '" action="javascript:uploadImage(' + idx + ')" enctype="multipart/form-data" method="post">';
 		myHTML += '<table class="imageUploadForm">';
 		//if there are any images in the img cache, show them as a list
 		if (imgCache.length > 0) {
@@ -190,19 +190,15 @@ var addPageElementToWorkArea = function(pageElement, idx) {
 		}
 		//make the upload a new image form
 		myHTML += '<tr><th>' + orVariable + 'Upload A New Image</th></tr>';
-		myHTML += '<tr><td><input id="imageData" type="file" name="imageData" /></td></tr>';
+		myHTML += '<tr><td><input id="imageData' + idx + '" type="file" name="imageData" /></td></tr>';
 		myHTML += '<tr><td>Image name: <input id="imageName' + idx + '" type="text" name="imageName" value="' + imageName + '"/></td></tr>';
-		myHTML += '<tr><td><input type="submit" value="Use / Upload / Rename Image"></td></tr></table>';
+		myHTML += '<tr><td><input id="submit' + idx + '" type="submit" value="Use / Upload / Rename Image"></td></tr></table>';
 		//also put the page key and page element order into the form
 		myHTML += '<input type="hidden" name="myPageElKey" value="' + pageElKey + '">';
 		myHTML += '<input type="hidden" name="myPageKey" value="' + nodeToKeyMap[currentNodeIndex] + '">';
 		myHTML += '<input type="hidden" name="myPageOrder" value="' + idx + '">';
 		myHTML += '<input type="hidden" id= "imageRef' + idx + '" name="imageRef" value="' + imageRef + '">';
 		myHTML += '</form>';
-		YAHOO.util.Event.on('imageForm' + idx, 'submit', function(e) {
-			YAHOO.util.Event.stopEvent(e);
-			uploadImage('imageForm' + idx, idx, 'img' + idx);
-		});
 	}
 	else if (pageElement.dataType == 3) {
 		//choice
@@ -280,7 +276,17 @@ var addPageElementToWorkArea = function(pageElement, idx) {
 	}
 	//if the page element is already disabled, we need to disable it in the html
 	if (pageElement.enabled && pageElement.enabled == 0) { markPageElAsDisabled(idx); }
+	
+	//now that the HTML is on the page, setup the image upload event handlers
+	YAHOO.util.Event.addListener("submit" + idx, "click", uploadImage);
+	YAHOO.util.Event.on('imageForm' + idx, 'submit', function(e) {
+		//alert('imageForm' + idx + ': stopped event');
+		YAHOO.util.Event.stopEvent(e);
+		uploadImage(idx);
+	});
 }
+
+var nothing = function() { }
 
 var imgListChanged = function(obj, value, idx) {
 	//check to see if the selected item is the -- Image List -- option
@@ -303,36 +309,50 @@ var focusObject = function (focusObject) {
 	}
 }
 
-var uploadImage = function(formID, index, currentImg) {
-	YAHOO.util.Connect.setForm(formID, true);
+var uploadImage = function(index) {
+	var formID = 'imageForm' + index;
+	//do this shit because safari doesn't like forms with blank image content
+	var imageData = YUD.get('imageData' + index);
+	var formHasImageContent = false;
+	if (imageData.value) { formHasImageContent = true; }
+	//alert('e:' + index + ', uploadImage: ' + formHasImageContent + ', ' + imageData.value);
+	YAHOO.util.Connect.setForm(formID, formHasImageContent);
+	//save the index for later and upload the image data
 	uploadImageCallbacks.argument.nodeIndex = index;
 	YAHOO.util.Connect.asyncRequest('POST', '/upload', uploadImageCallbacks);
 }
 
+var processImageCallback = function(o) {
+	YAHOO.log("RAW JSON DATA: " + o.responseText);
+	var m = [];
+	try { m = YAHOO.lang.JSON.parse(o.responseText); }
+	catch (x) {
+		alert("JSON Parse failed! " + x);
+		return;
+	}
+	var idx = o.argument.nodeIndex;
+	//save the page element key, since it might be new
+	domIdToKeyMap['up' + idx] = m.pageElement;
+	domIdToKeyMap['disable' + idx] = m.pageElement;
+	domIdToKeyMap['delete' + idx] = m.pageElement;
+	domIdToKeyMap['down' + idx] = m.pageElement;
+	domIdToKeyMap['save' + idx] = m.pageElement;
+	//add the new img into the innerHTML of the img+idx div
+	var imgDIV = YUD.get('img' + idx);
+	imgDIV.innerHTML = '<br><img src="/images?imageKey=' + m.key + '" alt="' + m.imageName + '"><br><br>';
+	//modify the imageRef of the form to reflect the new values
+	var imageRef = YUD.get('imageRef' + idx);
+	imageRef.value = m.key;
+	//fire off a page element save, pass in the dom ID of the save button
+	pageElSave('save' + o.argument.nodeIndex);
+}
+
 var uploadImageCallbacks = {
 	upload : function (o) {
-		YAHOO.log("RAW JSON DATA: " + o.responseText);
-		var m = [];
-		try { m = YAHOO.lang.JSON.parse(o.responseText); }
-		catch (x) {
-			alert("JSON Parse failed! " + x);
-			return;
-		}
-		var idx = o.argument.nodeIndex;
-		//save the page element key, since it might be new
-		domIdToKeyMap['up' + idx] = m.pageElement;
-		domIdToKeyMap['disable' + idx] = m.pageElement;
-		domIdToKeyMap['delete' + idx] = m.pageElement;
-		domIdToKeyMap['down' + idx] = m.pageElement;
-		domIdToKeyMap['save' + idx] = m.pageElement;
-		//add the new img into the innerHTML of the img+idx div
-		var imgDIV = YUD.get('img' + idx);
-		imgDIV.innerHTML = '<br><img src="/images?imageKey=' + m.key + '" alt="' + m.imageName + '"><br><br>';
-		//modify the imageRef of the form to reflect the new values
-		var imageRef = YUD.get('imageRef' + idx);
-		imageRef.value = m.key;
-		//fire off a page element save, pass in the dom ID of the save button
-		pageElSave('save' + o.argument.nodeIndex);
+		processImageCallback(o);
+	},
+	success : function (o) {
+		processImageCallback(o);
 	},
 	failure : function (o) {
 		alert("uploadImage was not successful.");
@@ -939,7 +959,7 @@ var imagesByUserCallbacks = {
 		for (var i = 0, len = images.length; i < len; ++i) {
 			var image = images[i];
 			imgCache[image.key] = image.imageName;
-			imgCache.length = i;
+			imgCache.length = i+1;
 		}
 	},
 	failure : function (o) {
