@@ -159,6 +159,7 @@ var addPageElementToWorkArea = function(pageElement, idx) {
 		var imageRef = '';
 		var imageName = '';
 		var pageElKey = '';
+		var orVariable = '';
 		myHTML += '<div id="img' + idx + '">';
 		//if the page element already exists, show the current image
 		if (pageElement.imageRef) {
@@ -172,6 +173,7 @@ var addPageElementToWorkArea = function(pageElement, idx) {
 		myHTML += '<table class="imageUploadForm">';
 		//if there are any images in the img cache, show them as a list
 		if (imgCache.length > 0) {
+			orVariable = 'Or ';
 			myHTML += '<tr><th>Select An Existing Image</th></tr>';
 			myHTML += '<td><select name="imageList" onchange="imgListChanged(this,this.value,' + idx + ')">';
 			myHTML += '<option value="">-- Image List --';
@@ -187,7 +189,7 @@ var addPageElementToWorkArea = function(pageElement, idx) {
 			//myHTML += '<tr><td><input type="submit" value="Use Image"></td></tr>';
 		}
 		//make the upload a new image form
-		myHTML += '<tr><th>Or Upload A New Image</th></tr>';
+		myHTML += '<tr><th>' + orVariable + 'Upload A New Image</th></tr>';
 		myHTML += '<tr><td><input id="imageData" type="file" name="imageData" /></td></tr>';
 		myHTML += '<tr><td>Image name: <input id="imageName' + idx + '" type="text" name="imageName" value="' + imageName + '"/></td></tr>';
 		myHTML += '<tr><td><input type="submit" value="Use / Upload / Rename Image"></td></tr></table>';
