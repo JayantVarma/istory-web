@@ -10,13 +10,13 @@ indexes:
 # automatically uploaded to the admin console when you next deploy
 # your application using appcfg.py.
 
-# Used 20 times in query history.
+# Used 2 times in query history.
 - kind: Adventure
   properties:
   - name: date
     direction: desc
 
-# Used 20 times in query history.
+# Used 2 times in query history.
 - kind: Adventure
   properties:
   - name: realAuthor
@@ -29,20 +29,20 @@ indexes:
   - name: date
     direction: desc
 
-# Used 111 times in query history.
+# Used 25 times in query history.
 - kind: Image
   properties:
   - name: realAuthor
   - name: imageName
 
-# Used 12 times in query history.
+# Unused in query history -- copied from input.
 - kind: PageElement
   properties:
   - name: adventure
   - name: page
   - name: pageOrder
 
-# Used 272 times in query history.
+# Used 24 times in query history.
 - kind: PageElement
   properties:
   - name: adventure

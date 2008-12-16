@@ -175,7 +175,7 @@ var addPageElementToWorkArea = function(pageElement, idx) {
 		if (imgCache.length > 0) {
 			orVariable = 'Or ';
 			myHTML += '<tr><th>Select An Existing Image</th></tr>';
-			myHTML += '<td><select name="imageList" onchange="imgListChanged(this,this.value,' + idx + ')">';
+			myHTML += '<td><select id="imageList' + idx + '" name="imageList" onchange="imgListChanged(this,this.value,' + idx + ')">';
 			myHTML += '<option value="">-- Image List --';
 			for (var key in imgCache) {
 				if (key == 'length') { continue; }
@@ -194,10 +194,10 @@ var addPageElementToWorkArea = function(pageElement, idx) {
 		myHTML += '<tr><td>Image name: <input id="imageName' + idx + '" type="text" name="imageName" value="' + imageName + '"/></td></tr>';
 		myHTML += '<tr><td><input id="submit' + idx + '" type="submit" value="Use / Upload / Rename Image"></td></tr></table>';
 		//also put the page key and page element order into the form
-		myHTML += '<input type="hidden" name="myPageElKey" value="' + pageElKey + '">';
-		myHTML += '<input type="hidden" name="myPageKey" value="' + nodeToKeyMap[currentNodeIndex] + '">';
-		myHTML += '<input type="hidden" name="myPageOrder" value="' + idx + '">';
-		myHTML += '<input type="hidden" id= "imageRef' + idx + '" name="imageRef" value="' + imageRef + '">';
+		myHTML += '<input id="myPageElKey' + idx + '" type="hidden" name="myPageElKey" value="' + pageElKey + '">';
+		myHTML += '<input id="myPageKey' + idx + '" type="hidden" name="myPageKey" value="' + nodeToKeyMap[currentNodeIndex] + '">';
+		myHTML += '<input id="myPageOrder' + idx + '" type="hidden" name="myPageOrder" value="' + idx + '">';
+		myHTML += '<input id="imageRef' + idx + '" type="hidden" name="imageRef" value="' + imageRef + '">';
 		myHTML += '</form>';
 	}
 	else if (pageElement.dataType == 3) {
@@ -280,7 +280,7 @@ var addPageElementToWorkArea = function(pageElement, idx) {
 	//now that the HTML is on the page, setup the image upload event handlers
 	//YAHOO.util.Event.addListener("submit" + idx, "click", uploadImage);
 	YAHOO.util.Event.on('imageForm' + idx, 'submit', function(e) {
-		alert('imageForm' + idx + ': stopped event');
+		//alert('imageForm' + idx + ': stopped event');
 		YAHOO.util.Event.stopEvent(e);
 		uploadImage(idx);
 	});
@@ -310,16 +310,22 @@ var focusObject = function (focusObject) {
 }
 
 var uploadImage = function(index) {
-	var formID = 'imageForm' + index;
-	//do this shit because safari doesn't like forms with blank image content
-	var imageData = YUD.get('imageData' + index);
-	var formHasImageContent = false;
-	if (imageData.value) { formHasImageContent = true; }
-	alert('e:' + index + ', uploadImage: ' + formHasImageContent + ', ' + imageData.value);
-	YAHOO.util.Connect.setForm(formID, formHasImageContent);
+	//build the POST string
+	var myPOST = '';
+	var formElements = ['imageList', 'imageRef', 'imageName', 'myPageElKey', 'myPageKey', 'myPageOrder', 'imageData'];
+	for (var n = 0; n < formElements.length; n++) {
+		var obj = YUD.get(formElements[n] + index);
+		if (obj.value) {
+			myPOST += '&' + formElements[n] + '=' + obj.value;
+		}
+	}
+	//remove the first character (will be a & we don't need)
+	alert(myPOST);
+	myPOST = myPOST.substr(1, myPOST.length - 1);
+	alert(myPOST);
 	//save the index for later and upload the image data
 	uploadImageCallbacks.argument.nodeIndex = index;
-	YAHOO.util.Connect.asyncRequest('POST', '/upload', uploadImageCallbacks);
+	YAHOO.util.Connect.asyncRequest('POST', '/upload', uploadImageCallbacks, myPOST);
 }
 
 var processImageCallback = function(o) {

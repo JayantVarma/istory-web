@@ -100,6 +100,8 @@ class Uploader(webapp.RequestHandler):
 	myPageKey = self.request.get('myPageKey')
 	myPageOrder = int(self.request.get('myPageOrder') or -1)
 	logging.error("Uploader: myImageKey(" + myImageKey + ") myPageElKey(" + myPageElKey + ") myPageKey(" + myPageKey + ") order(" + str(myPageOrder) + ")")
+	if myImageData:
+		logging.error("GOT IMAGE DATA!!")
 	if not myImageData and not myPageElKey and not myImageKey:
 		self.error(404)
 		return
