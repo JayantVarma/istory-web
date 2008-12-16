@@ -865,7 +865,7 @@ var addOrUpdatePage = function(pageKey) {
 		pageNameHTML = ' value="' + currentPage.name + '"';
 	}
 	var obj = YAHOO.util.Dom.get('workArea');
-	obj.innerHTML = '<form id="addPageForm" method="post" action="javascript:addPageSubmitFunction()"><table class="table1"><tr><td>Name of page:<br><input type="text" id="newPageName"' + pageNameHTML + '></td><td class="myButton">' + divButtonFunction('addPageSubmit', 'icon-save') + 'Save</td></tr></table></form>';
+	obj.innerHTML = '<form id="addPageForm" method="post" action="javascript:addPageSubmitFunction()"><table class="table1"><tr><td>Name of page:<br><br><input type="text" id="newPageName"' + pageNameHTML + '></td><td class="myButton">' + divButtonFunction('addPageSubmit', 'icon-save') + 'Save</td></tr></table></form>';
 	YAHOO.util.Event.addListener("addPageSubmit", "click", addPageSubmit);
 	YAHOO.util.Event.on('addPageForm', 'submit', function(e) {
 		YAHOO.util.Event.stopEvent(e);
