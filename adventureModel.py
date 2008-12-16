@@ -7,10 +7,14 @@ class Adventure(db.Model):
 	version = db.StringProperty(multiline=False)
 	date = db.DateTimeProperty(auto_now_add=True)
 	desc = db.TextProperty()
+	created = db.DateTimeProperty(auto_now_add=True)
+	modified = db.DateTimeProperty(auto_now=True)
 
 class Page(db.Model):
 	adventure = db.ReferenceProperty(Adventure)
 	name = db.StringProperty()
+	created = db.DateTimeProperty(auto_now_add=True)
+	modified = db.DateTimeProperty(auto_now=True)
 	def toDict(self):
 		return {
 			#'adventure': str(self.adventure.key()),
@@ -24,6 +28,8 @@ class Image(db.Model):
 	imageName = db.StringProperty(multiline=False)
 	imageData = db.BlobProperty()
 	realAuthor = db.UserProperty()
+	created = db.DateTimeProperty(auto_now_add=True)
+	modified = db.DateTimeProperty(auto_now=True)
 	def toDict(self):
 		return {
 			'adventure': str(self.adventure.key()),
@@ -42,6 +48,8 @@ class PageElement(db.Model):
 	dataB = db.TextProperty()
 	imageRef = db.ReferenceProperty(Image)
 	enabled = db.IntegerProperty()
+	created = db.DateTimeProperty(auto_now_add=True)
+	modified = db.DateTimeProperty(auto_now=True)
 	def toDict(self):
 		imageRef = None
 		if self.imageRef:

@@ -25,6 +25,7 @@ class GetPages(webapp.RequestHandler):
 
 	pagesQuery = adventureModel.Page.all()
 	pagesQuery.filter('adventure = ', adventure.key())
+	pagesQuery.order('created')
 	pages = pagesQuery.fetch(9999)
 	elQuery = adventureModel.PageElement.all()
 	elQuery.filter('adventure = ', adventure.key())
