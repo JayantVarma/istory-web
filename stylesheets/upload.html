@@ -3,30 +3,21 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <title>upload test</title>
-	<!-- Combo-handled YUI CSS files: -->
-	<link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/combo?2.6.0/build/reset-fonts/reset-fonts.css&2.6.0/build/container/assets/skins/sam/container.css&2.6.0/build/treeview/assets/skins/sam/treeview.css">
-	<link rel="stylesheet" type="text/css" href="/stylesheets/main.css">
-<!--[if IE]>
-<style type="text/css"> 
-/* place css fixes for all versions of IE in this conditional comment */
-.twoColElsLtHdr #sidebar1 { padding-top: 30px; }
-.twoColElsLtHdr #mainContent { zoom: 1; padding-top: 15px; }
-/* the above proprietary zoom property gives IE the hasLayout it needs to avoid several bugs */
-</style>
-<![endif]--></head>
+<!-- Combo-handled YUI CSS files: -->
+<link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/combo?2.6.0/build/reset-fonts-grids/reset-fonts-grids.css&2.6.0/build/container/assets/skins/sam/container.css&2.6.0/build/treeview/assets/skins/sam/treeview.css&2.6.0/build/logger/assets/skins/sam/logger.css">
+</head>
 <body>
 
 <form id="imageForm" action="/upload" enctype="multipart/form-data" method="post">
 <table class="imageUploadForm">
 <tr><th>Upload A New Image</th></tr>
 <tr><td><input id="imageData" type="file" name="imageData" /></td></tr>
-<tr><td>Image name: <input id="imageName" type="text" name="imageName" value="imageName"/></td></tr>
-<tr><td><input type="submit" value="Use / Upload / Rename Image"></td></tr></table>
-<input type="hidden" name="myPageKey" value="aglpc3Rvcnl3ZWJyCgsSBFBhZ2UYAgw">
-<input type="hidden" name="myPageOrder" value="1">
+<tr><td>Image name: <input id="imageName" type="text" name="imageName" value="file name"/></td></tr>
+<tr><td><input type="submit" value="GO!"></td></tr></table>
 </form>
 
-<script type="text/javascript" src="http://yui.yahooapis.com/combo?2.6.0/build/utilities/utilities.js&2.6.0/build/container/container.js&2.6.0/build/json/json.js"></script>
+<!-- Combo-handled YUI JS files: -->
+<script type="text/javascript" src="http://yui.yahooapis.com/combo?2.6.0/build/utilities/utilities.js&2.6.0/build/container/container-debug.js&2.6.0/build/json/json-debug.js&2.6.0/build/treeview/treeview-debug.js&2.6.0/build/logger/logger-debug.js"></script>
 <script type="text/javascript">
 
 YAHOO.util.Event.onDOMReady(treeInit);
@@ -44,31 +35,20 @@ var uploadImage = function() {
 
 
 	//do this shit because safari doesn't like forms with blank image content
-	//var imageData = YAHOO.util.Dom.get('imageData');
-	//var formHasImageContent = false;
-	//if (imageData.value) { formHasImageContent = true; }
-	var imageForm = YAHOO.util.Dom.get('imageForm');
-	var imageName = YAHOO.util.Dom.get('imageName');
 	var imageData = YAHOO.util.Dom.get('imageData');
-	alert(imageForm);
-	//alert(YAHOO.util.Connect.setForm('imageForm', true));
-	//save the index for later and upload the image data
-	alert('uploading data');
-	//var myHTML = 'imageData=' + imageData.value
-	var myHTML = 'imageName=' + imageName.value
-			  + '&myPageKey=' + 'aglpc3Rvcnl3ZWJyCgsSBFBhZ2UYAgw'
-			  + '&myPageOrder=' + '1';
-	alert(myHTML);
-	YAHOO.util.Connect.setForm('imageForm', true);
-	YAHOO.util.Connect.asyncRequest('POST', '/upload', uploadImageCallbacks, myHTML);
+	var formHasImageContent = false;
+	if (imageData.value) { formHasImageContent = true; }
+	var imageForm = YAHOO.util.Dom.get('imageForm');
+	alert(imageForm + ': ' + YAHOO.util.Connect.setForm('imageForm', formHasImageContent));
+	YAHOO.util.Connect.asyncRequest('POST', '/upload', uploadImageCallbacks);
 }
 
 var uploadImageCallbacks = {
 	upload : function (o) {
-		alert("upload success");
+		alert('UPLOAD SUCCESS!: ' + o.responseText);
 	},
 	success : function (o) {
-		alert("success success");
+		alert('SUCCESS SUCCESS!: ' + o.responseText);
 	},
 	failure : function (o) {
 		alert("uploadImage was not successful.");

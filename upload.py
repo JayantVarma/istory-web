@@ -101,7 +101,7 @@ class Uploader(webapp.RequestHandler):
 	myPageOrder = int(self.request.get('myPageOrder') or -1)
 	logging.error("Uploader: myImageKey(" + myImageKey + ") myPageElKey(" + myPageElKey + ") myPageKey(" + myPageKey + ") order(" + str(myPageOrder) + ")")
 	if myImageData:
-		logging.error("GOT IMAGE DATA!!")
+		logging.error("GOT IMAGE DATA!! " + str(len(myImageData)) + ' bytes.')
 	if not myImageData and not myPageElKey and not myImageKey:
 		self.error(404)
 		return
@@ -123,7 +123,9 @@ class Uploader(webapp.RequestHandler):
 		pageElement.pageOrder = myPageOrder
 		if (not myPageKey):
 			logging.error("Uploader: expected myPageKey but it is null")
-			self.error(404)
+			if myImageData:
+				self.response.out.write(simplejson.dumps(len(myImageData)))
+			#self.error(404)
 			return
 		page = db.Model.get(myPageKey)
 		adventure = page.adventure
