@@ -29,20 +29,20 @@ indexes:
   - name: date
     direction: desc
 
-# Used 25 times in query history.
+# Used 33 times in query history.
 - kind: Image
   properties:
   - name: realAuthor
   - name: imageName
 
-# Unused in query history -- copied from input.
+# Used once in query history.
 - kind: PageElement
   properties:
   - name: adventure
   - name: page
   - name: pageOrder
 
-# Used 24 times in query history.
+# Used 32 times in query history.
 - kind: PageElement
   properties:
   - name: adventure

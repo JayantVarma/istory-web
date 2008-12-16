@@ -309,8 +309,8 @@ var focusObject = function (focusObject) {
 	}
 }
 
-var uploadImage = function(index) {
-	//build the POST string
+var uploadImage = function(idx) {
+	/*//build the POST string
 	var myPOST = '';
 	var formElements = ['imageList', 'imageRef', 'imageName', 'myPageElKey', 'myPageKey', 'myPageOrder', 'imageData'];
 	for (var n = 0; n < formElements.length; n++) {
@@ -322,10 +322,12 @@ var uploadImage = function(index) {
 	//remove the first character (will be a & we don't need)
 	alert(myPOST);
 	myPOST = myPOST.substr(1, myPOST.length - 1);
-	alert(myPOST);
+	alert(myPOST);*/
+	
 	//save the index for later and upload the image data
-	uploadImageCallbacks.argument.nodeIndex = index;
-	YAHOO.util.Connect.asyncRequest('POST', '/upload', uploadImageCallbacks, myPOST);
+	YAHOO.util.Connect.setForm('imageForm' + idx, true);
+	uploadImageCallbacks.argument.nodeIndex = idx;
+	YAHOO.util.Connect.asyncRequest('POST', '/upload', uploadImageCallbacks);//, myPOST);
 }
 
 var processImageCallback = function(o) {
@@ -373,14 +375,60 @@ var pageElUp = function(e) {
 	var obj = YAHOO.util.Event.getTarget(e);
 	//get key of current page element
 	var myKey = domIdToKeyMap[obj.id];
+	var myIndex = domIdToNodeIndexMap[obj.id];
 	var myPage = tree.getNodeByIndex(currentNodeIndex);
 	var myChildren = myPage.children;
 	var newOrder = 0;
+	//we need to get the current pageOrder of the node, then look at every other node's pageOrder.
+	//we're moving up, so we want to decrease the page order of the current node
+	//the node with the same pageOrder of the currentNode gets +1, so it will move down and the current node will take its place
+	//we only want to make these changes if the currentNode is NOT the lowest
+	var myNode = tree.getNodeByIndex(myIndex);
+	//if this node's pageOrder is greater than or equal to the number of children, we need to fix the pageOrder
+	//set the pageOrder to the length-1
+	if (myNode.value.pageOrder >= myChildren.length) {
+		myNode.value.pageOrder = ((myChildren.length)-1);
+	}
+	//if this node's pageOrder is less than 0, we need to fix the pageOrder
+	//set the pageOrder to 0
+	if (myNode.value.pageOrder < 0) {
+		myNode.value.pageOrder = 0;
+	}
 	for (var i = 0; i < myChildren.length; i++) {
 		childNodeIndex = myChildren[i].index;
+		var myChildNode = tree.getNodeByIndex(childNodeIndex);
+		//if the node's pageOrder is greater than or equal to the number of children, we need to fix the pageOrder
+		//set the pageOrder to the length-1
+		if (myChildNode.value.pageOrder >= myChildren.length) {
+			myChildNode.value.pageOrder = ((myChildren.length)-1);
+		}
+		//if this node's pageOrder is less than 0, we need to fix the pageOrder
+		//set the pageOrder to 0
+		if (myChildNode.value.pageOrder < 0) {
+			myChildNode.value.pageOrder = 0;
+		}
+		//check the pageOrder of the node to see if it is the same as what the currentNode's new pageOrder would be
+		//alert("checking: " + myChildNode.value.pageOrder + ' vs ' + (myNode.value.pageOrder-1));
+		if (myChildNode.value.pageOrder == (myNode.value.pageOrder-1)) {
+			//now decrease the pageOrder of the currentNode and increase the page order of the other (swapping them)
+			myNode.value.pageOrder--
+			myChildNode.value.pageOrder++;
+			//commit the changes to the DB if the page elements exist there
+			if (myNode.value.key) {
+				var myHTML = "myElKey=" + myNode.value.key + "&myNewOrder=" + myNode.value.pageOrder;
+				YAHOO.util.Connect.asyncRequest('POST', '/movePageElement', moveCallbacks, myHTML);
+			}
+			if (myChildNode.value.key) {
+				var myHTML = "myElKey=" + myChildNode.value.key + "&myNewOrder=" + myChildNode.value.pageOrder;
+				YAHOO.util.Connect.asyncRequest('POST', '/movePageElement', moveCallbacks, myHTML);
+			}
+		}
+		//done, now we need to sort the tree and the divs
 		nodeKey = nodeToKeyMap[childNodeIndex];
-		//alert("pageUP " + i + " " + myChildren[i] + " " + nodeKey);
-		if (nodeKey == myKey) {
+		//alert("pageUP " + i + ", " + myChildren[i] + ", " + nodeKey + ", " + myKey + ', ' + childNodeIndex + ', ' + myIndex);
+		//check the node indexes instead of the keys
+		if (childNodeIndex == myIndex) {
+		//if (nodeKey == myKey) {
 			//alert("this is the node we clicked on");
 			//this is the page element that we clicked on
 			//get the previous sibling, remove this node from the tree, then insert it before the previous sibling
@@ -397,13 +445,12 @@ var pageElUp = function(e) {
 				myDiv = YAHOO.util.Dom.get('DIV' + childNodeIndex);
 				myParentDiv = myDiv.parentNode;
 				myPreviousDiv = YAHOO.util.Dom.getPreviousSibling(myDiv);
+				//alert(myDiv + ', ' + myParentDiv + ', ' + myPreviousDiv);
 				if (myPreviousDiv) {
 					removedNode = myParentDiv.removeChild(myDiv);
 					myParentDiv.insertBefore(removedNode, myPreviousDiv);
 				}
 			}
-			var myHTML = "myElKey=" + myKey + "&myNewOrder=" + (newOrder-1);
-			YAHOO.util.Connect.asyncRequest('POST', '/movePageElement', moveCallbacks, myHTML);
 			break;
 		}
 		newOrder++;
@@ -436,13 +483,59 @@ var pageElDown = function(e) {
 	var obj = YAHOO.util.Event.getTarget(e);
 	//get key of current page element
 	var myKey = domIdToKeyMap[obj.id];
+	var myIndex = domIdToNodeIndexMap[obj.id];
 	var myPage = tree.getNodeByIndex(currentNodeIndex);
 	var myChildren = myPage.children;
 	var newOrder = 0;
+	//we need to get the current pageOrder of the node, then look at every other node's pageOrder.
+	//we're moving down, so we want to increase the page order of the current node
+	//the node with the same pageOrder of the currentNode gets -1, so it will move up and the current node will take its place
+	//we only want to make these changes if the currentNode is NOT the highest
+	var myNode = tree.getNodeByIndex(myIndex);
+	//if this node's pageOrder is greater than or equal to the number of children, we need to fix the pageOrder
+	//set the pageOrder to the length-1
+	if (myNode.value.pageOrder >= myChildren.length) {
+		myNode.value.pageOrder = ((myChildren.length)-1);
+	}
+	//if this node's pageOrder is less than 0, we need to fix the pageOrder
+	//set the pageOrder to 0
+	if (myNode.value.pageOrder < 0) {
+		myNode.value.pageOrder = 0;
+	}
 	for (var i = 0; i < myChildren.length; i++) {
 		childNodeIndex = myChildren[i].index;
+		var myChildNode = tree.getNodeByIndex(childNodeIndex);
+		//if the node's pageOrder is greater than or equal to the number of children, we need to fix the pageOrder
+		//set the pageOrder to the length-1
+		if (myChildNode.value.pageOrder >= myChildren.length) {
+			myChildNode.value.pageOrder = ((myChildren.length)-1);
+		}
+		//if this node's pageOrder is less than 0, we need to fix the pageOrder
+		//set the pageOrder to 0
+		if (myChildNode.value.pageOrder < 0) {
+			myChildNode.value.pageOrder = 0;
+		}
+		//check the pageOrder of the node to see if it is the same as what the currentNode's new pageOrder would be
+		if (myChildNode.value.pageOrder == (myNode.value.pageOrder+1)) {
+			//now increase the pageOrder of the currentNode and decrease the page order of the other (swapping them)
+			myNode.value.pageOrder++;
+			myChildNode.value.pageOrder--;
+			//commit the changes to the DB if the page elements exist there
+			if (myNode.value.key) {
+				var myHTML = "myElKey=" + myNode.value.key + "&myNewOrder=" + myNode.value.pageOrder;
+				YAHOO.util.Connect.asyncRequest('POST', '/movePageElement', moveCallbacks, myHTML);
+			}
+			if (myChildNode.value.key) {
+				var myHTML = "myElKey=" + myChildNode.value.key + "&myNewOrder=" + myChildNode.value.pageOrder;
+				YAHOO.util.Connect.asyncRequest('POST', '/movePageElement', moveCallbacks, myHTML);
+			}
+		}
+		//done, now we need to sort the tree and the divs
+		
 		nodeKey = nodeToKeyMap[childNodeIndex];
-		if (nodeKey == myKey) {
+		//check the node indexes instead of the keys
+		if (childNodeIndex == myIndex) {
+		//if (nodeKey == myKey) {
 			//this is the page element that we clicked on
 			//get the next sibling, remove this node from the tree, then insert it after the next sibling
 			var myNode = myChildren[i];
@@ -461,9 +554,7 @@ var pageElDown = function(e) {
 					myParentDiv.insertBefore(removedNode, myNextDiv.nextSibling);
 				}
 			}
-			var myHTML = "myElKey=" + myKey + "&myNewOrder=" + (newOrder+1);
-			YAHOO.util.Connect.asyncRequest('POST', '/movePageElement', moveCallbacks, myHTML);
-			break;
+			//break;
 		}
 		newOrder++;
 	}
@@ -569,20 +660,23 @@ var pageElSave = function(e) {
 	var myPageKey = nodeToKeyMap[currentNodeIndex];
 	var myPageElNodeIndex = domIdToNodeIndexMap[obj.id];
 	var myHTML = "myPageKey=" + myPageKey;
+	var myNode = tree.getNodeByIndex(myPageElNodeIndex);
 	if (myPageElKey) {
 		//existing node
 		myHTML += "&myPageElKey=" + myPageElKey;
-		pageElSaveCallbacks.argument.key = myPageElKey
+		pageElSaveCallbacks.argument.key = myPageElKey;
 	}
 	else {
 		//new node
-		var myNode = tree.getNodeByIndex(myPageElNodeIndex);
-		myHTML += "&elementType=" + myNode.value.dataType
-			+ "&pageOrder=" + mypageElNodeIndex;
+		myHTML += "&elementType=" + myNode.value.dataType;
 	}
 	pageElSaveCallbacks.argument.nodeIndex = myPageElNodeIndex;
 	pageElSaveCallbacks.argument.pageKey = myPageKey;
 	pageElSaveCallbacks.argument.pageNodeIndex = currentNodeIndex;
+	var pageOrder = myNode.value.pageOrder;
+	if (pageOrder) {
+		myHTML += "&pageOrder=" + escape(pageOrder);
+	}	
 	var dataA = YAHOO.util.Dom.get('dataA' + myPageElNodeIndex);
 	if (dataA) {
 		myHTML += "&dataA=" + escape(dataA.value);
@@ -654,8 +748,18 @@ var addPageElement = function(e) {
 		dataType = pageElementIdToTypeMap[targetObj.id];
 	}
 	var myNode = tree.getNodeByIndex(currentNodeIndex);
+	//figure out what the new pageOrder should be
+	var pageOrder = 0;
+	for (var i = 0; i < myNode.children.length; i++) {
+		if (myNode.children[i].value.pageOrder >= pageOrder) {
+			pageOrder = (myNode.children[i].value.pageOrder + 1);
+			//alert('node: ' + myNode.children[i] + ', new pageOrder set to ' + pageOrder);
+		}
+	}
+	//done
 	var pageElement = {
-		"dataType": dataType
+		"dataType": dataType,
+		"pageOrder": pageOrder
 	}
 	var newNodeIndex = addOrUpdateChildNode("New " + pageElementTypeToNameMap[dataType], dataType, myNode, pageElement);
 	var newNode = tree.getNodeByIndex(newNodeIndex);
@@ -707,10 +811,17 @@ var addOrUpdateChildNode = function(description, datatype, node, pageElement, cu
 		currentNode.label = nodeDesc;
 	}
 	if (pageElement) {
-		nodeToKeyMap[currentNode.index] = pageElement.key;
+		var idx = currentNode.index;
+		domIdToKeyMap['up' + idx] = pageElement.key;
+		domIdToKeyMap['disable' + idx] = pageElement.key;
+		domIdToKeyMap['delete' + idx] = pageElement.key;
+		domIdToKeyMap['down' + idx] = pageElement.key;
+		domIdToKeyMap['save' + idx] = pageElement.key;
+		nodeToKeyMap[idx] = pageElement.key;
 		keyToNodeMap[pageElement.key] = currentNode;
 		currentNode.value = pageElement;
 	}
+	currentNode.label = currentNode.index + ',' + currentNode.value.pageOrder + ' ' + currentNode.label;
 	tree.draw()
 	return currentNode.index;
 }

@@ -172,19 +172,21 @@ class SavePageElement(webapp.RequestHandler):
 
 	pageElement.page = page.key()
 	myPageOrder = self.request.get('pageOrder')
-	pageElement.pageOrder = int(myPageOrder or 1)
+	pageElement.pageOrder = int(myPageOrder or 0)
 	pageElement.dataA = self.request.get('dataA')
 	pageElement.dataB = self.request.get('dataB')
+	pageElement.enabled = 1;
+	pageElement.put()
 	myImgRef = self.request.get('imageRef')
 	if myImgRef:
+		logging.error("imageRef passed in: " + myImgRef)
 		img = db.Model.get(myImgRef)
 		img.imageName = self.request.get('imageName')
 		img.pageElement = str(pageElement.key())
 		img.put()
 		pageElement.dataA = img.imageName
-		pageElement.imgRef = img.key()
-	pageElement.enabled = 1;
-	pageElement.put()
+		pageElement.imageRef = img.key()
+		pageElement.put()
 	logging.error("dataA: " + pageElement.dataA)
 	logging.error("dataB: " + pageElement.dataB)
 	self.response.out.write(simplejson.dumps(pageElement.toDict()))
