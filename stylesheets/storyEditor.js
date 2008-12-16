@@ -280,7 +280,12 @@ var addPageElementToWorkArea = function(pageElement, idx) {
 	//now that the HTML is on the page, setup the image upload event handlers
 	//YAHOO.util.Event.addListener("submit" + idx, "click", uploadImage);
 	YAHOO.util.Event.on('imageForm' + idx, 'submit', function(e) {
-		//alert('imageForm' + idx + ': stopped event');
+		//alert('imageForm: SUBMIT stopped event' + idx);
+		YAHOO.util.Event.stopEvent(e);
+		uploadImage(idx);
+	});
+	YAHOO.util.Event.on('submit' + idx, 'click', function(e) {
+		//alert('imageForm: BUTTON stopped event ' + idx);
 		YAHOO.util.Event.stopEvent(e);
 		uploadImage(idx);
 	});
@@ -310,22 +315,13 @@ var focusObject = function (focusObject) {
 }
 
 var uploadImage = function(idx) {
-	/*//build the POST string
-	var myPOST = '';
-	var formElements = ['imageList', 'imageRef', 'imageName', 'myPageElKey', 'myPageKey', 'myPageOrder', 'imageData'];
-	for (var n = 0; n < formElements.length; n++) {
-		var obj = YUD.get(formElements[n] + index);
-		if (obj.value) {
-			myPOST += '&' + formElements[n] + '=' + obj.value;
-		}
-	}
-	//remove the first character (will be a & we don't need)
-	alert(myPOST);
-	myPOST = myPOST.substr(1, myPOST.length - 1);
-	alert(myPOST);*/
-	
+	//alert('uploadImage ' + idx);
+	//figure out if the form has an image uploaded, so we can set the setForm boolean correctly
+	var imageData = YAHOO.util.Dom.get('imageData' + idx);
+	var formHasImageContent = false;
+	if (imageData.value) { formHasImageContent = true; }
 	//save the index for later and upload the image data
-	YAHOO.util.Connect.setForm('imageForm' + idx, true);
+	YAHOO.util.Connect.setForm('imageForm' + idx, formHasImageContent);
 	uploadImageCallbacks.argument.nodeIndex = idx;
 	YAHOO.util.Connect.asyncRequest('POST', '/upload', uploadImageCallbacks);//, myPOST);
 }

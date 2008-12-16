@@ -148,6 +148,14 @@ class Uploader(webapp.RequestHandler):
 	else:
 		newImage = adventureModel.Image()
 
+	if newImage.imageData:
+		#if the existing image data is different from the new image data, we need to create a new image
+		#then set the image data, we dont need to set the image data if the old and new images are the same
+		if newImage.imageData != myImageData:
+			logging.error("the existing image data is different.. lets create a new image")
+			newImage = adventureModel.Image()
+			newImage.imageData = db.Blob(myImageData)
+
 	if not page or not adventure:
 		self.error(404)
 		return
@@ -165,8 +173,6 @@ class Uploader(webapp.RequestHandler):
 	newImage.adventure = adventure.key()
 	newImage.realAuthor = users.get_current_user()
 	newImage.imageName = myImageName
-	if myImageData:
-		newImage.imageData = db.Blob(myImageData)
 	newImage.pageElement = str(pageElement.key())
 	logging.error("imageName(" + newImage.imageName + ") pageElementRef(" + newImage.pageElement + ")")
 	newImage.put()

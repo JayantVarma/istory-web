@@ -3,8 +3,6 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <title>upload test</title>
-<!-- Combo-handled YUI CSS files: -->
-<link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/combo?2.6.0/build/reset-fonts-grids/reset-fonts-grids.css&2.6.0/build/container/assets/skins/sam/container.css&2.6.0/build/treeview/assets/skins/sam/treeview.css&2.6.0/build/logger/assets/skins/sam/logger.css">
 </head>
 <body>
 
@@ -13,18 +11,23 @@
 <tr><th>Upload A New Image</th></tr>
 <tr><td><input id="imageData" type="file" name="imageData" /></td></tr>
 <tr><td>Image name: <input id="imageName" type="text" name="imageName" value="file name"/></td></tr>
-<tr><td><input type="submit" value="GO!"></td></tr></table>
+<tr><td><input id="uploadButton" type="submit" value="GO!"></td></tr></table>
 </form>
 
 <!-- Combo-handled YUI JS files: -->
-<script type="text/javascript" src="http://yui.yahooapis.com/combo?2.6.0/build/utilities/utilities.js&2.6.0/build/container/container-debug.js&2.6.0/build/json/json-debug.js&2.6.0/build/treeview/treeview-debug.js&2.6.0/build/logger/logger-debug.js"></script>
+<script type="text/javascript" src="http://yui.yahooapis.com/2.6.0/build/utilities/utilities.js"></script>
 <script type="text/javascript">
 
 YAHOO.util.Event.onDOMReady(treeInit);
 
 function treeInit() {
 	YAHOO.util.Event.on('imageForm', 'submit', function(e) {
-		alert('imageForm: stopped event');
+		alert('imageForm: SUBMIT stopped event');
+		YAHOO.util.Event.stopEvent(e);
+		uploadImage();
+	});
+	YAHOO.util.Event.on('uploadButton', 'click', function(e) {
+		alert('imageForm: BUTTON stopped event');
 		YAHOO.util.Event.stopEvent(e);
 		uploadImage();
 	});
@@ -32,8 +35,6 @@ function treeInit() {
 
 var uploadImage = function() {
 	var formID = 'imageForm';
-
-
 	//do this shit because safari doesn't like forms with blank image content
 	var imageData = YAHOO.util.Dom.get('imageData');
 	var formHasImageContent = false;
