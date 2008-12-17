@@ -3,15 +3,158 @@ from google.appengine.ext.webapp import template
 import cgi
 import re
 import logging
+import StringIO
+import struct
 from google.appengine.api import users
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp.util import run_wsgi_app
 from google.appengine.ext import db
 from google.appengine.api import datastore
 from google.appengine.api import memcache
+from google.appengine.api import images
 from django.utils import simplejson
 import adventureModel
 import main
+
+class ImageCropper(webapp.RequestHandler):
+  def getImageInfo(self, data):
+	data = str(data)
+	size = len(data)
+	height = -1
+	width = -1
+	content_type = ''
+	# handle GIFs
+	if (size >= 10) and data[:6] in ('GIF87a', 'GIF89a'):
+		# Check to see if content_type is correct
+		content_type = 'image/gif'
+		w, h = struct.unpack("<HH", data[6:10])
+		width = int(w)
+		height = int(h)
+	# See PNG 2. Edition spec (http://www.w3.org/TR/PNG/)
+	# Bytes 0-7 are below, 4-byte chunk length, then 'IHDR'
+	# and finally the 4-byte width, height
+	elif ((size >= 24) and data.startswith('\211PNG\r\n\032\n')
+		  and (data[12:16] == 'IHDR')):
+		content_type = 'image/png'
+		w, h = struct.unpack(">LL", data[16:24])
+		width = int(w)
+		height = int(h)
+	# Maybe this is for an older PNG version.
+	elif (size >= 16) and data.startswith('\211PNG\r\n\032\n'):
+		# Check to see if we have the right content type
+		content_type = 'image/png'
+		w, h = struct.unpack(">LL", data[8:16])
+		width = int(w)
+		height = int(h)
+	# handle JPEGs
+	elif (size >= 2) and data.startswith('\377\330'):
+		content_type = 'image/jpeg'
+		jpeg = StringIO.StringIO(data)
+		jpeg.read(2)
+		b = jpeg.read(1)
+		try:
+			while (b and ord(b) != 0xDA):
+				while (ord(b) != 0xFF): b = jpeg.read
+				while (ord(b) == 0xFF): b = jpeg.read(1)
+				if (ord(b) >= 0xC0 and ord(b) <= 0xC3):
+					jpeg.read(3)
+					h, w = struct.unpack(">HH", jpeg.read(4))
+					break
+				else:
+					jpeg.read(int(struct.unpack(">H", jpeg.read(2))[0])-2)
+				b = jpeg.read(1)
+			width = int(w)
+			height = int(h)
+		except struct.error:
+			pass
+		except ValueError:
+			pass
+	return content_type, width, height
+
+
+  def post(self):
+	image = None
+	imageOBJ = None
+	adventure = None
+	left = None
+	top = None
+	right = None
+	bottom = None
+	newWidth = 0
+	newHeight = 0
+	imageKey = self.request.get('imageKey')
+	try:
+		left = float(self.request.get('left'))
+		top = float(self.request.get('top'))
+		newWidth = float(self.request.get('width'))
+		newHeight = float(self.request.get('height'))
+		right = newWidth + left
+		bottom = newHeight + top
+	except Exception, e:
+		logging.error('%s: %s' % (e.__class__.__name__, e))
+		self.error(404)
+		return
+
+	if imageKey:
+		logging.error("attempting to resize image with key " + imageKey)
+		try:
+			image = db.get(imageKey)
+		except Exception, e:
+			logging.error('%s: %s' % (e.__class__.__name__, e))
+	if image.imageData:
+		logging.info("got image data.")
+		adventure = image.adventure
+		imageOBJ = images.Image(image.imageData)
+	else:
+		self.error(404)
+		return
+
+	#make sure the user is logged in and owns this adventure and page
+	if users.get_current_user():
+		if adventure and adventure.realAuthor and adventure.realAuthor != users.get_current_user():
+			self.error(404)
+			return
+	else:
+		self.error(404)
+		return
+
+	#get the image dimensions
+	contentType, width, height = self.getImageInfo(image.imageData)
+	logging.info("left(" + str(left) + ") right(" + str(right) + ") top(" + str(top) + ") bottom(" + str(bottom) + ") width(" + str(width) + ") height(" + str(height) + ")")
+	
+	#get the borders of the bounding box, as a proportion
+	left_x = left / width;
+	top_y = top / height;
+	right_x = right / width;
+	bottom_y = bottom / height;
+	logging.info("left_x(" + str(left_x) + ") right_x(" + str(right_x) + ") top_y(" + str(top_y) + ") bottom_y(" + str(bottom_y) + ")")
+	
+	#now do the crop
+	imageOBJ.crop(left_x, top_y, right_x, bottom_y)
+	
+	#if new width is over 300, resize it down to 300
+	#if new height is over 500, resize it down to 500
+	#we first have to try to do both and then we will see which results in a bigger ratio, then we do that one
+	widthRatio = 0.0
+	heightRatio = 0.0
+	if newWidth > 300:
+		widthRatio = newWidth / 300
+	if newHeight > 500:
+		#get the ratio of the change and apply the same to the height
+		heightRatio = newHeight / 500
+	if widthRatio > heightRatio:
+		logging.info("resizing to: 300, " + str(int(heightRatio*newHeight)))
+		imageOBJ.resize(300, int(heightRatio*newHeight))
+	elif heightRatio > widthRatio:
+		logging.info("resizing to: " + str(int(widthRatio*newWidth)) + ", 500")
+		imageOBJ.resize(int(widthRatio*newWidth), 500)
+	
+	#now execute the transforms
+	image.imageData = imageOBJ.execute_transforms()
+	image.put()
+		
+	self.response.out.write(simplejson.dumps('success'))
+	logging.error(simplejson.dumps('success'))
 
 class ImageManager(webapp.RequestHandler):
   def get(self):
@@ -59,7 +202,15 @@ class ImageServer(webapp.RequestHandler):
 	imageKey = self.request.get('imageKey')
 	if imageKey:
 		logging.error("serving image with key " + imageKey)
-		image = db.get(imageKey)
+		try:
+			image = db.get(imageKey)
+		except Exception, e:
+			logging.error('%s: %s' % (e.__class__.__name__, e))
+			#need to put an image in here that we can use for missing shit
+			imageQuery = adventureModel.Image.all()
+			images = imageQuery.fetch(1);
+			for singleImage in images:
+				image = singleImage
 	if image.imageData:
 		self.response.headers['Content-Type'] = 'image/png'
 		self.response.out.write(image.imageData)

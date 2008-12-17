@@ -67,6 +67,7 @@ application = webapp.WSGIApplication(
 		('/movePageElement', pageElement.MovePageElement),
 		('/images', upload.ImageServer),
 		('/imagesByUser', upload.ImagesByUser),
+		('/imageCropper', upload.ImageCropper),
 	],
 	debug=True)
 

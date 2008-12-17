@@ -35,6 +35,7 @@ var keyToNodeMap = {};
 var nodeToKeyMap = {};
 var domIdToKeyMap = {};
 var domIdToNodeIndexMap = {};
+var imageCroppers = {};
 
 //cache for storing user images
 var imgCache = {};
@@ -160,14 +161,16 @@ var addPageElementToWorkArea = function(pageElement, idx) {
 		var imageName = '';
 		var pageElKey = '';
 		var orVariable = '';
-		myHTML += '<div id="img' + idx + '">';
 		//if the page element already exists, show the current image
+		var doesImageExist = false;
 		if (pageElement.imageRef) {
-			myHTML += '<br><img src="/images?imageKey=' + pageElement.imageRef + '" alt="' + pageElement.dataA + '"><br><br>';
+			doesImageExist = true;
 			imageRef = pageElement.imageRef;
 			imageName = pageElement.dataA;
 			pageElKey = pageElement.key;
 		}
+		myHTML += '<div id="img' + idx + '">';
+		myHTML += setupImage(idx, pageElement.imageRef, pageElement.dataA, doesImageExist);
 		//start the form
 		myHTML += '</div><form id="imageForm' + idx + '" action="/upload" enctype="multipart/form-data" method="post">';
 		myHTML += '<table class="imageUploadForm">';
@@ -274,37 +277,141 @@ var addPageElementToWorkArea = function(pageElement, idx) {
 	{
 		focusObject('dataA' + idx);
 	}
+	
+	//setup the image cropper buttons
+	setupImageCropperButtons(idx);
+
 	//if the page element is already disabled, we need to disable it in the html
 	if (pageElement.enabled && pageElement.enabled == 0) { markPageElAsDisabled(idx); }
 	
 	//now that the HTML is on the page, setup the image upload event handlers
 	//YAHOO.util.Event.addListener("submit" + idx, "click", uploadImage);
 	YAHOO.util.Event.on('imageForm' + idx, 'submit', function(e) {
-		//alert('imageForm: SUBMIT stopped event' + idx);
+		console.log('imageForm: SUBMIT stopped event' + idx);
 		YAHOO.util.Event.stopEvent(e);
 		uploadImage(idx);
 	});
 	YAHOO.util.Event.on('submit' + idx, 'click', function(e) {
-		//alert('imageForm: BUTTON stopped event ' + idx);
+		console.log('imageForm: BUTTON stopped event ' + idx);
 		YAHOO.util.Event.stopEvent(e);
 		uploadImage(idx);
+	});	
+}
+
+var setupImage = function(idx, imageRef, dataA, doesImageExist) {
+	console.log("setting up image: " + idx + ',' + imageRef + ',' + dataA);
+	//we need to support images not existing when this html is created, so we hide it instead
+	var imageURL = '';
+	if (imageRef) { imageURL = '/images?imageKey=' + imageRef; }
+	var style = '';
+	if (!doesImageExist) { style = ' style="display:none"'; }
+	return ('<br><img' + style + ' id="imageReal' + idx + '" src="' + imageURL + '" alt="' + dataA + '"><br><input type="button" class="imageCropButton" id="imageCrop' + idx + '" value="Crop / Resize Image"' + style + '><input type="button" class="imageCropButton" id="imageCropCancel' + idx + '" value="Cancel Crop" style="display:none">');
+}
+
+var setupImageCropperButtons = function(idx) {
+	//setup the image cropper button
+	console.log("setting up image cropper buttons: " + idx);
+	YAHOO.util.Event.on('imageCrop' + idx, 'click', function(e) {
+		var imageCrop = YUD.get('imageCrop' + idx);
+		var imageCropCancel = YUD.get('imageCropCancel' + idx);
+		//if we're not cropping, setup the crop
+		if (imageCrop.value == 'Crop / Resize Image') {
+			console.log("image cropper starting: " + idx);
+			imgCropper('imageReal' + idx);
+			imageCrop.value = 'Crop Image!';
+			imageCropCancel.style.display = 'inline';
+		}
+		else {
+			//else we need to save the crop to the server
+			console.log("image cropper saving: " + idx);
+			imageCrop.value = 'Crop / Resize Image';
+			imageCropCancel.style.display = 'none';
+			var cropArea = imageCroppers['imageReal' + idx].getCropCoords();
+			console.log(cropArea);
+			//post the data to the form
+			var myPOST = 'imageKey=' + YUD.get('imageRef' + idx).value;
+			myPOST += '&left=' + cropArea.left;
+			myPOST += '&top=' + cropArea.top;
+			myPOST += '&height=' + cropArea.height;
+			myPOST += '&width=' + cropArea.width;
+			
+			//store the src and index in the callback
+			cropImageCallbacks.argument.idx = idx;
+			YAHOO.util.Connect.asyncRequest('POST', '/imageCropper', cropImageCallbacks, myPOST);
+			//destroy the image cropper if it exists
+			if (imageCroppers['imageReal' + idx]) {
+				imageCroppers['imageReal' + idx].destroy();
+			}
+		}
+	});
+	//setup the image cropper cancel button
+	YAHOO.util.Event.on('imageCropCancel' + idx, 'click', function(e) {
+		console.log("image cropper cancelling: " + idx);
+		var imageCrop = YUD.get('imageCrop' + idx);
+		var imageCropCancel = YUD.get('imageCropCancel' + idx);
+		//set the button text back to normal
+		imageCrop.value = 'Crop / Resize Image';
+		imageCropCancel.style.display = 'none';
+		//destroy the image cropper if it exists
+		if (imageCroppers['imageReal' + idx]) {
+			imageCroppers['imageReal' + idx].destroy();
+		}
 	});
 }
 
-var nothing = function() { }
+var cropImageCallbacks = {
+	success : function (o) {
+		//just reset the image src so it reloads the image
+		var imgReal = YUD.get('imageReal' + o.argument.idx);
+		//we can add a # sign to the end of the url and that does the trick
+		imgReal.src += '&x';
+		console.log("cropImage successful: " + imgReal.src);
+	},
+	failure : function (o) {
+		alert("cropImage was not successful.");
+	},
+	argument : {
+		"idx": null
+	},
+	timeout : 3000
+}
+
+
+var imgCropper = function(id) {
+	console.log('setting up image cropper: ' + id);
+	var imgCrop = new YAHOO.widget.ImageCropper(id, {
+		//"initHeight": 200,
+		//"initWidth": 300,
+		//"initialXY": [0, 0]
+	});
+	//save the image crop object so we can use it later, id is the dom ID of the image we're cropping (imageReal + idx)
+	imageCroppers[id] = imgCrop;
+	console.log(imgCrop);
+}
 
 var imgListChanged = function(obj, value, idx) {
 	//check to see if the selected item is the -- Image List -- option
 	if (!value) { return; }
-	//update the img src from the img div
-	var imgDIV = YUD.get('img' + idx);
-	imgDIV.innerHTML = '<br><img src="/images?imageKey=' + value + '" alt="' + obj.options[obj.selectedIndex].innerHTML + '"><br><br>';
-	//update the image name in the form
-	var imgName = YUD.get('imageName' + idx);
-	imgName.value = obj.options[obj.selectedIndex].innerHTML;
-	//update the imageRef in the form
-	var imageRef = YUD.get('imageRef' + idx);
-	imageRef.value = value;
+	updateImageInForm(idx, value, obj.options[obj.selectedIndex].innerHTML);
+}
+
+var updateImageInForm = function(idx, imageKey, alt) {
+	//first cancel any crop requests
+	var imageCropCancel = YUD.get('imageCropCancel' + idx);
+	imageCropCancel.click();
+	
+	//change the src and alt of the existing image
+	var imgReal = YUD.get('imageReal' + idx);
+	imgReal.src = '/images?imageKey=' + imageKey;
+	imgReal.alt = alt;
+	imgReal.style.display = 'inline';
+	//show the crop button
+	var imgCrop = YUD.get('imageCrop' + idx);
+	imgCrop.style.display = 'inline';
+
+	//update the image name and ref in the form
+	YUD.get('imageName' + idx).value = alt;
+	YUD.get('imageRef' + idx).value = imageKey;
 }
 
 var focusObject = function (focusObject) {
@@ -315,7 +422,7 @@ var focusObject = function (focusObject) {
 }
 
 var uploadImage = function(idx) {
-	//alert('uploadImage ' + idx);
+	console.log('uploadImage ' + idx);
 	//figure out if the form has an image uploaded, so we can set the setForm boolean correctly
 	var imageData = YAHOO.util.Dom.get('imageData' + idx);
 	var formHasImageContent = false;
@@ -327,7 +434,6 @@ var uploadImage = function(idx) {
 }
 
 var processImageCallback = function(o) {
-	YAHOO.log("RAW JSON DATA: " + o.responseText);
 	var m = [];
 	try { m = YAHOO.lang.JSON.parse(o.responseText); }
 	catch (x) {
@@ -340,16 +446,14 @@ var processImageCallback = function(o) {
 	domIdToKeyMap['disable' + idx] = m.pageElement;
 	domIdToKeyMap['delete' + idx] = m.pageElement;
 	domIdToKeyMap['down' + idx] = m.pageElement;
-	//alert('save' + idx + ': ' + m.pageElement);
+	console.log('save' + idx + ': ' + m.pageElement);
 	domIdToKeyMap['save' + idx] = m.pageElement;
-	//add the new img into the innerHTML of the img+idx div
-	var imgDIV = YUD.get('img' + idx);
-	imgDIV.innerHTML = '<br><img src="/images?imageKey=' + m.key + '" alt="' + m.imageName + '"><br><br>';
+
+	updateImageInForm(idx, m.key, m.imageName);
+
 	//add the new pageElement key to the value of the myPageElKey hidden form input
 	YUD.get('myPageElKey' + idx).value = m.pageElement;
-	//modify the imageRef of the form to reflect the new values
-	var imageRef = YUD.get('imageRef' + idx);
-	imageRef.value = m.key;
+
 	//fire off a page element save, pass in the dom ID of the save button
 	pageElSave('save' + idx);
 }
@@ -408,7 +512,7 @@ var pageElUp = function(e) {
 			myChildNode.value.pageOrder = 0;
 		}
 		//check the pageOrder of the node to see if it is the same as what the currentNode's new pageOrder would be
-		//alert("checking: " + myChildNode.value.pageOrder + ' vs ' + (myNode.value.pageOrder-1));
+		console.log("checking: " + myChildNode.value.pageOrder + ' vs ' + (myNode.value.pageOrder-1));
 		if (!sorted && myChildNode.value.pageOrder == (myNode.value.pageOrder-1)) {
 			//now decrease the pageOrder of the currentNode and increase the page order of the other (swapping them)
 			myNode.value.pageOrder--
@@ -428,27 +532,27 @@ var pageElUp = function(e) {
 		}
 		//done, now we need to sort the tree and the divs
 		nodeKey = nodeToKeyMap[childNodeIndex];
-		//alert("pageUP " + i + ", " + myChildren[i] + ", " + nodeKey + ", " + myKey + ', ' + childNodeIndex + ', ' + myIndex);
+		console.log("pageUP " + i + ", " + myChildren[i] + ", " + nodeKey + ", " + myKey + ', ' + childNodeIndex + ', ' + myIndex);
 		//check the node indexes instead of the keys
 		if (childNodeIndex == myIndex) {
 		//if (nodeKey == myKey) {
-			//alert("this is the node we clicked on");
+			console.log("this is the node we clicked on");
 			//this is the page element that we clicked on
 			//get the previous sibling, remove this node from the tree, then insert it before the previous sibling
 			var myNode = myChildren[i];
 			var previousSibling = myNode.previousSibling;
 			if (previousSibling) {
 				tree.removeNode(myNode, false);
-				//alert("inserting node(" + myNode + ") before old node(" + previousSibling + ")");
+				console.log("inserting node(" + myNode + ") before old node(" + previousSibling + ")");
 				var insertedNode = myNode.insertBefore(previousSibling);
-				//alert(insertedNode);
+				console.log(insertedNode);
 				//now we just need to re-order the html DIVs so the work area display is adjusted with the new order
 				//DIV ID is DIV + node index
 				//get the previous DIV, remove this DIV from the parent DIV, then insert it before the previous DIV
 				myDiv = YAHOO.util.Dom.get('DIV' + childNodeIndex);
 				myParentDiv = myDiv.parentNode;
 				myPreviousDiv = YAHOO.util.Dom.getPreviousSibling(myDiv);
-				//alert(myDiv + ', ' + myParentDiv + ', ' + myPreviousDiv);
+				console.log(myDiv + ', ' + myParentDiv + ', ' + myPreviousDiv);
 				if (myPreviousDiv) {
 					removedNode = myParentDiv.removeChild(myDiv);
 					myParentDiv.insertBefore(removedNode, myPreviousDiv);
@@ -462,7 +566,6 @@ var pageElUp = function(e) {
 }
 var moveCallbacks = {
 	success : function (o) {
-		YAHOO.log("RAW JSON DATA: " + o.responseText);
 		// Process the JSON data returned from the server
 		var pageElement = [];
 		try {
@@ -471,9 +574,6 @@ var moveCallbacks = {
 		catch (x) {
 			alert("JSON Parse failed! " + x);
 			return;
-		}
-		YAHOO.log("PARSED DATA: " + YAHOO.lang.dump(pageElement.key + ' ' + pageElement.name));
-		{
 		}
 	},
 	failure : function (o) {
@@ -592,7 +692,6 @@ var markPageElAsDisabled = function(idx) {
 }
 var pageElDisableCallbacks = {
 	success : function (o) {
-		YAHOO.log("RAW JSON DATA: " + o.responseText);
 		var m = [];
 		try { m = YAHOO.lang.JSON.parse(o.responseText); }
 		catch (x) {
@@ -636,7 +735,6 @@ var pageElDelete = function(e) {
 }
 var pageElDeleteCallbacks = {
 	success : function (o) {
-		YAHOO.log("RAW JSON DATA: " + o.responseText);
 		// Process the JSON data returned from the server
 		var m = [];
 		try {
@@ -646,7 +744,6 @@ var pageElDeleteCallbacks = {
 			alert("JSON Parse failed! " + x);
 			return;
 		}
-		YAHOO.log("PARSED DATA: " + YAHOO.lang.dump(m.key + ' ' + m.name));
 		removePageElementNodeFromTree(o.argument.nodeIndex);
 	},
 	failure : function (o) {
@@ -668,7 +765,7 @@ var pageElSave = function(e) {
 	var myPageElNodeIndex = domIdToNodeIndexMap[obj.id];
 	var myHTML = "myPageKey=" + myPageKey;
 	var myNode = tree.getNodeByIndex(myPageElNodeIndex);
-	//alert('pageElSave: ' + obj.id + ', ' + myPageElKey);
+	console.log('pageElSave: ' + obj.id + ', ' + myPageElKey);
 	if (myPageElKey) {
 		//existing node
 		myHTML += "&myPageElKey=" + myPageElKey;
@@ -706,7 +803,6 @@ var pageElSave = function(e) {
 }
 var pageElSaveCallbacks = {
 	success : function (o) {
-		YAHOO.log("RAW JSON DATA: " + o.responseText);
 		// Process the JSON data returned from the server
 		var pageElement = [];
 		try {
@@ -716,7 +812,6 @@ var pageElSaveCallbacks = {
 			alert("JSON Parse failed! " + x);
 			return;
 		}
-		YAHOO.log("PARSED DATA: " + YAHOO.lang.dump(pageElement.key + ' ' + pageElement.name));
 		{
 			var belowWorkArea = YAHOO.util.Dom.get('belowElWorkArea' + o.argument.nodeIndex);
 			belowWorkArea.innerHTML = 'Saved.';
@@ -761,7 +856,7 @@ var addPageElement = function(e) {
 	for (var i = 0; i < myNode.children.length; i++) {
 		if (myNode.children[i].value.pageOrder >= pageOrder) {
 			pageOrder = (myNode.children[i].value.pageOrder + 1);
-			//alert('node: ' + myNode.children[i] + ', new pageOrder set to ' + pageOrder);
+			console.log('node: ' + myNode.children[i] + ', new pageOrder set to ' + pageOrder);
 		}
 	}
 	//done
@@ -776,7 +871,6 @@ var addPageElement = function(e) {
 
 var addPageElementCallbacks = {
 	success : function (o) {
-		YAHOO.log("RAW JSON DATA: " + o.responseText);
 		// Process the JSON data returned from the server
 		var m = [];
 		try {
@@ -787,7 +881,6 @@ var addPageElementCallbacks = {
 			alert(x);
 			return;
 		}
-		YAHOO.log("PARSED DATA: " + YAHOO.lang.dump(m.key + ' ' + m.name));
 	},
 	failure : function (o) {
 		alert("addPageElement was not successful.");
@@ -862,7 +955,7 @@ var editPage = function(e) {
 		addOrUpdatePage();
 	}
 	else {
-		//alert("no page selected");
+		console.log("no page selected");
 	}
 }
 var addOrUpdatePage = function(pageKey) {
@@ -898,7 +991,6 @@ var addPageSubmit = function(e) {
 }
 var addPageCallbacks = {
 	success : function (o) {
-		YAHOO.log("RAW JSON DATA: " + o.responseText);
 		// Process the JSON data returned from the server
 		var m = [];
 		try {
@@ -909,10 +1001,9 @@ var addPageCallbacks = {
 			alert(x);
 			return;
 		}
-		YAHOO.log("PARSED DATA: " + YAHOO.lang.dump(m.key + ' ' + m.name));
 		{
-			//alert(m.key + ' ' + m.name);
-			//alert(currentNodeIndex + '|' + o.argument.nodeIndex);
+			console.log(m.key + ' ' + m.name);
+			console.log(currentNodeIndex + '|' + o.argument.nodeIndex);
 			var myNode = tree.getNodeByIndex(o.argument.nodeIndex);
 			if (myNode) {
 				myNode.label = m.name;
@@ -933,7 +1024,7 @@ var addPageCallbacks = {
 }
 
 var deletePageSubmit = function(e) {
-	//alert("addPageSubmit");
+	console.log("addPageSubmit");
 	//myAdventureKey myPageKey pageName
 	var pageKeyHTML = "myPageKey=" + currentPage.key;
 	deletePageCallbacks.argument.nodeIndex = currentNodeIndex;
@@ -941,7 +1032,6 @@ var deletePageSubmit = function(e) {
 }
 var deletePageCallbacks = {
 	success : function (o) {
-		YAHOO.log("RAW JSON DATA: " + o.responseText);
 		// Process the JSON data returned from the server
 		var m = [];
 		try {
@@ -952,7 +1042,6 @@ var deletePageCallbacks = {
 			alert(x);
 			return;
 		}
-		YAHOO.log("PARSED DATA: " + YAHOO.lang.dump(m.key + ' ' + m.name));
 		{
 			var myNode = tree.getNodeByIndex(o.argument.nodeIndex);
 			if (myNode) {
@@ -978,7 +1067,6 @@ var deletePageCallbacks = {
 // Define the callbacks for the asyncRequest
 var callbacks = {
 	success : function (o) {
-		YAHOO.log("RAW JSON DATA: " + o.responseText);
 		// Process the JSON data returned from the server
 		var messages = [];
 		try {
@@ -989,7 +1077,6 @@ var callbacks = {
 			alert(x);
 			return;
 		}
-		YAHOO.log("PARSED DATA: " + YAHOO.lang.dump(messages));
 		tree = new YAHOO.widget.TreeView("treeDiv1");
 		// The returned data was parsed into an array of objects.
 		// Add a P element for each received message
@@ -1050,7 +1137,7 @@ var nodeClick = function(node) {
 		}
 	}
 	tabIndex = 1;
-	YAHOO.log(node.index + " label was clicked", "info", "example");
+	console.log(node.index + " label was clicked");
 	resetWorkArea(null, 1, currentNodeIndex);
 	var curPage = YAHOO.util.Dom.get('currentPage');
 	curPage.innerHTML = node.label;
@@ -1071,7 +1158,6 @@ var nodeClick = function(node) {
 
 var imagesByUserCallbacks = {
 	success : function (o) {
-		YAHOO.log("imagesByUserCallbacks RAW JSON DATA: " + o.responseText);
 		// Process the JSON data returned from the server
 		var images = [];
 		try {
