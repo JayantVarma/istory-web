@@ -117,6 +117,7 @@ class Uploader(webapp.RequestHandler):
 			return		
 	else:
 		#we create the page element that will reference the new image
+		logging.error('Uploader: creating new pageElement')
 		pageElement = adventureModel.PageElement()
 		pageElement.dataType = 2
 		pageElement.enabled = 1
@@ -155,6 +156,9 @@ class Uploader(webapp.RequestHandler):
 			logging.error("the existing image data is different.. lets create a new image")
 			newImage = adventureModel.Image()
 			newImage.imageData = db.Blob(myImageData)
+	else:
+		#else its a new image, so save the image data from the form
+		newImage.imageData = db.Blob(myImageData)
 
 	if not page or not adventure:
 		self.error(404)

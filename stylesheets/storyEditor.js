@@ -340,15 +340,18 @@ var processImageCallback = function(o) {
 	domIdToKeyMap['disable' + idx] = m.pageElement;
 	domIdToKeyMap['delete' + idx] = m.pageElement;
 	domIdToKeyMap['down' + idx] = m.pageElement;
+	//alert('save' + idx + ': ' + m.pageElement);
 	domIdToKeyMap['save' + idx] = m.pageElement;
 	//add the new img into the innerHTML of the img+idx div
 	var imgDIV = YUD.get('img' + idx);
 	imgDIV.innerHTML = '<br><img src="/images?imageKey=' + m.key + '" alt="' + m.imageName + '"><br><br>';
+	//add the new pageElement key to the value of the myPageElKey hidden form input
+	YUD.get('myPageElKey' + idx).value = m.pageElement;
 	//modify the imageRef of the form to reflect the new values
 	var imageRef = YUD.get('imageRef' + idx);
 	imageRef.value = m.key;
 	//fire off a page element save, pass in the dom ID of the save button
-	pageElSave('save' + o.argument.nodeIndex);
+	pageElSave('save' + idx);
 }
 
 var uploadImageCallbacks = {
@@ -390,6 +393,7 @@ var pageElUp = function(e) {
 	if (myNode.value.pageOrder < 0) {
 		myNode.value.pageOrder = 0;
 	}
+	var sorted = false;
 	for (var i = 0; i < myChildren.length; i++) {
 		childNodeIndex = myChildren[i].index;
 		var myChildNode = tree.getNodeByIndex(childNodeIndex);
@@ -405,7 +409,7 @@ var pageElUp = function(e) {
 		}
 		//check the pageOrder of the node to see if it is the same as what the currentNode's new pageOrder would be
 		//alert("checking: " + myChildNode.value.pageOrder + ' vs ' + (myNode.value.pageOrder-1));
-		if (myChildNode.value.pageOrder == (myNode.value.pageOrder-1)) {
+		if (!sorted && myChildNode.value.pageOrder == (myNode.value.pageOrder-1)) {
 			//now decrease the pageOrder of the currentNode and increase the page order of the other (swapping them)
 			myNode.value.pageOrder--
 			myChildNode.value.pageOrder++;
@@ -418,6 +422,9 @@ var pageElUp = function(e) {
 				var myHTML = "myElKey=" + myChildNode.value.key + "&myNewOrder=" + myChildNode.value.pageOrder;
 				YAHOO.util.Connect.asyncRequest('POST', '/movePageElement', moveCallbacks, myHTML);
 			}
+			//set sorted to true so we dont sort any more
+			//if we dont do this, you can end up moving it all the way down/up the page
+			sorted = true;
 		}
 		//done, now we need to sort the tree and the divs
 		nodeKey = nodeToKeyMap[childNodeIndex];
@@ -498,6 +505,7 @@ var pageElDown = function(e) {
 	if (myNode.value.pageOrder < 0) {
 		myNode.value.pageOrder = 0;
 	}
+	var sorted = false;
 	for (var i = 0; i < myChildren.length; i++) {
 		childNodeIndex = myChildren[i].index;
 		var myChildNode = tree.getNodeByIndex(childNodeIndex);
@@ -512,7 +520,7 @@ var pageElDown = function(e) {
 			myChildNode.value.pageOrder = 0;
 		}
 		//check the pageOrder of the node to see if it is the same as what the currentNode's new pageOrder would be
-		if (myChildNode.value.pageOrder == (myNode.value.pageOrder+1)) {
+		if (!sorted && myChildNode.value.pageOrder == (myNode.value.pageOrder+1)) {
 			//now increase the pageOrder of the currentNode and decrease the page order of the other (swapping them)
 			myNode.value.pageOrder++;
 			myChildNode.value.pageOrder--;
@@ -525,6 +533,9 @@ var pageElDown = function(e) {
 				var myHTML = "myElKey=" + myChildNode.value.key + "&myNewOrder=" + myChildNode.value.pageOrder;
 				YAHOO.util.Connect.asyncRequest('POST', '/movePageElement', moveCallbacks, myHTML);
 			}
+			//set sorted to true so we dont sort any more
+			//if we dont do this, you can end up moving it all the way down/up the page
+			sorted = true;
 		}
 		//done, now we need to sort the tree and the divs
 		
@@ -657,6 +668,7 @@ var pageElSave = function(e) {
 	var myPageElNodeIndex = domIdToNodeIndexMap[obj.id];
 	var myHTML = "myPageKey=" + myPageKey;
 	var myNode = tree.getNodeByIndex(myPageElNodeIndex);
+	//alert('pageElSave: ' + obj.id + ', ' + myPageElKey);
 	if (myPageElKey) {
 		//existing node
 		myHTML += "&myPageElKey=" + myPageElKey;

@@ -1,11 +1,11 @@
 from google.appengine.ext import db
+import logging
 
 class Adventure(db.Model):
 	title = db.StringProperty(multiline=False)
 	realAuthor = db.UserProperty()
 	author = db.StringProperty(multiline=False)
 	version = db.StringProperty(multiline=False)
-	date = db.DateTimeProperty(auto_now_add=True)
 	desc = db.TextProperty()
 	created = db.DateTimeProperty(auto_now_add=True)
 	modified = db.DateTimeProperty(auto_now=True)
@@ -52,8 +52,13 @@ class PageElement(db.Model):
 	modified = db.DateTimeProperty(auto_now=True)
 	def toDict(self):
 		imageRef = None
-		if self.imageRef:
-			imageRef = str(self.imageRef.key())
+		try:
+			if self.imageRef:
+				imageRef = str(self.imageRef.key())
+		except Exception, e:
+			logging.error('%s: %s' % (e.__class__.__name__, e))
+			self.imageRef = None
+			self.put()
 		return {
 			'page': str(self.page.key()),
 			'adventure': str(self.adventure.key()),

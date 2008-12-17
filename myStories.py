@@ -21,7 +21,7 @@ class MyStories(webapp.RequestHandler):
 	else:
 		adventures_query = adventureModel.Adventure.all()
 		adventures_query.filter('realAuthor = ', myUser)
-		adventures_query.order('-date')
+		adventures_query.order('-created')
 		adventures = adventures_query.fetch(10)
 		if not memcache.add("adventures_" + myUser.email(), adventures, 300):
 			logging.error("memcache set failed.")

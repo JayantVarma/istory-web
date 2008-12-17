@@ -139,6 +139,7 @@ class SavePageElement(webapp.RequestHandler):
 	adventure = None
 	if myPageElKey:
 		#existing page element
+		logging.error("SavePageElement: key(" + myPageElKey + ") passed in did exist in DB, must be existing")
 		pageElement = db.Model.get(myPageElKey)
 		page = pageElement.page
 		adventure = pageElement.adventure
@@ -190,7 +191,7 @@ class SavePageElement(webapp.RequestHandler):
 	logging.error("dataA: " + pageElement.dataA)
 	logging.error("dataB: " + pageElement.dataB)
 	self.response.out.write(simplejson.dumps(pageElement.toDict()))
-	logging.error("AddPageElement: returning json: " + simplejson.dumps(pageElement.toDict()))
+	logging.error("SavePageElement: returning json: " + simplejson.dumps(pageElement.toDict()))
 
 class AddPageElement(webapp.RequestHandler):
   def post(self):
