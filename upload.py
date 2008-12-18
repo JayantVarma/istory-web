@@ -164,7 +164,7 @@ class ImageManager(webapp.RequestHandler):
 		pass
 	else:
 		url = users.create_login_url(self.request.uri)
-		url_linktext = 'Please login to use the Story Editor'
+		url_linktext = 'Please login to use the StoryForge'
 		template_values = {
 			'url': url,
 			'url_linktext': url_linktext,

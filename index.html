@@ -1,8 +1,25 @@
+	<!-- end #header --></div>
+	<div class="sidebar1">
+		<h3>What is iStory?</h3>
+		<div class="sb1">
+		<div>iStory is an interactive story telling environment for the iPhone.</div>
+		<div>Use the <b><i>StoryForge</i></b> to create your own dynamic story line, complete with text, pictures, and choices.</div>
+		<div>While writing your story, you'll be able to experience it on your own iPhone.</div>
+		<div>When you're done, simply submit your story to share it with the rest of the world!</div>
+		<div>Tell your friends and family and let them craft a path through your story, or try it out for yourself. You'll love being able to choose your own adventure each and every time you play through.</div>
+		<div>The best part about iStory is that you can make <i>whatever</i> you want. Short, long, full of pictures, or hundreds of story branches- if you can think it, you can make it.</div>
+		</div>
+	<!-- end #sidebar1 --></div>
+
+	<!-- begin #mainContent -->
+	<div class="mainContent">
+
+{% block main %}
 {% for adventure in adventures %}
-	<b>{{ adventure.title }}</b><br>
-	By: {{ adventure.author }}<br>
-	Version: {{ adventure.version }}<br>
-	Date Created: {{ adventure.created }}<br>
-	<pre>{{ adventure.desc|escape }}</pre>
-	<hr>
+	<div class="{% cycle book1,book2 %}"><center><b>{{ adventure.title }}</b><br>
+	<i>{{ adventure.author }}</i><br>
+	{{ adventure.created.date }}</center><hr>
+	<code>{{ adventure.desc|escape }}</code>
+	</div>
 {% endfor %}
+{% endblock %}

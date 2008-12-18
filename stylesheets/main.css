@@ -9,13 +9,16 @@ body  {
 	text-align: center; /* this centers the container in IE 5* browsers. The text is then set to the left aligned default in the #container selector */
 	color: #000000;
 }
+body hr {
+	width:75%;
+}
 
 /* Tips for Elastic layouts 
 1. Since the elastic layouts overall sizing is based on the user's default fonts size, they are more unpredictable. Used correctly, they are also more accessible for those that need larger fonts size since the line length remains proportionate.
 2. Sizing of divs in this layout are based on the 100% font size in the body element. If you decrease the text size overall by using a font-size: 80% on the body element or the #container, remember that the entire layout will downsize proportionately. You may want to increase the widths of the various divs to compensate for this.
 3. If font sizing is changed in differing amounts on each div instead of on the overall design (ie: #sidebar1 is given a 70% font size and #mainContent is given an 85% font size), this will proportionately change each of the divs overall size. You may want to adjust based on your final font sizing.
 */
-.yui-skin-sam .container { 
+.yui-skin-sam .container {
 	width: 46em;  /* this width will create a container that will fit in an 800px browser window if text is left at browser default font sizes */
 	height: 100%;
 	background: #333333;
@@ -23,14 +26,20 @@ body  {
 	border: 1px solid #000000;
 	text-align: left; /* this overrides the text-align: center on the body element. */
 } 
-.yui-skin-sam .header { 
+.yui-skin-sam .header {
+	font-size: regular;
+	border-bottom-width: 1px;
+	border-bottom-style: solid;
+	border-bottom-color: #000000;
 	background: #DDDDDD; 
 	padding: 0 10px;  /* this padding matches the left alignment of the elements in the divs that appear beneath it. If an image is used in the #header instead of text, you may want to remove the padding. */
 } 
 .yui-skin-sam .header h1 {
 	margin: 0; /* zeroing the margin of the last element in the #header div will avoid margin collapse - an unexplainable space between divs. If the div has a border around it, this is not necessary as that also avoids the margin collapse */
 	padding: 10px 0; /* using padding instead of margin will allow you to keep the element away from the edges of the div */
-	font-style:oblique; font-size:x-large; font-weight:bold;
+	font-style:oblique;
+	font-size:x-large;
+	font-weight:bold;
 }
 .yui-skin-sam .sidebar1 hr {
 	width:75%;
@@ -46,6 +55,20 @@ body  {
 	height: 40em;
 	background: #EBEBEB; /* the background color will be displayed for the length of the content in the column, but no further */
 	padding: 15px 0; /* top and bottom padding create visual space within this div */
+}
+.yui-skin-sam .sidebar1 .sb1 div {
+	margin-left: 5px;
+	margin-right: 5px;
+	margin-top: 6px;
+	margin-bottom: 10px;
+	padding-left: 5px;
+	padding-right: 5px;
+	font-size:small;
+	background:#CCCCCC;
+	color:#000000;
+	border-width: 1px;
+	border-style: dotted;
+	border-color: #000000;
 }
 #treeDiv1 {
 	background: #EBEBEB;
@@ -73,12 +96,43 @@ body  {
 	margin: 0 1em 0 12.5em; /* the right margin can be given in ems or pixels. It creates the space down the right side of the page. */
 	height:100%;
 } 
+.yui-skin-sam .mainContent .book1 {
+	float: left;
+	width: 17.5em;
+	padding:7px;
+	margin-top:10px;
+	margin-left:10px;
+	margin-bottom:5px;
+	font-size:small;
+	background:#CCCCCC;
+	color:#000000;
+	border-width: 1px;
+	border-style: dotted;
+	border-color: #000000;
+}
+.yui-skin-sam .mainContent .book2 {
+	float: right;
+	width: 17.5em;
+	padding:7px;
+	margin-top:10px;
+	margin-right:5px;
+	margin-bottom:5px;
+	font-size:small;
+	background:#CCCCCC;
+	color:#000000;
+	border-width: 1px;
+	border-style: dotted;
+	border-color: #000000;
+}
 .yui-skin-sam .footer { 
 	padding: 0 10px; /* this padding matches the left alignment of the elements in the divs that appear above it. */
 	background:#DDDDDD;
 	font-size: small;
 	vertical-align: middle;
 	text-align:center;
+	border-top-width: 1px;
+	border-top-style: solid;
+	border-top-color: #000000;
 } 
 .yui-skin-sam .footer p {
 	margin: 0; /* zeroing the margins of the first element in the footer will avoid the possibility of margin collapse - a space between divs */
@@ -124,40 +178,54 @@ body  {
 
 img { vertical-align: bottom; }
 
-
-.icon-deletePage { display:block; height:64px; width:64px; background: transparent url(icons.png) 0px 0px no-repeat; }
-.icon-editPage   { display:block; height:64px; width:64px; background: transparent url(icons.png) 0px -64px no-repeat; }
-.icon-addPage    { display:block; height:64px; width:64px; background: transparent url(icons.png) 0px -128px no-repeat; }
-.icon-save       { display:block; height:48px; width:43px; background: transparent url(icons.png) 0 -192px no-repeat; }
-.icon-delete     { display:block; height:48px; width:43px; background: transparent url(icons.png) 0 -256px no-repeat; }
-.icon-addImage   { display:block; height:48px; width:41px; background: transparent url(icons.png) 0 -320px no-repeat; }
-.icon-addText    { display:block; height:48px; width:41px; background: transparent url(icons.png) 0 -384px no-repeat; }
-.icon-addChoice  { display:block; height:48px; width:41px; background: transparent url(icons.png) 0 -448px no-repeat; }
-.icon-elDelete   { display:block; height:48px; width:41px; background: transparent url(icons.png) 0 -512px no-repeat; }
-.icon-elUp       { display:block; height:48px; width:41px; background: transparent url(icons.png) 0 -576px no-repeat; }
-.icon-elDown     { display:block; height:48px; width:41px; background: transparent url(icons.png) 0 -640px no-repeat; }
-.icon-deletePageMO { display:block; height:64px; width:64px; background: transparent url(icons.png) -64px 0px no-repeat; }
-.icon-editPageMO   { display:block; height:64px; width:64px; background: transparent url(icons.png) -64px -64px no-repeat; }
-.icon-addPageMO    { display:block; height:64px; width:64px; background: transparent url(icons.png) -64px -128px no-repeat; }
-.icon-saveMO       { display:block; height:48px; width:43px; background: transparent url(icons.png) -64px -192px no-repeat; }
-.icon-deleteMO     { display:block; height:48px; width:43px; background: transparent url(icons.png) -64px -256px no-repeat; }
-.icon-addImageMO   { display:block; height:48px; width:41px; background: transparent url(icons.png) -64px -320px no-repeat; }
-.icon-addTextMO    { display:block; height:48px; width:41px; background: transparent url(icons.png) -64px -384px no-repeat; }
-.icon-addChoiceMO  { display:block; height:48px; width:41px; background: transparent url(icons.png) -64px -448px no-repeat; }
-.icon-elDeleteMO   { display:block; height:48px; width:41px; background: transparent url(icons.png) -64px -512px no-repeat; }
-.icon-elUpMO       { display:block; height:48px; width:41px; background: transparent url(icons.png) -64px -576px no-repeat; }
-.icon-elDownMO     { display:block; height:48px; width:41px; background: transparent url(icons.png) -64px -640px no-repeat; }
-.icon-deletePageD { display:block; height:64px; width:64px; background: transparent url(icons.png) -128px 0px no-repeat; }
-.icon-editPageD   { display:block; height:64px; width:64px; background: transparent url(icons.png) -128px -64px no-repeat; }
-.icon-addPageD    { display:block; height:64px; width:64px; background: transparent url(icons.png) -128px -128px no-repeat; }
-.icon-saveD       { display:block; height:48px; width:43px; background: transparent url(icons.png) -128px -192px no-repeat; }
-.icon-deleteD     { display:block; height:48px; width:43px; background: transparent url(icons.png) -128px -256px no-repeat; }
-.icon-addImageD   { display:block; height:48px; width:41px; background: transparent url(icons.png) -128px -320px no-repeat; }
-.icon-addTextD    { display:block; height:48px; width:41px; background: transparent url(icons.png) -128px -384px no-repeat; }
-.icon-addChoiceD  { display:block; height:48px; width:41px; background: transparent url(icons.png) -128px -448px no-repeat; }
-.icon-elDeleteD   { display:block; height:48px; width:41px; background: transparent url(icons.png) -128px -512px no-repeat; }
-.icon-elUpD       { display:block; height:48px; width:41px; background: transparent url(icons.png) -128px -576px no-repeat; }
-.icon-elDownD     { display:block; height:48px; width:41px; background: transparent url(icons.png) -128px -640px no-repeat; }
+.myStoryButton {
+	vertical-align:top;
+	cursor:pointer;
+	text-align:center;
+	width:30%;
+	margin-right:auto;
+	margin-left:auto;
+	background:#CCCCCC;
+}
+.myStoryButton:hover {
+	background:#DDDDDD;
+}
+.icon-deletePage { display:block; height:64px; width:64px; background: transparent url(icons24bit.png) 0px 0px no-repeat; }
+.icon-addPage    { display:block; height:64px; width:64px; background: transparent url(icons24bit.png) 0px -64px no-repeat; }
+.icon-editPage   { display:block; height:64px; width:64px; background: transparent url(icons24bit.png) 0px -128px no-repeat; }
+.icon-save       { display:block; height:48px; width:43px; background: transparent url(icons24bit.png) 0 -192px no-repeat; }
+.icon-delete     { display:block; height:48px; width:43px; background: transparent url(icons24bit.png) 0 -256px no-repeat; }
+.icon-addImage   { display:block; height:48px; width:41px; background: transparent url(icons24bit.png) 0 -320px no-repeat; }
+.icon-addText    { display:block; height:48px; width:41px; background: transparent url(icons24bit.png) 0 -384px no-repeat; }
+.icon-addChoice  { display:block; height:48px; width:41px; background: transparent url(icons24bit.png) 0 -448px no-repeat; }
+.icon-elDelete   { display:block; height:48px; width:41px; background: transparent url(icons24bit.png) 0 -512px no-repeat; }
+.icon-elUp       { display:block; height:48px; width:41px; background: transparent url(icons24bit.png) 0 -576px no-repeat; }
+.icon-elDown     { display:block; height:48px; width:41px; background: transparent url(icons24bit.png) 0 -640px no-repeat; }
+.icon-storyEdit  { display:block; height:64px; width:64px; background: transparent url(icons24bit.png) 0 -704px no-repeat; }
+.icon-deletePageMO { display:block; height:64px; width:64px; background: transparent url(icons24bit.png) -64px 0px no-repeat; }
+.icon-addPageMO    { display:block; height:64px; width:64px; background: transparent url(icons24bit.png) -64px -64px no-repeat; }
+.icon-editPageMO   { display:block; height:64px; width:64px; background: transparent url(icons24bit.png) -64px -128px no-repeat; }
+.icon-saveMO       { display:block; height:48px; width:43px; background: transparent url(icons24bit.png) -64px -192px no-repeat; }
+.icon-deleteMO     { display:block; height:48px; width:43px; background: transparent url(icons24bit.png) -64px -256px no-repeat; }
+.icon-addImageMO   { display:block; height:48px; width:41px; background: transparent url(icons24bit.png) -64px -320px no-repeat; }
+.icon-addTextMO    { display:block; height:48px; width:41px; background: transparent url(icons24bit.png) -64px -384px no-repeat; }
+.icon-addChoiceMO  { display:block; height:48px; width:41px; background: transparent url(icons24bit.png) -64px -448px no-repeat; }
+.icon-elDeleteMO   { display:block; height:48px; width:41px; background: transparent url(icons24bit.png) -64px -512px no-repeat; }
+.icon-elUpMO       { display:block; height:48px; width:41px; background: transparent url(icons24bit.png) -64px -576px no-repeat; }
+.icon-elDownMO     { display:block; height:48px; width:41px; background: transparent url(icons24bit.png) -64px -640px no-repeat; }
+.icon-storyEditMO  { display:block; height:64px; width:64px; background: transparent url(icons24bit.png) -64px -704px no-repeat; }
+.icon-deletePageD { display:block; height:64px; width:64px; background: transparent url(icons24bit.png) -128px 0px no-repeat; }
+.icon-addPageD    { display:block; height:64px; width:64px; background: transparent url(icons24bit.png) -128px -64px no-repeat; }
+.icon-editPageD   { display:block; height:64px; width:64px; background: transparent url(icons24bit.png) -128px -128px no-repeat; }
+.icon-saveD       { display:block; height:48px; width:43px; background: transparent url(icons24bit.png) -128px -192px no-repeat; }
+.icon-deleteD     { display:block; height:48px; width:43px; background: transparent url(icons24bit.png) -128px -256px no-repeat; }
+.icon-addImageD   { display:block; height:48px; width:41px; background: transparent url(icons24bit.png) -128px -320px no-repeat; }
+.icon-addTextD    { display:block; height:48px; width:41px; background: transparent url(icons24bit.png) -128px -384px no-repeat; }
+.icon-addChoiceD  { display:block; height:48px; width:41px; background: transparent url(icons24bit.png) -128px -448px no-repeat; }
+.icon-elDeleteD   { display:block; height:48px; width:41px; background: transparent url(icons24bit.png) -128px -512px no-repeat; }
+.icon-elUpD       { display:block; height:48px; width:41px; background: transparent url(icons24bit.png) -128px -576px no-repeat; }
+.icon-elDownD     { display:block; height:48px; width:41px; background: transparent url(icons24bit.png) -128px -640px no-repeat; }
+.icon-storyEditD  { display:block; height:64px; width:64px; background: transparent url(icons24bit.png) -128px -704px no-repeat; }
 #deletePage, #editPage, #addPage, #addPageElementText, #addPageElementImage, #addPageElementChoice {
 	cursor:pointer; padding:0px;
 	text-align:center;
@@ -273,4 +341,13 @@ img { vertical-align: bottom; }
 	margin-left:5px;
 	margin-right:5px;
 	font-size:small;
+}
+#loadTop {
+	display: block;
+	float: right;
+	margin-right:16em;
+	margin-top:1em;
+}
+.loadElement {
+	display: none;
 }

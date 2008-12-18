@@ -59,12 +59,12 @@ class StoryEditor(webapp.RequestHandler):
 		pass
 	else:
 		url = users.create_login_url(self.request.uri)
-		url_linktext = 'Please login to use the Story Editor'
+		url_linktext = 'Please login to use the StoryForge'
 		template_values = {
 			'url': url,
 			'url_linktext': url_linktext,
 		}
-		main.printHeader(self)
+		main.printHeader(self, "iStory - StoryForge - " + adventure.title)
 		path = os.path.join(os.path.dirname(__file__), 'pleaseLogin.html')
 		self.response.out.write(template.render(path, template_values))
 		main.printFooter(self, None)
@@ -86,7 +86,7 @@ class StoryEditor(webapp.RequestHandler):
 		'error': error,
 	}
 
-	main.printHeader(self, 'Story Editor')
+	main.printHeader(self, 'StoryForge')
 	path = os.path.join(os.path.dirname(__file__), 'storyEditor.html')
 	self.response.out.write(template.render(path, template_values))
 	main.printFooter(self, template_values)

@@ -12,6 +12,7 @@ if (MY_ADVENTURE_KEY) {
 	adventureKey = MY_ADVENTURE_KEY;
 }
 
+var loadingCounter = 0;
 var labelClick = false;
 var currentPage = {
 	name : null,
@@ -232,12 +233,13 @@ var addPageElementToWorkArea = function(pageElement, idx) {
 	else {
 		alert("tried to add pageElement of unknown type: " + pageElement.dataType);
 	}
-	myHTML += '</div><div class="pageElementMenu"><table><tr>';
+	myHTML += '</div><div class="pageElementMenu"><table id="elementMenu"><tr>';
 	myHTML += "<td>Don't forget to save!</td>";
 	myHTML += '<td>' + divButtonFunction('up'+idx, 'icon-elUp') + '</td>';
 	myHTML += '<td>' + divButtonFunction('disable'+idx, 'icon-elDelete') + '</td>';
 	myHTML += '<td>' + divButtonFunction('down'+idx, 'icon-elDown') + '</td>';
 	myHTML += '<td>' + divButtonFunction('save'+idx, 'icon-save') + '</td>';
+	myHTML += '<td><div class="loadElement"><img src="/stylesheets/load.gif"></div></td>';
 	myHTML += '</tr></table></div>';
 
 	myHTML += '<div class="belowWorkArea" id="belowElWorkArea' + idx + '"></div>';
@@ -337,6 +339,7 @@ var setupImageCropperButtons = function(idx) {
 			
 			//store the src and index in the callback
 			cropImageCallbacks.argument.idx = idx;
+			setLoading();
 			YAHOO.util.Connect.asyncRequest('POST', '/imageCropper', cropImageCallbacks, myPOST);
 			//destroy the image cropper if it exists
 			if (imageCroppers['imageReal' + idx]) {
@@ -366,6 +369,7 @@ var cropImageCallbacks = {
 		//we can add a # sign to the end of the url and that does the trick
 		imgReal.src += '&x';
 		console.log("cropImage successful: " + imgReal.src);
+		setLoaded();
 	},
 	failure : function (o) {
 		alert("cropImage was not successful.");
@@ -430,6 +434,7 @@ var uploadImage = function(idx) {
 	//save the index for later and upload the image data
 	YAHOO.util.Connect.setForm('imageForm' + idx, formHasImageContent);
 	uploadImageCallbacks.argument.nodeIndex = idx;
+	setLoading();
 	YAHOO.util.Connect.asyncRequest('POST', '/upload', uploadImageCallbacks);//, myPOST);
 }
 
@@ -461,9 +466,11 @@ var processImageCallback = function(o) {
 var uploadImageCallbacks = {
 	upload : function (o) {
 		processImageCallback(o);
+		setLoaded();
 	},
 	success : function (o) {
 		processImageCallback(o);
+		setLoaded();
 	},
 	failure : function (o) {
 		alert("uploadImage was not successful.");
@@ -520,10 +527,12 @@ var pageElUp = function(e) {
 			//commit the changes to the DB if the page elements exist there
 			if (myNode.value.key) {
 				var myHTML = "myElKey=" + myNode.value.key + "&myNewOrder=" + myNode.value.pageOrder;
+				setLoading();
 				YAHOO.util.Connect.asyncRequest('POST', '/movePageElement', moveCallbacks, myHTML);
 			}
 			if (myChildNode.value.key) {
 				var myHTML = "myElKey=" + myChildNode.value.key + "&myNewOrder=" + myChildNode.value.pageOrder;
+				setLoading();
 				YAHOO.util.Connect.asyncRequest('POST', '/movePageElement', moveCallbacks, myHTML);
 			}
 			//set sorted to true so we dont sort any more
@@ -575,6 +584,7 @@ var moveCallbacks = {
 			alert("JSON Parse failed! " + x);
 			return;
 		}
+		setLoaded();
 	},
 	failure : function (o) {
 		alert("MovePageElement was not successful.");
@@ -627,10 +637,12 @@ var pageElDown = function(e) {
 			//commit the changes to the DB if the page elements exist there
 			if (myNode.value.key) {
 				var myHTML = "myElKey=" + myNode.value.key + "&myNewOrder=" + myNode.value.pageOrder;
+				setLoading();
 				YAHOO.util.Connect.asyncRequest('POST', '/movePageElement', moveCallbacks, myHTML);
 			}
 			if (myChildNode.value.key) {
 				var myHTML = "myElKey=" + myChildNode.value.key + "&myNewOrder=" + myChildNode.value.pageOrder;
+				setLoading();
 				YAHOO.util.Connect.asyncRequest('POST', '/movePageElement', moveCallbacks, myHTML);
 			}
 			//set sorted to true so we dont sort any more
@@ -674,6 +686,7 @@ var pageElDisable = function(e) {
 		var myHTML = "myElKey=" + myKey;
 		pageElDisableCallbacks.argument.key = myKey
 		pageElDisableCallbacks.argument.nodeIndex = keyToNodeMap[myKey].index;
+		setLoading();
 		YAHOO.util.Connect.asyncRequest('POST', '/disablePageElement', pageElDisableCallbacks, myHTML);			
 	}
 	else {
@@ -699,6 +712,7 @@ var pageElDisableCallbacks = {
 			return;
 		}
 		markPageElAsDisabled(o.argument.nodeIndex);
+		setLoaded();
 	},
 	failure : function (o) {
 		alert("disablePageElement was not successful.");
@@ -726,6 +740,7 @@ var pageElDelete = function(e) {
 		var myHTML = "myElKey=" + myKey;
 		pageElDeleteCallbacks.argument.key = myKey
 		pageElDeleteCallbacks.argument.nodeIndex = keyToNodeMap[myKey].index;
+		setLoading();
 		YAHOO.util.Connect.asyncRequest('POST', '/deletePageElement', pageElDeleteCallbacks, myHTML);
 	}
 	else {
@@ -745,6 +760,7 @@ var pageElDeleteCallbacks = {
 			return;
 		}
 		removePageElementNodeFromTree(o.argument.nodeIndex);
+		setLoaded();
 	},
 	failure : function (o) {
 		alert("deletePageElement was not successful.");
@@ -799,6 +815,7 @@ var pageElSave = function(e) {
 		myHTML += "&imageName=" + escape(imageName.value);
 		imgCache[imageRef.value] = imageName.value;
 	}
+	setLoading();
 	YAHOO.util.Connect.asyncRequest('POST', '/savePageElement', pageElSaveCallbacks, myHTML);
 }
 var pageElSaveCallbacks = {
@@ -818,6 +835,7 @@ var pageElSaveCallbacks = {
 			var myTreeNode = tree.getNodeByIndex(o.argument.nodeIndex);
 			addOrUpdateChildNode(pageElement.dataA, pageElement.dataType, null, pageElement, myTreeNode);
 		}
+		setLoaded();
 	},
 	failure : function (o) {
 		alert("savePageElement was not successful.");
@@ -881,6 +899,7 @@ var addPageElementCallbacks = {
 			alert(x);
 			return;
 		}
+		setLoaded();
 	},
 	failure : function (o) {
 		alert("addPageElement was not successful.");
@@ -983,6 +1002,7 @@ var addPageSubmit = function(e) {
 		pageKeyHTML = "&myPageKey=" + currentPage.key;
 	}
 	addPageCallbacks.argument.nodeIndex = currentNodeIndex;
+	setLoading();
 	YAHOO.util.Connect.asyncRequest('POST', '/addPage', addPageCallbacks,
 		"myAdventureKey=" + adventureKey
 		+ pageKeyHTML
@@ -1015,6 +1035,7 @@ var addPageCallbacks = {
 			currentPage.name = myNode.label;
 			nodeClick(myNode);
 		}
+		setLoaded();
 	},
 	failure : function (o) {
 		alert("addPage was not successful.");
@@ -1028,6 +1049,7 @@ var deletePageSubmit = function(e) {
 	//myAdventureKey myPageKey pageName
 	var pageKeyHTML = "myPageKey=" + currentPage.key;
 	deletePageCallbacks.argument.nodeIndex = currentNodeIndex;
+	setLoading();
 	YAHOO.util.Connect.asyncRequest('POST', '/deletePage', deletePageCallbacks, pageKeyHTML);
 }
 var deletePageCallbacks = {
@@ -1056,6 +1078,7 @@ var deletePageCallbacks = {
 		currentNodeIndex = null;
 		tree.draw();
 		resetWorkArea("Page deleted.");
+		setLoaded();
 	},
 	failure : function (o) {
 		alert("removePage was not successful.");
@@ -1119,8 +1142,8 @@ var callbacks = {
 		tree.subscribe("labelClick", function(node) {
 			nodeClick(node);
 		});
+		setLoaded();
        },
-
 	failure : function (o) {
 		if (!YAHOO.util.Connect.isCallInProgress(o)) {
 			alert("Async call failed!");
@@ -1172,6 +1195,7 @@ var imagesByUserCallbacks = {
 			imgCache[image.key] = image.imageName;
 			imgCache.length = i+1;
 		}
+		setLoaded();
 	},
 	failure : function (o) {
 		alert("imagesByUserCallbacks was not successful.");
@@ -1181,10 +1205,33 @@ var imagesByUserCallbacks = {
 	timeout : 3000
 }
 
+var setLoading = function() {
+	loadingCounter++;
+	//alert("setLoaded: " + loadingCounter);
+	YUD.get('loadTop').style.display = 'block';
+	var loadElements = YUD.getElementsByClassName('loadElement', 'div', 'pageElementsWorkArea');
+	for (var i = 0; i < loadElements.length; i++) {
+		loadElements[i].style.display = 'block';
+	}
+}
+var setLoaded = function() {
+	loadingCounter--;
+	//alert("setLoaded: " + loadingCounter);
+	if (loadingCounter <= 0) {
+		YUD.get('loadTop').style.display = 'none';
+		var loadElements = YUD.getElementsByClassName('loadElement', 'div', 'elementMenu');
+		for (var i = 0; i < loadElements.length; i++) {
+			loadElements[i].style.display = 'none';
+		}
+	}
+}
+
 //function to initialize the tree:
 function treeInit() {
 	// Make the call to the server for JSON data
+	setLoading();
 	YAHOO.util.Connect.asyncRequest('GET',"/getPages?myAdventureKey=" + adventureKey, callbacks);
+	setLoading();
 	YAHOO.util.Connect.asyncRequest('GET',"/imagesByUser", imagesByUserCallbacks);
 	YAHOO.util.Event.addListener("deletePage", "click", deletePage);
 	YAHOO.util.Event.addListener("addPage", "click", addPage);

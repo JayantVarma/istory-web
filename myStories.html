@@ -1,9 +1,14 @@
+{% extends "index.html" %}
+{% block main %}
 {% for adventure in adventures %}
-	<b><a href="/addAdventure?key={{ adventure.key }}">{{ adventure.title }}</a></b><br>
-	By: {{ adventure.author }}<br>
-	Version: {{ adventure.version }}<br>
-	Date Created: {{ adventure.created }}<br>
-	<pre>{{ adventure.desc|escape }}</pre>
-	<a href="/storyEditor?myAdventureKey={{ adventure.key }}">Story Editor</a><br>
-	<hr>
+	<div class="{% cycle book1,book2 %}"><center><b><a href="/addAdventure?key={{ adventure.key }}">{{ adventure.title }}</a></b><br>
+	<i>{{ adventure.author }}</i><br>
+	{{ adventure.created.date }}</center><hr>
+	<code>{{ adventure.desc|escape }}</code><hr>
+	<table class="mainContentHeader"><tr>
+	<td class="myStoryButton"><a href="/storyEditor?myAdventureKey={{ adventure.key }}"><div class="icon-storyEdit"></div>StoryForge</a></td>
+	<td class="myStoryButton"><a href="/addAdventure?key={{ adventure.key }}"><div class="icon-editPage"></div>Edit Title &amp; Description</a></td>
+	</tr></table>
+	</div>
 {% endfor %}
+{% endblock %}
