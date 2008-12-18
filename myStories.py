@@ -32,16 +32,7 @@ class MyStories(webapp.RequestHandler):
 	if myUser:
 		pass
 	else:
-		url = users.create_login_url(self.request.uri)
-		url_linktext = 'Please login to see your adventures.'
-		template_values = {
-			'url': url,
-			'url_linktext': url_linktext,
-		}
-		main.printHeader(self)
-		path = os.path.join(os.path.dirname(__file__), 'pleaseLogin.html')
-		self.response.out.write(template.render(path, template_values))
-		main.printFooter(self)
+		self.redirect('/')
 		return
 
 	adventures = self.getMyAdventures(myUser)

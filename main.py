@@ -29,7 +29,7 @@ def printHeader(self, title):
 		loggedIn = True
 	else:
 		loginURL = users.create_login_url(self.request.uri)
-		login = 'Login'
+		login = 'Login to access the <b>StoryForge</b> and begin creating your adventure!'
 
 	template_values = {
 		'currentUser': currentUser,

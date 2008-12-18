@@ -125,9 +125,9 @@ body hr {
 	border-color: #000000;
 }
 .yui-skin-sam .footer { 
-	padding: 0 10px; /* this padding matches the left alignment of the elements in the divs that appear above it. */
+	padding: 5px 10px; /* this padding matches the left alignment of the elements in the divs that appear above it. */
 	background:#DDDDDD;
-	font-size: small;
+	font-size: x-small;
 	vertical-align: middle;
 	text-align:center;
 	border-top-width: 1px;
@@ -280,6 +280,9 @@ img { vertical-align: bottom; }
 .tableHeader {
 	text-align:center;
 	width:100%;
+}
+.tableHeader td {
+	font-size: small;
 }
 .myFooter {
 	vertical-align:middle;
