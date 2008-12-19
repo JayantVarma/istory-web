@@ -1,5 +1,43 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>iStory - {{ title }}</title>
+<link href="/stylesheets/favicon.ico" rel="icon" type="image/x-icon" />
+<!-- Individual YUI CSS files -->
+<link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/2.6.0/build/reset-fonts-grids/reset-fonts-grids.css">
+<link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/2.6.0/build/fonts/fonts-min.css" />
+<link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/2.6.0/build/container/assets/skins/sam/container.css">
+<link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/2.6.0/build/resize/assets/skins/sam/resize.css">
+<link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/2.6.0/build/imagecropper/assets/skins/sam/imagecropper.css">
+<link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/2.6.0/build/treeview/assets/skins/sam/treeview.css">
+
+<link rel="stylesheet" type="text/css" href="/stylesheets/main.css">
+<!--[if IE]>
+<style type="text/css"> 
+/* place css fixes for all versions of IE in this conditional comment */
+.twoColElsLtHdr #sidebar1 { padding-top: 30px; }
+.twoColElsLtHdr #mainContent { zoom: 1; padding-top: 15px; }
+/* the above proprietary zoom property gives IE the hasLayout it needs to avoid several bugs */
+</style>
+<![endif]--></head>
+<body class="yui-skin-sam">
+<div class="container">
+
+	<div class="header">
+		<table class="tableHeader"><tr>
+		<th><h1><a href="/">iStory</a></h1></th>
+		<td>
+			<a href="{{ loginURL }}">{{ login }}</a>
+			{% if loggedIn %}
+			{{ currentUser }}
+			| <a href="{{ myStoriesURL }}">{{ myStories }}</a>
+			{% endif %}
+		</td></tr></table>
 	<!-- end #header --></div>
+
 	<div class="sidebar1">
+{% block sidebar %}
 		<h3>What is iStory?</h3>
 		<div class="sb1">
 		<div>iStory is an interactive story telling environment for the iPhone.</div>
@@ -9,17 +47,53 @@
 		<div>Tell your friends and family and let them craft a path through your story, or try it out for yourself. You'll love being able to choose your own adventure each and every time you play through.</div>
 		<div>The best part about iStory is that you can make <i>whatever</i> you want. Short, long, full of pictures, or hundreds of story branches- if you can think it, you can make it.</div>
 		</div>
+{% endblock %}
 	<!-- end #sidebar1 --></div>
 
 	<!-- begin #mainContent -->
 	<div class="mainContent">
 
 {% block main %}
+<table class="books">
+<tr><td colspan="2"><div class="book3"><h1>Featured Stories</h1></div></td></tr>
 {% for adventure in adventures %}
-	<div class="{% cycle book1,book2 %}"><center><b>{{ adventure.title }}</b><br>
-	<i>{{ adventure.author }}</i><br>
-	{{ adventure.created.date }}</center><hr>
-	<code>{{ adventure.desc|escape }}</code>
+{% cycle <tr><td>,<td> %}
+	<div class="book">
+		<center><b>{{ adventure.title }}</b><br>
+		<i>{{ adventure.author }}</i><br>
+		{{ adventure.created.date }}</center><hr>
+		<code>{{ adventure.desc|escape }}</code>
 	</div>
+{% cycle </td>,</td></tr> %}
 {% endfor %}
+</table>
 {% endblock %}
+
+
+	<!-- end #mainContent --></div>
+	<!-- This clearing element should immediately follow the #mainContent div in order to force the #container div to contain all child floats --><br class="clearfloat" />
+	<div class="footer">
+		<table width="100%"><tr>
+		<td>Powered by <a href="http://code.google.com/appengine/">Google App Engine</a></td>
+		<td>iStory source code is available from <a href="http://code.google.com/p/istory-web">Google code</a></td>
+		{% if cacheHits and 1%}
+		<td>CacheHits({{ cacheHits }}) CacheMisses({{ cacheMisses }})</td>
+		{% endif %}
+		</tr></table>
+	<!-- end #footer --></div>
+<!-- end #container --></div>
+
+{% block footer %}
+{% endblock %}
+
+<script type="text/javascript">
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+try {
+var pageTracker = _gat._getTracker("UA-4537057-5");
+pageTracker._trackPageview();
+} catch(err) {}</script>
+</body>
+</html>

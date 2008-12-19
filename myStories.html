@@ -1,14 +1,30 @@
 {% extends "index.html" %}
 {% block main %}
-{% for adventure in adventures %}
-	<div class="{% cycle book1,book2 %}"><center><b><a href="/addAdventure?key={{ adventure.key }}">{{ adventure.title }}</a></b><br>
-	<i>{{ adventure.author }}</i><br>
-	{{ adventure.created.date }}</center><hr>
-	<code>{{ adventure.desc|escape }}</code><hr>
-	<table class="mainContentHeader"><tr>
-	<td class="myStoryButton"><a href="/storyEditor?myAdventureKey={{ adventure.key }}"><div class="icon-storyEdit"></div>StoryForge</a></td>
-	<td class="myStoryButton"><a href="/addAdventure?key={{ adventure.key }}"><div class="icon-editPage"></div>Edit Title &amp; Description</a></td>
-	</tr></table>
+<table class="books"><tr>
+<td>
+	<div class="book">
+		<center><b><a href="/createStory">Create A New Story</a></b><br>
+		<hr>
+		<code>The StoryForge awaits =)</code><hr>
+		<table class="mainContentHeader"><tr>
+		<td class="myStoryButtonDisabled"><div class="icon-storyEditD"></div>StoryForge</td>
+		<td class="myStoryButtonDisabled"><div class="icon-editPageD"></div>Edit Title &amp; Description</td>
+		</tr></table>
 	</div>
+</td>
+{% for adventure in adventures %}
+{% cycle <td>,<tr><td> %}
+	<div class="book">
+		<center><b>{{ adventure.title }}</b><br>
+		<i>{{ adventure.author }}</i><br>
+		{{ adventure.created.date }}</center><hr>
+		<code>{{ adventure.desc|truncatewords:"50"|escape }}</code><hr>
+		<table class="mainContentHeader"><tr>
+		<td class="myStoryButton"><a href="/storyEditor?myAdventureKey={{ adventure.key }}"><div class="icon-storyEdit"></div>StoryForge</a></td>
+		<td class="myStoryButton"><a href="/addAdventure?key={{ adventure.key }}"><div class="icon-editPage"></div>Edit Title &amp; Description</a></td>
+		</tr></table>
+	</div>
+{% cycle </td></tr>,</td> %}
 {% endfor %}
+</table>
 {% endblock %}

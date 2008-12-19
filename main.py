@@ -5,69 +5,66 @@ from google.appengine.api import users
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp.util import run_wsgi_app
 from google.appengine.ext import db
+from google.appengine.api import memcache
 import adventureModel
 import addAdventure
 import index
 import myStories
-import addPage
 import storyEditor
 import pageElement
-import upload
+import images
 
-def printHeader(self, title):
-
-	addAdventureURL = '/addAdventure'
-	addAdventure = 'Create New Story'
+def getDefaultTemplateValues(self):
 	myStoriesURL = '/myStories'
 	myStories = 'My Stories'
-	loggedIn = ''
+	
+	loggedIn = None
 	currentUser = users.get_current_user()
-
 	if users.get_current_user():
 		loginURL = users.create_logout_url(self.request.uri)
 		login = 'Logout'
 		loggedIn = True
 	else:
-		loginURL = users.create_login_url(self.request.uri)
+		loginURL = '/myStories'
 		login = 'Login to access the <b>StoryForge</b> and begin creating your adventure!'
+#		loginURL = users.create_login_url(self.request.uri)
+#		login = 'Login'
 
-	template_values = {
+	stats = memcache.get_stats()
+	templateValues = {
 		'currentUser': currentUser,
 		'loggedIn': loggedIn,
 		'loginURL': loginURL,
 		'login': login,
-		'addAdventureURL': addAdventureURL,
-		'addAdventure': addAdventure,
 		'myStoriesURL': myStoriesURL,
 		'myStories': myStories,
-		'title': title
+		'title': 'Home',
+		'cacheHits': stats['hits'],
+		'cacheMisses': stats['misses']
 	}
-	path = os.path.join(os.path.dirname(__file__), 'mainHeader.html')
-	self.response.out.write(template.render(path, template_values))
+	
+	return templateValues
 
-def printFooter(self, template_values):
-	path = os.path.join(os.path.dirname(__file__), 'mainFooter.html')
-	self.response.out.write(template.render(path, template_values))
 
 application = webapp.WSGIApplication(
 	[
 		('/', index.Index),
-		('/addAdventure', addAdventure.AddAdventure),
+		('/createStory', addAdventure.AddAdventure),
 		('/myStories', myStories.MyStories),
-		('/addPage', addPage.AddPage),
-		('/deletePage', addPage.DeletePage),
+		('/addPage', storyEditor.AddPage),
+		('/deletePage', storyEditor.DeletePage),
 		('/storyEditor', storyEditor.StoryEditor),
 		('/getPages', storyEditor.GetPages),
 		('/addPageElement', pageElement.AddPageElement),
 		('/disablePageElement', pageElement.DisablePageElement),
 		('/deletePageElement', pageElement.DeletePageElement),
 		('/savePageElement', pageElement.SavePageElement),
-		('/imageManager', upload.ImageManager),
-		('/upload', upload.Uploader),
 		('/movePageElement', pageElement.MovePageElement),
-		('/images', upload.ImageServer),
-		('/imagesByUser', upload.ImagesByUser),
-		('/imageCropper', upload.ImageCropper),
+		('/imageManager', images.ImageManager),
+		('/upload', images.Uploader),
+		('/images', images.ImageServer),
+		('/imagesByUser', images.ImagesByUser),
+		('/imageCropper', images.ImageCropper),
 	],
 	debug=True)
 

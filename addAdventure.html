@@ -1,13 +1,19 @@
+{% extends "index.html" %}
+{% block main %}
+<div class="book3">
 {% ifequal url_linktext "Logout" %}
-	<form action="/addAdventure" method="post">
-	<table>
-	<div><tr><td>Title:<td><input type="text" name="title" value="{{ adventure.title }}"></div>
-	<div><tr><td>Author:<td><input type="text" name="author" value="{{ adventure.author }}"></div>
-	<div><tr><td>Description:<td><textarea name="desc" rows="3" cols="60">{{ adventure.desc }}</textarea></div>
+	<form action="/createStory" method="post">
+	<table class="table1">
+	<tr><th colspan="2"><h1>Create A New Story</h1></th></tr>
+	<tr><th>Title:</th><td><input type="text" name="title" value="{{ adventure.title }}" size="30" maxlength="100"></td></tr>
+	<tr><th>Author:</th><td><input type="text" name="author" value="{{ adventure.author }}" size="30" maxlength="100"></td></tr>
+	<tr><th>Description:</th><td><textarea name="desc" rows="3" cols="50">{{ adventure.desc }}</textarea></td></tr>
+	<tr><td colspan="2"><center><input type="submit" value="{{ buttonText }}"></center></td></tr>
 	<input type="hidden" name="myKey" value="{{ adventure.key }}">
 	</table>
-	<div><input type="submit" value="{{ buttonText }}"></div>
 	</form>
 {% else %}
 <a href="{{ url }}">{{ url_linktext }}</a>
 {% endifequal %}
+</div>
+{% endblock %}

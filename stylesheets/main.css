@@ -95,7 +95,30 @@ body hr {
 .yui-skin-sam .mainContent {
 	margin: 0 1em 0 12.5em; /* the right margin can be given in ems or pixels. It creates the space down the right side of the page. */
 	height:100%;
-} 
+}
+.yui-skin-sam .mainContent .books {
+	width:100%;
+	margin:0px;
+	padding:0px;
+}
+.yui-skin-sam .mainContent .books td {
+	text-align:center;
+	vertical-align:top;
+}
+.yui-skin-sam .mainContent .book {
+	width: 17.5em;
+	padding:7px;
+	margin-top:10px;
+	margin-right:10px;
+	margin-left:10px;
+	margin-bottom:5px;
+	font-size:small;
+	background:#CCCCCC;
+	color:#000000;
+	border-width: 1px;
+	border-style: dotted;
+	border-color: #000000;
+}
 .yui-skin-sam .mainContent .book1 {
 	float: left;
 	width: 17.5em;
@@ -123,6 +146,36 @@ body hr {
 	border-width: 1px;
 	border-style: dotted;
 	border-color: #000000;
+}
+.yui-skin-sam .mainContent .book3 {
+	margin-top:10px;
+	margin-right:10px;
+	margin-left:10px;
+	margin-bottom:5px;
+	font-size:small;
+	background:#CCCCCC;
+	color:#000000;
+	border-width: 1px;
+	border-style: dotted;
+	border-color: #000000;
+	text-align: center;
+}
+.yui-skin-sam .mainContent .book3 td {
+	text-align: left;
+	margin:3px;
+	padding:5px;
+}
+.yui-skin-sam .mainContent .book3 th {
+	text-align: right;
+	margin:3px;
+	padding:5px;
+}
+.yui-skin-sam .mainContent .book3 h1 {
+	text-align: center;
+	font-weight: bold;
+	font-size: large;
+	padding-top:5px;
+	padding-bottom:5px;
 }
 .yui-skin-sam .footer { 
 	padding: 5px 10px; /* this padding matches the left alignment of the elements in the divs that appear above it. */
@@ -175,10 +228,30 @@ body hr {
 	background: #333333;
 	color: #999999;
 }
+.iconBG-light2 {
+	background: #CCFFFF;
+}
+.iconBG-dark2 {
+	background: #FFFFFF;
+}
+.iconBG-disabled2 {
+	background: #FFFFFF;
+	color: #999999;
+}
 
 img { vertical-align: bottom; }
 
+.myStoryButtonDisabled {
+	color: #666666;
+	vertical-align:top;
+	text-align:center;
+	width:30%;
+	margin-right:auto;
+	margin-left:auto;
+	background:#CCCCCC;
+}
 .myStoryButton {
+	color: #000000;
 	vertical-align:top;
 	cursor:pointer;
 	text-align:center;
@@ -283,6 +356,13 @@ img { vertical-align: bottom; }
 }
 .tableHeader td {
 	font-size: small;
+	text-align: right;
+	margin-right: 20px;
+	padding-right: 20px;
+}
+.tableHeader th {
+	font-size: small;
+	text-align: center;
 }
 .myFooter {
 	vertical-align:middle;
@@ -353,4 +433,21 @@ img { vertical-align: bottom; }
 }
 .loadElement {
 	display: none;
+}
+
+.prop {
+  height:16em;
+  float:right;
+  width:1px;
+}
+
+.clear2 {
+  clear:both;
+  height:1px;
+  overflow:hidden;
+}
+.clear2 {
+  clear:right;
+  height:1px;
+  overflow:hidden;
 }

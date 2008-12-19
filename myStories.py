@@ -32,24 +32,19 @@ class MyStories(webapp.RequestHandler):
 	if myUser:
 		pass
 	else:
-		self.redirect('/')
+		url = users.create_login_url(self.request.uri)
+		self.redirect(url)
 		return
 
 	adventures = self.getMyAdventures(myUser)
-	stats = memcache.get_stats()
-	#newlineRE = re.compile('\n')
-	#for adventure in adventures:
-	#	adventure.desc = newlineRE.sub('<br>\n', adventure.desc)
 
-	template_values = {
+	defaultTemplateValues = main.getDefaultTemplateValues(self)
+	templateValues = {
+		'title': 'My Stories',
 		'adventures': adventures,
 	}
-	footer_template_values = {
-		'cacheHits': stats['hits'],
-		'cacheMisses': stats['misses'],
-	}
+	templateValues = dict(defaultTemplateValues, **templateValues)
 
-	main.printHeader(self, 'My Stories')
 	path = os.path.join(os.path.dirname(__file__), 'myStories.html')
-	self.response.out.write(template.render(path, template_values))
-	main.printFooter(self, footer_template_values)
+	self.response.out.write(template.render(path, templateValues))
+	

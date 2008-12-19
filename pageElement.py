@@ -3,6 +3,7 @@ from google.appengine.ext.webapp import template
 import cgi
 import re
 import logging
+import time
 from google.appengine.api import users
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp.util import run_wsgi_app
@@ -14,6 +15,7 @@ import main
 
 class MovePageElement(webapp.RequestHandler):
   def post(self):
+	time.sleep(.5)
 	logging.error("MovePageElement: begin")
 	myElKey = self.request.get('myElKey')
 	myNewOrderString = self.request.get('myNewOrder')
@@ -76,6 +78,7 @@ class MovePageElement(webapp.RequestHandler):
 
 class DeletePageElement(webapp.RequestHandler):
   def post(self):
+	time.sleep(.5)
 	logging.error("DeletePageElement: begin")
 	myElKey = self.request.get('myElKey')
 	if myElKey:
@@ -126,6 +129,7 @@ class DisablePageElement(webapp.RequestHandler):
 
 class SavePageElement(webapp.RequestHandler):
   def post(self):
+	time.sleep(.5)
 	#this method supports adding or updating page elements
 	elementTypes = {
 		"addPageElementText": 1,

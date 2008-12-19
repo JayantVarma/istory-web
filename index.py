@@ -26,30 +26,13 @@ class Index(webapp.RequestHandler):
 
   def get(self):
 	adventures = self.getAdventures()
-	stats = memcache.get_stats()
 
-	if users.get_current_user():
-		url = users.create_logout_url(self.request.uri)
-		url_linktext = 'Logout'
-	else:
-		url = users.create_login_url(self.request.uri)
-		url_linktext = 'Login'
-
-	#newlineRE = re.compile('\n')
-	#for adventure in adventures:
-	#	adventure.desc = newlineRE.sub('<br>\n', adventure.desc)
-	template_values = {
+	defaultTemplateValues = main.getDefaultTemplateValues(self)
+	templateValues = {
+		'title': 'Home',
 		'adventures': adventures,
-		'url': url,
-		'url_linktext': url_linktext,
 	}
+	templateValues = dict(defaultTemplateValues, **templateValues)
 
-	footer_template_values = {
-		'cacheHits': stats['hits'],
-		'cacheMisses': stats['misses'],
-	}
-
-	main.printHeader(self, 'Home')
 	path = os.path.join(os.path.dirname(__file__), 'index.html')
-	self.response.out.write(template.render(path, template_values))
-	main.printFooter(self, footer_template_values)
+	self.response.out.write(template.render(path, templateValues))

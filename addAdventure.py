@@ -39,24 +39,26 @@ class AddAdventure(webapp.RequestHandler):
 	if users.get_current_user():
 		url = users.create_logout_url(self.request.uri)
 		url_linktext = 'Logout'
-		buttonText = 'Create Adventure'
+		buttonText = 'Create Story'
 		myKey = self.request.get('key')
 		if myKey:
-			buttonText = 'Update Adventure'
+			buttonText = 'Update Story Details'
 			adventure = db.Model.get(myKey)
 	else:
 		url = users.create_login_url(self.request.uri)
-		url_linktext = 'Login To Create An Adventure'
+		url_linktext = 'Login To Create A Story'
 		buttonText = ''
 
-	template_values = {
+	defaultTemplateValues = main.getDefaultTemplateValues(self)
+	templateValues = {
+		'title': 'Create A New Story',
 		'url': url,
 		'url_linktext': url_linktext,
 		'buttonText': buttonText,
 		'adventure': adventure,
 	}
+	templateValues = dict(defaultTemplateValues, **templateValues)
 
-	main.printHeader(self, 'Create A New Story')
+
 	path = os.path.join(os.path.dirname(__file__), 'addAdventure.html')
-	self.response.out.write(template.render(path, template_values))
-	main.printFooter(self, None)
+	self.response.out.write(template.render(path, templateValues))

@@ -72,7 +72,7 @@ var resetWorkArea = function(updateStr, clear, nodeIndex) {
 }
 
 var divButtonFunction = function(id, iconName) {
-	return '<div class="' + iconName + '" alt="Delete Element" id="' + id + '" onmouseover="this.className=\'' + iconName + 'MO\'" onmouseout="this.className=\'' + iconName + '\'"></div>';
+	return '<td title="pageElMenu" class="iconBG-dark2" onmouseover="iconMO(this,true)" onmouseout="iconMOreset(this,true)"><div title="' + iconName + '" class="' + iconName + '" id="' + id + '"></div></td>';
 }
 
 var addPageElementsHelper = function() {
@@ -92,35 +92,62 @@ var addPageElementsHelper = function() {
 	}
 }
 
-var disableIcons = function()
+var disableIcons = function(disableAll)
 {
+	console.log("disabling icons");
 	disableDiv('addPageElementText');
 	disableDiv('addPageElementImage');
 	disableDiv('addPageElementChoice');
 	disableDiv('deletePage');
 	disableDiv('editPage');
+	if (disableAll) {
+		disableDiv('addPage');
+	}
 }
 var enableIcons = function()
 {
+	if (loadingCounter > 0) { return; }
+	console.log("enabling icons");
 	enableDiv('addPageElementText');
 	enableDiv('addPageElementImage');
 	enableDiv('addPageElementChoice');
 	enableDiv('deletePage');
 	enableDiv('editPage');
+	enableDiv('addPage');
 }
 
-var iconMO = function(td) {
+var iconMO = function(td, useValue) {
+	if (loadingCounter > 0) { return }
 	if (currentNodeIndex || td.id == 'addPage') {
-		td.className = 'iconBG-light';
 		var icon = td.firstChild;
-		icon.className = icon.id + 'MO';
+		if (useValue) {
+			//this is for the page element menu, we store the normal class in the title attribute
+			td.className = 'iconBG-light2';
+			icon.className = icon.className + 'MO';
+			//console.log("MO set: " + td.className + ', ' + icon.className);
+		}
+		else {
+			//this is for the normal menu buttons
+			td.className = 'iconBG-light';
+			icon.className = icon.id + 'MO';
+		}
 	}
 }
-var iconMOreset = function(td) {
+var iconMOreset = function(td, useValue) {
+	if (loadingCounter > 0) { return }
 	if (currentNodeIndex || td.id == 'addPage') {
-		td.className = 'iconBG-dark';
 		var icon = td.firstChild;
-		icon.className = icon.id;
+		if (useValue) {
+			//this is for the page element menu, we store the normal class in the title attribute
+			td.className = 'iconBG-dark2';
+			icon.className = icon.title;
+			//console.log("MO reset: " + td.className + ', ' + icon.className + ', ' + icon.title);
+		}
+		else {
+			//this is for the normal menu buttons
+			td.className = 'iconBG-dark';
+			icon.className = icon.id;
+		}
 	}
 }
 var iconDisable = function(td) {
@@ -129,6 +156,15 @@ var iconDisable = function(td) {
 	icon.className = icon.id + 'D';
 }
 
+var disableDivPageEl = function(div) {
+	div.className = 'iconBG-disabled2';
+	var icon = div.firstChild;
+	icon.className = icon.className.replace('MO', '');
+	icon.className = icon.className + 'D';
+}
+var enableDivPageEl = function(div) {
+	iconMOreset(div, true);
+}
 var disableDiv = function(name) {
 	var td = YAHOO.util.Dom.get(name);
 	iconDisable(td);
@@ -234,12 +270,12 @@ var addPageElementToWorkArea = function(pageElement, idx) {
 		alert("tried to add pageElement of unknown type: " + pageElement.dataType);
 	}
 	myHTML += '</div><div class="pageElementMenu"><table id="elementMenu"><tr>';
-	myHTML += "<td>Don't forget to save!</td>";
-	myHTML += '<td>' + divButtonFunction('up'+idx, 'icon-elUp') + '</td>';
-	myHTML += '<td>' + divButtonFunction('disable'+idx, 'icon-elDelete') + '</td>';
-	myHTML += '<td>' + divButtonFunction('down'+idx, 'icon-elDown') + '</td>';
-	myHTML += '<td>' + divButtonFunction('save'+idx, 'icon-save') + '</td>';
-	myHTML += '<td><div class="loadElement"><img src="/stylesheets/load.gif"></div></td>';
+	myHTML += "<th>Don't forget to save!</th>";
+	myHTML += divButtonFunction('up'+idx, 'icon-elUp');
+	myHTML += divButtonFunction('disable'+idx, 'icon-elDelete');
+	myHTML += divButtonFunction('down'+idx, 'icon-elDown');
+	myHTML += divButtonFunction('save'+idx, 'icon-save');
+	myHTML += '<td width="32px"><div class="loadElement"><img src="/stylesheets/load.gif"></div></td>';
 	myHTML += '</tr></table></div>';
 
 	myHTML += '<div class="belowWorkArea" id="belowElWorkArea' + idx + '"></div>';
@@ -482,6 +518,7 @@ var uploadImageCallbacks = {
 }
 
 var pageElUp = function(e) {
+	if (loadingCounter > 0) { return }
 	var obj = YAHOO.util.Event.getTarget(e);
 	//get key of current page element
 	var myKey = domIdToKeyMap[obj.id];
@@ -593,6 +630,7 @@ var moveCallbacks = {
 	timeout : 3000
 }
 var pageElDown = function(e) {
+	if (loadingCounter > 0) { return }
 	var obj = YAHOO.util.Event.getTarget(e);
 	//get key of current page element
 	var myKey = domIdToKeyMap[obj.id];
@@ -680,6 +718,7 @@ var pageElDown = function(e) {
 	tree.draw();
 }
 var pageElDisable = function(e) {
+	if (loadingCounter > 0) { return }
 	var obj = YAHOO.util.Event.getTarget(e);
 	var myKey = domIdToKeyMap[obj.id];
 	if (myKey) {
@@ -734,6 +773,7 @@ var removePageElementNodeFromTree = function(nodeIndex) {
 	pageElementsWorkArea.removeChild(myDiv);
 }
 var pageElDelete = function(e) {
+	if (loadingCounter > 0) { return }
 	var obj = YAHOO.util.Event.getTarget(e);
 	var myKey = domIdToKeyMap[obj.id];
 	if (myKey) {
@@ -772,6 +812,7 @@ var pageElDeleteCallbacks = {
 	timeout : 3000
 }
 var pageElSave = function(e) {
+	if (loadingCounter > 0) { return }
 	var obj = YAHOO.util.Event.getTarget(e);
 	if (!obj) {
 		obj = YUD.get(e);
@@ -1207,23 +1248,50 @@ var imagesByUserCallbacks = {
 
 var setLoading = function() {
 	loadingCounter++;
-	//alert("setLoaded: " + loadingCounter);
+	console.log("setLoaded: " + loadingCounter);
+	disableIcons(true);
 	YUD.get('loadTop').style.display = 'block';
-	var loadElements = YUD.getElementsByClassName('loadElement', 'div', 'pageElementsWorkArea');
-	for (var i = 0; i < loadElements.length; i++) {
-		loadElements[i].style.display = 'block';
+	{
+		//for all the loading gifs on each page element
+		var loadElements = YUD.getElementsByClassName('loadElement', 'div', 'pageElementsWorkArea');
+		for (var i = 0; i < loadElements.length; i++) {
+			loadElements[i].style.display = 'block';
+		}
+	}
+	{
+		//for all the page element menu buttons
+		var loadElements = YUD.getElementsBy(isPageElMenuTitle, 'td', 'pageElementsWorkArea');
+		for (var i = 0; i < loadElements.length; i++) {
+			disableDivPageEl(loadElements[i]);
+		}
 	}
 }
 var setLoaded = function() {
 	loadingCounter--;
-	//alert("setLoaded: " + loadingCounter);
+	console.log("setLoaded: " + loadingCounter);
 	if (loadingCounter <= 0) {
+		enableIcons();
 		YUD.get('loadTop').style.display = 'none';
-		var loadElements = YUD.getElementsByClassName('loadElement', 'div', 'elementMenu');
-		for (var i = 0; i < loadElements.length; i++) {
-			loadElements[i].style.display = 'none';
+		{
+			//for all the loading gifs on each page element
+			var loadElements = YUD.getElementsByClassName('loadElement', 'div', 'elementMenu');
+			for (var i = 0; i < loadElements.length; i++) {
+				loadElements[i].style.display = 'none';
+			}
+		}
+		{
+			//for all the page element menu buttons
+			var loadElements = YUD.getElementsBy(isPageElMenuTitle, 'td', 'pageElementsWorkArea');
+			for (var i = 0; i < loadElements.length; i++) {
+				enableDivPageEl(loadElements[i]);
+			}
 		}
 	}
+}
+
+var isPageElMenuTitle = function(td) {
+	if (td && td.title == 'pageElMenu') { return true; }
+	return false;
 }
 
 //function to initialize the tree:
