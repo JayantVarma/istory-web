@@ -15,7 +15,7 @@ import main
 
 class MovePageElement(webapp.RequestHandler):
   def post(self):
-	time.sleep(.3)
+	time.sleep(.1)
 	logging.error("MovePageElement: begin")
 	myElKey = self.request.get('myElKey')
 	myNewOrderString = self.request.get('myNewOrder')
@@ -78,7 +78,7 @@ class MovePageElement(webapp.RequestHandler):
 
 class DeletePageElement(webapp.RequestHandler):
   def post(self):
-	time.sleep(.3)
+	time.sleep(.1)
 	logging.error("DeletePageElement: begin")
 	myElKey = self.request.get('myElKey')
 	if myElKey:
@@ -129,7 +129,7 @@ class DisablePageElement(webapp.RequestHandler):
 
 class SavePageElement(webapp.RequestHandler):
   def post(self):
-	time.sleep(.3)
+	time.sleep(.1)
 	#this method supports adding or updating page elements
 	elementTypes = {
 		"addPageElementText": 1,
