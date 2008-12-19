@@ -1274,7 +1274,7 @@ var setLoaded = function() {
 		YUD.get('loadTop').style.display = 'none';
 		{
 			//for all the loading gifs on each page element
-			var loadElements = YUD.getElementsByClassName('loadElement', 'div', 'elementMenu');
+			var loadElements = YUD.getElementsByClassName('loadElement', 'div', 'pageElementsWorkArea');
 			for (var i = 0; i < loadElements.length; i++) {
 				loadElements[i].style.display = 'none';
 			}
