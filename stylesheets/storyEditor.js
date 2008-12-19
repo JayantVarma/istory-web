@@ -204,6 +204,8 @@ var addPageElementToWorkArea = function(pageElement, idx) {
 			doesImageExist = true;
 			imageRef = pageElement.imageRef;
 			imageName = pageElement.dataA;
+		}
+		if (pageElement.key) {
 			pageElKey = pageElement.key;
 		}
 		myHTML += '<div id="img' + idx + '">';

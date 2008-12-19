@@ -300,14 +300,14 @@ class Uploader(webapp.RequestHandler):
 	else:
 		newImage = adventureModel.Image()
 
-	if newImage.imageData:
+	if newImage.imageData and len(myImageData) > 100:
 		#if the existing image data is different from the new image data, we need to create a new image
 		#then set the image data, we dont need to set the image data if the old and new images are the same
 		if newImage.imageData != myImageData:
-			logging.error("the existing image data is different.. lets create a new image")
+			logging.error("the existing image data is different(" + str(len(myImageData)) + ").. lets create a new image")
 			newImage = adventureModel.Image()
 			newImage.imageData = db.Blob(myImageData)
-	else:
+	elif len(myImageData) > 100:
 		#else its a new image, so save the image data from the form
 		newImage.imageData = db.Blob(myImageData)
 
