@@ -27,7 +27,7 @@ body hr {
 	text-align: left; /* this overrides the text-align: center on the body element. */
 } 
 .yui-skin-sam .header {
-	font-size: regular;
+	font-size: small;
 	border-bottom-width: 1px;
 	border-bottom-style: solid;
 	border-bottom-color: #000000;

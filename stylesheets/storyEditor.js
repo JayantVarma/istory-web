@@ -94,7 +94,7 @@ var addPageElementsHelper = function() {
 
 var disableIcons = function(disableAll)
 {
-	console.log("disabling icons");
+	//console.log("disabling icons");
 	disableDiv('addPageElementText');
 	disableDiv('addPageElementImage');
 	disableDiv('addPageElementChoice');
@@ -107,7 +107,7 @@ var disableIcons = function(disableAll)
 var enableIcons = function()
 {
 	if (loadingCounter > 0) { return; }
-	console.log("enabling icons");
+	//console.log("enabling icons");
 	enableDiv('addPageElementText');
 	enableDiv('addPageElementImage');
 	enableDiv('addPageElementChoice');
@@ -357,19 +357,19 @@ var addPageElementToWorkArea = function(pageElement, idx) {
 	//now that the HTML is on the page, setup the image upload event handlers
 	//YAHOO.util.Event.addListener("submit" + idx, "click", uploadImage);
 	YAHOO.util.Event.on('imageForm' + idx, 'submit', function(e) {
-		console.log('imageForm: SUBMIT stopped event' + idx);
+		//console.log('imageForm: SUBMIT stopped event' + idx);
 		YAHOO.util.Event.stopEvent(e);
 		uploadImage(idx);
 	});
 	YAHOO.util.Event.on('submit' + idx, 'click', function(e) {
-		console.log('imageForm: BUTTON stopped event ' + idx);
+		//console.log('imageForm: BUTTON stopped event ' + idx);
 		YAHOO.util.Event.stopEvent(e);
 		uploadImage(idx);
 	});	
 }
 
 var setupImage = function(idx, imageRef, dataA, doesImageExist) {
-	console.log("setting up image: " + idx + ',' + imageRef + ',' + dataA);
+	//console.log("setting up image: " + idx + ',' + imageRef + ',' + dataA);
 	//we need to support images not existing when this html is created, so we hide it instead
 	var imageURL = '';
 	if (imageRef) { imageURL = '/images?imageKey=' + imageRef; }
@@ -380,24 +380,24 @@ var setupImage = function(idx, imageRef, dataA, doesImageExist) {
 
 var setupImageCropperButtons = function(idx) {
 	//setup the image cropper button
-	console.log("setting up image cropper buttons: " + idx);
+	//console.log("setting up image cropper buttons: " + idx);
 	YAHOO.util.Event.on('imageCrop' + idx, 'click', function(e) {
 		var imageCrop = YUD.get('imageCrop' + idx);
 		var imageCropCancel = YUD.get('imageCropCancel' + idx);
 		//if we're not cropping, setup the crop
 		if (imageCrop.value == 'Crop / Resize Image') {
-			console.log("image cropper starting: " + idx);
+			//console.log("image cropper starting: " + idx);
 			imgCropper('imageReal' + idx);
 			imageCrop.value = 'Crop Image!';
 			imageCropCancel.style.display = 'inline';
 		}
 		else {
 			//else we need to save the crop to the server
-			console.log("image cropper saving: " + idx);
+			//console.log("image cropper saving: " + idx);
 			imageCrop.value = 'Crop / Resize Image';
 			imageCropCancel.style.display = 'none';
 			var cropArea = imageCroppers['imageReal' + idx].getCropCoords();
-			console.log(cropArea);
+			//console.log(cropArea);
 			//post the data to the form
 			var myPOST = 'imageKey=' + YUD.get('imageRef' + idx).value;
 			myPOST += '&left=' + cropArea.left;
@@ -417,7 +417,7 @@ var setupImageCropperButtons = function(idx) {
 	});
 	//setup the image cropper cancel button
 	YAHOO.util.Event.on('imageCropCancel' + idx, 'click', function(e) {
-		console.log("image cropper cancelling: " + idx);
+		//console.log("image cropper cancelling: " + idx);
 		var imageCrop = YUD.get('imageCrop' + idx);
 		var imageCropCancel = YUD.get('imageCropCancel' + idx);
 		//set the button text back to normal
@@ -436,7 +436,7 @@ var cropImageCallbacks = {
 		var imgReal = YUD.get('imageReal' + o.argument.idx);
 		//we can add a # sign to the end of the url and that does the trick
 		imgReal.src += '&x';
-		console.log("cropImage successful: " + imgReal.src);
+		//console.log("cropImage successful: " + imgReal.src);
 		setLoaded();
 	},
 	failure : function (o) {
@@ -450,7 +450,7 @@ var cropImageCallbacks = {
 
 
 var imgCropper = function(id) {
-	console.log('setting up image cropper: ' + id);
+	//console.log('setting up image cropper: ' + id);
 	var imgCrop = new YAHOO.widget.ImageCropper(id, {
 		//"initHeight": 200,
 		//"initWidth": 300,
@@ -458,7 +458,7 @@ var imgCropper = function(id) {
 	});
 	//save the image crop object so we can use it later, id is the dom ID of the image we're cropping (imageReal + idx)
 	imageCroppers[id] = imgCrop;
-	console.log(imgCrop);
+	//console.log(imgCrop);
 }
 
 var imgListChanged = function(obj, value, idx) {
@@ -494,7 +494,7 @@ var focusObject = function (focusObject) {
 }
 
 var uploadImage = function(idx) {
-	console.log('uploadImage ' + idx);
+	//console.log('uploadImage ' + idx);
 	//figure out if the form has an image uploaded, so we can set the setForm boolean correctly
 	var imageData = YAHOO.util.Dom.get('imageData' + idx);
 	var formHasImageContent = false;
@@ -519,7 +519,7 @@ var processImageCallback = function(o) {
 	domIdToKeyMap['disable' + idx] = m.pageElement;
 	domIdToKeyMap['delete' + idx] = m.pageElement;
 	domIdToKeyMap['down' + idx] = m.pageElement;
-	console.log('save' + idx + ': ' + m.pageElement);
+	//console.log('save' + idx + ': ' + m.pageElement);
 	domIdToKeyMap['save' + idx] = m.pageElement;
 
 	updateImageInForm(idx, m.key, m.imageName);
@@ -588,7 +588,7 @@ var pageElUp = function(e) {
 			myChildNode.value.pageOrder = 0;
 		}
 		//check the pageOrder of the node to see if it is the same as what the currentNode's new pageOrder would be
-		console.log("checking: " + myChildNode.value.pageOrder + ' vs ' + (myNode.value.pageOrder-1));
+		//console.log("checking: " + myChildNode.value.pageOrder + ' vs ' + (myNode.value.pageOrder-1));
 		if (!sorted && myChildNode.value.pageOrder == (myNode.value.pageOrder-1)) {
 			//now decrease the pageOrder of the currentNode and increase the page order of the other (swapping them)
 			myNode.value.pageOrder--
@@ -610,27 +610,27 @@ var pageElUp = function(e) {
 		}
 		//done, now we need to sort the tree and the divs
 		nodeKey = nodeToKeyMap[childNodeIndex];
-		console.log("pageUP " + i + ", " + myChildren[i] + ", " + nodeKey + ", " + myKey + ', ' + childNodeIndex + ', ' + myIndex);
+		//console.log("pageUP " + i + ", " + myChildren[i] + ", " + nodeKey + ", " + myKey + ', ' + childNodeIndex + ', ' + myIndex);
 		//check the node indexes instead of the keys
 		if (childNodeIndex == myIndex) {
 		//if (nodeKey == myKey) {
-			console.log("this is the node we clicked on");
+			//console.log("this is the node we clicked on");
 			//this is the page element that we clicked on
 			//get the previous sibling, remove this node from the tree, then insert it before the previous sibling
 			var myNode = myChildren[i];
 			var previousSibling = myNode.previousSibling;
 			if (previousSibling) {
 				tree.removeNode(myNode, false);
-				console.log("inserting node(" + myNode + ") before old node(" + previousSibling + ")");
+				//console.log("inserting node(" + myNode + ") before old node(" + previousSibling + ")");
 				var insertedNode = myNode.insertBefore(previousSibling);
-				console.log(insertedNode);
+				//console.log(insertedNode);
 				//now we just need to re-order the html DIVs so the work area display is adjusted with the new order
 				//DIV ID is DIV + node index
 				//get the previous DIV, remove this DIV from the parent DIV, then insert it before the previous DIV
 				myDiv = YAHOO.util.Dom.get('DIV' + childNodeIndex);
 				myParentDiv = myDiv.parentNode;
 				myPreviousDiv = YAHOO.util.Dom.getPreviousSibling(myDiv);
-				console.log(myDiv + ', ' + myParentDiv + ', ' + myPreviousDiv);
+				//console.log(myDiv + ', ' + myParentDiv + ', ' + myPreviousDiv);
 				if (myPreviousDiv) {
 					removedNode = myParentDiv.removeChild(myDiv);
 					myParentDiv.insertBefore(removedNode, myPreviousDiv);
@@ -854,7 +854,7 @@ var pageElSave = function(e) {
 	var myPageElNodeIndex = domIdToNodeIndexMap[obj.id];
 	var myHTML = "myPageKey=" + myPageKey;
 	var myNode = tree.getNodeByIndex(myPageElNodeIndex);
-	console.log('pageElSave: ' + obj.id + ', ' + myPageElKey);
+	//console.log('pageElSave: ' + obj.id + ', ' + myPageElKey);
 	if (myPageElKey) {
 		//existing node
 		myHTML += "&myPageElKey=" + myPageElKey;
@@ -944,7 +944,7 @@ var addPageElement = function(e) {
 	for (var i = 0; i < myNode.children.length; i++) {
 		if (myNode.children[i].value.pageOrder >= pageOrder) {
 			pageOrder = (myNode.children[i].value.pageOrder + 1);
-			console.log('node: ' + myNode.children[i] + ', new pageOrder set to ' + pageOrder);
+			//console.log('node: ' + myNode.children[i] + ', new pageOrder set to ' + pageOrder);
 		}
 	}
 	//done
@@ -1044,7 +1044,7 @@ var editPage = function(e) {
 		addOrUpdatePage();
 	}
 	else {
-		console.log("no page selected");
+		//console.log("no page selected");
 	}
 }
 var addOrUpdatePage = function(pageKey) {
@@ -1092,8 +1092,8 @@ var addPageCallbacks = {
 			return;
 		}
 		{
-			console.log(m.key + ' ' + m.name);
-			console.log(currentNodeIndex + '|' + o.argument.nodeIndex);
+			//console.log(m.key + ' ' + m.name);
+			//console.log(currentNodeIndex + '|' + o.argument.nodeIndex);
 			var myNode = tree.getNodeByIndex(o.argument.nodeIndex);
 			if (myNode) {
 				myNode.label = m.name;
@@ -1115,7 +1115,7 @@ var addPageCallbacks = {
 }
 
 var deletePageSubmit = function(e) {
-	console.log("addPageSubmit");
+	//console.log("addPageSubmit");
 	//myAdventureKey myPageKey pageName
 	var pageKeyHTML = "myPageKey=" + currentPage.key;
 	deletePageCallbacks.argument.nodeIndex = currentNodeIndex;
@@ -1230,7 +1230,7 @@ var nodeClick = function(node) {
 		}
 	}
 	tabIndex = 1;
-	console.log(node.index + " label was clicked");
+	//console.log(node.index + " label was clicked");
 	resetWorkArea(null, 1, currentNodeIndex);
 	var curPage = YAHOO.util.Dom.get('currentPage');
 	curPage.innerHTML = node.label;
@@ -1277,7 +1277,6 @@ var imagesByUserCallbacks = {
 
 var setLoading = function() {
 	loadingCounter++;
-	console.log("setLoaded: " + loadingCounter);
 	disableIcons(true);
 	YUD.get('loadTop').style.display = 'block';
 	{
@@ -1297,7 +1296,6 @@ var setLoading = function() {
 }
 var setLoaded = function() {
 	loadingCounter--;
-	console.log("setLoaded: " + loadingCounter);
 	if (loadingCounter <= 0) {
 		enableIcons();
 		YUD.get('loadTop').style.display = 'none';
