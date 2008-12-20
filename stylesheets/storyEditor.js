@@ -72,7 +72,7 @@ var resetWorkArea = function(updateStr, clear, nodeIndex) {
 }
 
 var divButtonFunction = function(id, iconName) {
-	return '<td title="pageElMenu" class="iconBG-dark2" onmouseover="iconMO(this,true)" onmouseout="iconMOreset(this,true)"><div title="' + iconName + '" class="' + iconName + '" id="' + id + '"></div></td>';
+	return '<td id="TD' + id + '" title="pageElMenu" class="iconBG-dark2"><div title="' + iconName + '" class="' + iconName + '" id="' + id + '"></div></td>';
 }
 
 var addPageElementsHelper = function() {
@@ -116,7 +116,25 @@ var enableIcons = function()
 	enableDiv('addPage');
 }
 
+var eventIconMO = function(e) {
+	if (this.id) {
+		//console.log(this.id);
+		var override = false;
+		if (this.title == 'pageElMenu') { override = true; }
+		iconMO(this, override);
+	}
+}
+var eventIconMOreset = function(e) {
+	if (this.id) {
+		var override = false;
+		if (this.title == 'pageElMenu') { override = true; }
+		iconMOreset(this, override);
+	}
+}
+
 var iconMO = function(td, useValue) {
+	//console.log("iconMO: " + this + " " + this.id);
+	if (!td.id) { return }
 	if (loadingCounter > 0) { return }
 	if (currentNodeIndex || td.id == 'addPage') {
 		var icon = td.firstChild;
@@ -130,10 +148,12 @@ var iconMO = function(td, useValue) {
 			//this is for the normal menu buttons
 			td.className = 'iconBG-light';
 			icon.className = icon.id + 'MO';
+			//console.log("MO set: " + td.className + ', ' + icon.className);
 		}
 	}
 }
 var iconMOreset = function(td, useValue) {
+	if (!td.id) { return }
 	if (loadingCounter > 0) { return }
 	if (currentNodeIndex || td.id == 'addPage') {
 		var icon = td.firstChild;
@@ -299,6 +319,16 @@ var addPageElementToWorkArea = function(pageElement, idx) {
 	YAHOO.util.Event.addListener("disable" + idx, "click", pageElDisable);
 	YAHOO.util.Event.addListener("down" + idx, "click", pageElDown);
 	YAHOO.util.Event.addListener("save" + idx, "click", pageElSave);
+
+	YAHOO.util.Event.addListener('TDup'+idx, "mouseover", eventIconMO);
+	YAHOO.util.Event.addListener('TDup'+idx, "mouseout", eventIconMOreset);
+	YAHOO.util.Event.addListener('TDdisable'+idx, "mouseover", eventIconMO);
+	YAHOO.util.Event.addListener('TDdisable'+idx, "mouseout", eventIconMOreset);
+	YAHOO.util.Event.addListener('TDdown'+idx, "mouseover", eventIconMO);
+	YAHOO.util.Event.addListener('TDdown'+idx, "mouseout", eventIconMOreset);
+	YAHOO.util.Event.addListener('TDsave'+idx, "mouseover", eventIconMO);
+	YAHOO.util.Event.addListener('TDsave'+idx, "mouseout", eventIconMOreset);
+
 	new YAHOO.widget.Tooltip("tooltipUp", { showdelay: 500, context:"up" + idx, text:"Move Up"} );
 	new YAHOO.widget.Tooltip("tooltipDisable", { showdelay: 500, context:"disable" + idx, text:"Disable Element"} );
 	new YAHOO.widget.Tooltip("tooltipDown", { showdelay: 500, context:"down" + idx, text:"Move Down"} );
@@ -899,9 +929,6 @@ var setupWorkArea = function() {
 	//if not, we should display the getting started text
 	var workArea = YAHOO.util.Dom.get('workArea');
 	workArea.innerHTML = '<div id="pageElementsWorkArea"></div>';
-	//new YAHOO.widget.Tooltip("tooltipAddText", { showdelay: 500, context:"addPageElementText", text:"Add A Text Page Element"} );
-	//new YAHOO.widget.Tooltip("tooltipAddImage", { showdelay: 500, context:"addPageElementImage", text:"Add An Image Page Element"} );
-	//new YAHOO.widget.Tooltip("tooltipAddChoice", { showdelay: 500, context:"addPageElementChoice", text:"Add A Choice Page Element"} );
 	addPageElementsHelper();	
 }	
 var addPageElement = function(e) {
@@ -1309,8 +1336,25 @@ function treeInit() {
 	YAHOO.util.Event.addListener("addPageElementText", "click", addPageElement);
 	YAHOO.util.Event.addListener("addPageElementImage", "click", addPageElement);
 	YAHOO.util.Event.addListener("addPageElementChoice", "click", addPageElement);
+	//mouseover events for the button icons
+	YAHOO.util.Event.addListener("addPageElementText", "mouseover", eventIconMO);
+	YAHOO.util.Event.addListener("addPageElementText", "mouseout", eventIconMOreset);
+	YAHOO.util.Event.addListener("addPageElementImage", "mouseover", eventIconMO);
+	YAHOO.util.Event.addListener("addPageElementImage", "mouseout", eventIconMOreset);
+	YAHOO.util.Event.addListener("addPageElementChoice", "mouseover", eventIconMO);
+	YAHOO.util.Event.addListener("addPageElementChoice", "mouseout", eventIconMOreset);
+	YAHOO.util.Event.addListener("addPage", "mouseover", eventIconMO);
+	YAHOO.util.Event.addListener("addPage", "mouseout", eventIconMOreset);
+	YAHOO.util.Event.addListener("editPage", "mouseover", eventIconMO);
+	YAHOO.util.Event.addListener("editPage", "mouseout", eventIconMOreset);
+	YAHOO.util.Event.addListener("deletePage", "mouseover", eventIconMO);
+	YAHOO.util.Event.addListener("deletePage", "mouseout", eventIconMOreset);
+
 	resetWorkArea();
 	//new YAHOO.widget.Tooltip("tooltipDeletePage", { showdelay: 500, context:"deletePage", text:"Delete This Page"} );
 	//new YAHOO.widget.Tooltip("tooltipAddPage", { showdelay: 500, context:"addPage", text:"Add A New Page"} );
 	//new YAHOO.widget.Tooltip("tooltipEditPage", { showdelay: 500, context:"editPage", text:"Edit This Page's Name"} );
+	//new YAHOO.widget.Tooltip("tooltipAddText", { showdelay: 500, context:"addPageElementText", text:"Add A Text Page Element"} );
+	//new YAHOO.widget.Tooltip("tooltipAddImage", { showdelay: 500, context:"addPageElementImage", text:"Add An Image Page Element"} );
+	new YAHOO.widget.Tooltip("tooltipAddChoice", { autodismissdelay:10000, showdelay:1000, context:"addPageElementChoice", text:"<div class=\"tt\">A choice is a course of action for the reader. Choices are like paths, they take the reader to another page in your story.</div>"} );
 }
