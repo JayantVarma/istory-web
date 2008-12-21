@@ -15,8 +15,8 @@ if (MY_ADVENTURE_KEY) {
 //setup some globals
 var loadingCounter = 0;
 var numPages = 0;
-var pages = {};
 var keyToPageIdMap = {};
+var pageHistory = [];
 
 function treeInit() {
 	// Make the call to the server for JSON data
@@ -61,30 +61,42 @@ var enableIcons = function()
 	enableDiv('storyForge');
 }
 
-var eventIconMO = function(e) {
+var eventIconMO = function(e, isLight) {
 	if (this.id) {
-		iconMO(this);
+		iconMO(this, isLight);
 	}
 }
-var eventIconMOreset = function(e) {
+var eventIconMOreset = function(e, isLight) {
 	if (this.id) {
-		iconMOreset(this);
+		iconMOreset(this, isLight);
 	}
 }
-var iconMO = function(td) {
+var iconMO = function(td, isLight) {
 	if (!td.id) { return }
 	if (loadingCounter > 0) { return }
 	var icon = td.firstChild;
-	//this is for the normal menu buttons
-	td.className = 'iconBG-light';
-	icon.className = icon.id + 'MO';
+	if (!isLight) {
+		//this is for the normal menu buttons
+		td.className = 'iconBG-light';
+	}
+	else {
+		//this is for light background icons
+		td.className = 'iconBG-light2';
+	}
+	icon.className = icon.id + 'MO'
 }
-var iconMOreset = function(td, useValue) {
+var iconMOreset = function(td, isLight) {
 	if (!td.id) { return }
 	if (loadingCounter > 0) { return }
 	var icon = td.firstChild;
-	//this is for the normal menu buttons
-	td.className = 'iconBG-dark';
+	if (!isLight) {
+		//this is for the normal menu buttons
+		td.className = 'iconBG-dark';
+	}
+	else {
+		//this is for light background icons
+		td.className = 'iconBG-dark2';
+	}
 	icon.className = icon.id;
 }
 var iconDisable = function(td) {
@@ -166,17 +178,43 @@ var getPagesCallbacks = {
 }
 
 var playPageEvent = function(e, pageKey) {
-	//console.log("playing page: " + e + ', ' + pageKey);
+	console.log("playing page: " + e + ', ' + pageKey);
 	//this sets the focus to the #top href tag
 	window.location.hash = 'top';
 	playPage(pageKey);
+}
+
+var back = function() {
+	//first discard the most recent item since it will be the current page
+	var discarded = pageHistory.pop();
+	//get the last item from the history and play it
+	var previousKey = pageHistory.pop();
+	if (previousKey) {
+		console.log("going back.. previous key: " + previousKey);
+		playPage(previousKey);
+	}
+	else {
+		//if we are here that means we emptied out the history, which is bad
+		//we should re-add the discarded element
+		console.log("going back.. added discarded key: " + discarded);
+		pageHistory.push(discarded);
+	}
 }
 
 var playPage = function(pageKey) {
 	//console.log('playPage: ' + pageKey);
 	workArea = YUD.get('player');
 	var page = pages[keyToPageIdMap[pageKey]];
-	workArea.innerHTML = '<div><h1>' + page.name + '</h1></div>';
+	//add the last page to the history
+	pageHistory.push(pageKey);
+	console.log("adding key to history: " + pageKey);
+	//create the back button and title
+	workArea.innerHTML = '<div><table width="100%"><tr><td id="back" class="iconBG-disabled2" width="48px"><div id="icon-back" class="icon-back"></td><td><h1>' + page.name + '</h1></td><td width="48px"></td></tr></table></div>';
+	//add event listeners for the back button
+	YAHOO.util.Event.addListener("back", "mouseover", eventIconMO, true);
+	YAHOO.util.Event.addListener("back", "mouseout", eventIconMOreset, true);
+	YAHOO.util.Event.addListener("back", "click", back);
+	//go through each page element for this page and add it to the HTML
 	for (var i = 0; i < page.elements.length; i++) {
 		var pageElement = page.elements[i];
 		//create a new div that we can append to workArea

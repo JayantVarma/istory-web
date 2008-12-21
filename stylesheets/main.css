@@ -233,7 +233,8 @@ body hr {
 	color: #999999;
 }
 .iconBG-light2 {
-	background: #CCFFFF;
+	background: #DDDDFF;
+	cursor: pointer;
 }
 .iconBG-dark2 {
 	background: #FFFFFF;
@@ -280,6 +281,9 @@ img { vertical-align: bottom; }
 .icon-elDown     { display:block; height:48px; width:41px; background: transparent url(icons24bit.png) 0 -640px no-repeat; }
 .icon-storyEdit  { display:block; height:64px; width:64px; background: transparent url(icons24bit.png) 0 -704px no-repeat; }
 .icon-play1      { display:block; height:64px; width:64px; background: transparent url(icons24bit.png) 0 -768px no-repeat; }
+.icon-restart    { display:block; height:64px; width:64px; background: transparent url(icons24bit.png) 0 -832px no-repeat; }
+.icon-back       { display:block; height:48px; width:48px; background: transparent url(icons24bit.png) 0 -896px no-repeat; }
+
 .icon-deletePageMO { display:block; height:64px; width:64px; background: transparent url(icons24bit.png) -64px 0px no-repeat; }
 .icon-addPageMO    { display:block; height:64px; width:64px; background: transparent url(icons24bit.png) -64px -64px no-repeat; }
 .icon-editPageMO   { display:block; height:64px; width:64px; background: transparent url(icons24bit.png) -64px -128px no-repeat; }
@@ -292,7 +296,10 @@ img { vertical-align: bottom; }
 .icon-elUpMO       { display:block; height:48px; width:41px; background: transparent url(icons24bit.png) -64px -576px no-repeat; }
 .icon-elDownMO     { display:block; height:48px; width:41px; background: transparent url(icons24bit.png) -64px -640px no-repeat; }
 .icon-storyEditMO  { display:block; height:64px; width:64px; background: transparent url(icons24bit.png) -64px -704px no-repeat; }
-.icon-play2        { display:block; height:64px; width:64px; background: transparent url(icons24bit.png) -64px -768px no-repeat; }
+.icon-play1MO      { display:block; height:64px; width:64px; background: transparent url(icons24bit.png) -64px -768px no-repeat; }
+.icon-restartMO    { display:block; height:64px; width:64px; background: transparent url(icons24bit.png) -64px -832px no-repeat; }
+.icon-backMO       { display:block; height:48px; width:48px; background: transparent url(icons24bit.png) -64px -896px no-repeat; }
+
 .icon-deletePageD { display:block; height:64px; width:64px; background: transparent url(icons24bit.png) -128px 0px no-repeat; }
 .icon-addPageD    { display:block; height:64px; width:64px; background: transparent url(icons24bit.png) -128px -64px no-repeat; }
 .icon-editPageD   { display:block; height:64px; width:64px; background: transparent url(icons24bit.png) -128px -128px no-repeat; }
@@ -306,6 +313,9 @@ img { vertical-align: bottom; }
 .icon-elDownD     { display:block; height:48px; width:41px; background: transparent url(icons24bit.png) -128px -640px no-repeat; }
 .icon-storyEditD  { display:block; height:64px; width:64px; background: transparent url(icons24bit.png) -128px -704px no-repeat; }
 .icon-play1D      { display:block; height:64px; width:64px; background: transparent url(icons24bit.png) -128px -768px no-repeat; }
+.icon-restartD    { display:block; height:64px; width:64px; background: transparent url(icons24bit.png) -128px -832px no-repeat; }
+.icon-backD       { display:block; height:48px; width:48px; background: transparent url(icons24bit.png) -128px -896px no-repeat; }
+
 #deletePage, #editPage, #addPage, #addPageElementText, #addPageElementImage, #addPageElementChoice {
 	cursor:pointer; padding:0px;
 	text-align:center;
@@ -497,6 +507,9 @@ img { vertical-align: bottom; }
 	font-size: large;
 	font-weight: bold;
 	text-align: center;
-	padding: 5px;
+	padding-left:5px;
+	padding-right:5px;
 }
-
+.inline {
+	display: inline;
+}

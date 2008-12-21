@@ -109,7 +109,8 @@ class GetPages(webapp.RequestHandler):
 		pageDict['elements'] = elementsArray
 		pagesJSON.append(pageDict)
 	self.response.out.write(simplejson.dumps(pagesJSON))
-	logging.error(simplejson.dumps(pagesJSON))
+	logging.error("got " + str(len(pagesJSON)) + " pages for key " + myAdventureKey)
+	#logging.error(simplejson.dumps(pagesJSON))
 
 class StoryEditor(webapp.RequestHandler):
   def get(self):

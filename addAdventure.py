@@ -8,19 +8,21 @@ from google.appengine.ext import webapp
 from google.appengine.ext.webapp.util import run_wsgi_app
 from google.appengine.ext import db
 from google.appengine.api import memcache
+from django.utils import simplejson
 import adventureModel
 import main
 
 class AddAdventure(webapp.RequestHandler):
-  def post(self):	
+  def post(self):
 	myKey = self.request.get('myKey')
+	logging.error("AddAdventure for key: " + myKey)
 	if myKey:
 		adventure = db.Model.get(myKey)
 	else:
 		adventure = adventureModel.Adventure()
 
 	if users.get_current_user():
-		if adventure.realAuthor and (adventure.realAuthor != users.get_current_user() or users.is_current_user_admin()):
+		if not users.is_current_user_admin() and adventure.realAuthor and adventure.realAuthor != users.get_current_user():
 			pass
 		else:
 			adventure.realAuthor = users.get_current_user()
@@ -31,19 +33,26 @@ class AddAdventure(webapp.RequestHandler):
 			adventure.put()
 			memcache.delete("adventures")
 			memcache.delete("adventures_" + users.get_current_user().email())
-			
+			logging.error("AddAdventure data: " + simplejson.dumps(adventure.toDict()))
+	
+	logging.error("AddAdventure done for key: " + myKey)
 	#self.redirect('/myStories')
 	#redirect you right to the story editor
 	self.redirect('/storyEditor?myAdventureKey=' + str(adventure.key()))
 
   def get(self):
 	adventure = None
+	buttonText = None
+	title = 'Create A New Story'
+	url = None
+	url_linktext = None
 	if users.get_current_user():
 		url = users.create_logout_url(self.request.uri)
 		url_linktext = 'Logout'
 		buttonText = 'Create Story'
 		myKey = self.request.get('key')
 		if myKey:
+			title = 'Update Story Details'
 			buttonText = 'Update Story Details'
 			adventure = db.Model.get(myKey)
 	else:
@@ -53,7 +62,7 @@ class AddAdventure(webapp.RequestHandler):
 
 	defaultTemplateValues = main.getDefaultTemplateValues(self)
 	templateValues = {
-		'title': 'Create A New Story',
+		'title': title,
 		'url': url,
 		'url_linktext': url_linktext,
 		'buttonText': buttonText,

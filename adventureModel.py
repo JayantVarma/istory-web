@@ -9,6 +9,12 @@ class Adventure(db.Model):
 	desc = db.TextProperty()
 	created = db.DateTimeProperty(auto_now_add=True)
 	modified = db.DateTimeProperty(auto_now=True)
+	def toDict(self):
+		return {
+			'title': self.title,
+			'author': self.author,
+			'desc': self.desc,
+		}
 
 class Page(db.Model):
 	adventure = db.ReferenceProperty(Adventure)

@@ -4,7 +4,7 @@
 {% ifequal url_linktext "Logout" %}
 	<form action="/createStory" method="post">
 	<table class="table1">
-	<tr><th colspan="2"><h1>Create A New Story</h1></th></tr>
+	<tr><th colspan="2"><h1>{{ title }}</h1></th></tr>
 	<tr><th>Title:</th><td><input type="text" name="title" value="{{ adventure.title }}" size="30" maxlength="100"></td></tr>
 	<tr><th>Author:</th><td><input type="text" name="author" value="{{ adventure.author }}" size="30" maxlength="100"></td></tr>
 	<tr><th>Description:</th><td><textarea name="desc" rows="3" cols="50">{{ adventure.desc }}</textarea></td></tr>
