@@ -97,7 +97,7 @@ body hr {
 	height:100%;
 }
 .yui-skin-sam .mainContent .books {
-	width:100%;
+	width:34em;
 	margin:0px;
 	padding:0px;
 }
@@ -106,6 +106,8 @@ body hr {
 	vertical-align:top;
 }
 .yui-skin-sam .mainContent .book {
+	text-align:center;
+	vertical-align:top;
 	width: 17.5em;
 	padding:7px;
 	margin-top:10px;
@@ -220,6 +222,7 @@ body hr {
 
 .iconBG-light {
 	background: #444444;
+	cursor: pointer;
 }
 .iconBG-dark {
 	background: #333333;
@@ -275,6 +278,7 @@ img { vertical-align: bottom; }
 .icon-elUp       { display:block; height:48px; width:41px; background: transparent url(icons24bit.png) 0 -576px no-repeat; }
 .icon-elDown     { display:block; height:48px; width:41px; background: transparent url(icons24bit.png) 0 -640px no-repeat; }
 .icon-storyEdit  { display:block; height:64px; width:64px; background: transparent url(icons24bit.png) 0 -704px no-repeat; }
+.icon-play1      { display:block; height:64px; width:64px; background: transparent url(icons24bit.png) 0 -768px no-repeat; }
 .icon-deletePageMO { display:block; height:64px; width:64px; background: transparent url(icons24bit.png) -64px 0px no-repeat; }
 .icon-addPageMO    { display:block; height:64px; width:64px; background: transparent url(icons24bit.png) -64px -64px no-repeat; }
 .icon-editPageMO   { display:block; height:64px; width:64px; background: transparent url(icons24bit.png) -64px -128px no-repeat; }
@@ -287,6 +291,7 @@ img { vertical-align: bottom; }
 .icon-elUpMO       { display:block; height:48px; width:41px; background: transparent url(icons24bit.png) -64px -576px no-repeat; }
 .icon-elDownMO     { display:block; height:48px; width:41px; background: transparent url(icons24bit.png) -64px -640px no-repeat; }
 .icon-storyEditMO  { display:block; height:64px; width:64px; background: transparent url(icons24bit.png) -64px -704px no-repeat; }
+.icon-play2        { display:block; height:64px; width:64px; background: transparent url(icons24bit.png) -64px -768px no-repeat; }
 .icon-deletePageD { display:block; height:64px; width:64px; background: transparent url(icons24bit.png) -128px 0px no-repeat; }
 .icon-addPageD    { display:block; height:64px; width:64px; background: transparent url(icons24bit.png) -128px -64px no-repeat; }
 .icon-editPageD   { display:block; height:64px; width:64px; background: transparent url(icons24bit.png) -128px -128px no-repeat; }
@@ -299,6 +304,7 @@ img { vertical-align: bottom; }
 .icon-elUpD       { display:block; height:48px; width:41px; background: transparent url(icons24bit.png) -128px -576px no-repeat; }
 .icon-elDownD     { display:block; height:48px; width:41px; background: transparent url(icons24bit.png) -128px -640px no-repeat; }
 .icon-storyEditD  { display:block; height:64px; width:64px; background: transparent url(icons24bit.png) -128px -704px no-repeat; }
+.icon-play1D      { display:block; height:64px; width:64px; background: transparent url(icons24bit.png) -128px -768px no-repeat; }
 #deletePage, #editPage, #addPage, #addPageElementText, #addPageElementImage, #addPageElementChoice {
 	cursor:pointer; padding:0px;
 	text-align:center;
@@ -452,3 +458,44 @@ img { vertical-align: bottom; }
   overflow:hidden;
 }
 .tt { font-size:small; width:20em; }
+
+.playerSmall {
+	font-size: small;
+	border-top-width: 1px;
+	border-top-style: dashed;
+	border-top-color: #000000;
+	padding: 5px;
+	margin-top: 5px;
+	margin-bottom: 5px;
+}
+.playerSmallChoice {
+	font-size: small;
+	font-weight: bold;
+	border-top-width: 1px;
+	border-top-style: dashed;
+	border-top-color: #000000;
+	padding: 5px;
+	margin-top: 5px;
+	margin-bottom: 5px;
+}
+.playerSmallChoice:hover {
+	background: #DDDDFF;
+	cursor: pointer;
+}
+#player {
+	width:330px;
+	padding:5px;
+	background: #FFFFFF;
+	margin-left: auto;
+	margin-right: auto;
+	text-align: left;
+	margin-top: 1em;
+	margin-bottom: 1em;
+}
+#player h1 {
+	font-size: large;
+	font-weight: bold;
+	text-align: center;
+	padding: 5px;
+}
+

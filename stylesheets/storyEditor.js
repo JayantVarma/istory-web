@@ -11,6 +11,10 @@ var adventureKey = '';
 if (MY_ADVENTURE_KEY) {
 	adventureKey = MY_ADVENTURE_KEY;
 }
+var myError = '';
+if (MY_ERROR) {
+	myError = MY_ERROR;
+}
 
 var loadingCounter = 0;
 var labelClick = false;
@@ -464,7 +468,7 @@ var cropImageCallbacks = {
 	argument : {
 		"idx": null
 	},
-	timeout : 3000
+	timeout : 30000
 }
 
 
@@ -565,7 +569,7 @@ var uploadImageCallbacks = {
 	argument : {
 		"nodeIndex": null
 	},
-	timeout : 3000
+	timeout : 30000
 }
 
 var pageElUp = function(e) {
@@ -678,7 +682,7 @@ var moveCallbacks = {
 		alert("MovePageElement was not successful.");
 	},
 	argument : { },
-	timeout : 3000
+	timeout : 30000
 }
 var pageElDown = function(e) {
 	if (loadingCounter > 0) { return }
@@ -811,7 +815,7 @@ var pageElDisableCallbacks = {
 		"nodeIndex": null,
 		"key": null
 	},
-	timeout : 3000
+	timeout : 30000
 }
 var removePageElementNodeFromTree = function(nodeIndex) {
 	var myNode = tree.getNodeByIndex(nodeIndex);
@@ -860,7 +864,7 @@ var pageElDeleteCallbacks = {
 		"nodeIndex": null,
 		"key": null
 	},
-	timeout : 3000
+	timeout : 30000
 }
 var pageElSave = function(e) {
 	if (loadingCounter > 0) { return }
@@ -938,7 +942,7 @@ var pageElSaveCallbacks = {
 		"pageNodeIndex": null,
 		"pageKey": null
 	},
-	timeout : 3000
+	timeout : 30000
 }
 
 //ADD PAGE ELEMENTS TO THE ADVENTURE PAGE
@@ -994,7 +998,7 @@ var addPageElementCallbacks = {
 		alert("addPageElement was not successful.");
 	},
 	argument : { "nodeIndex": null },
-	timeout : 3000
+	timeout : 30000
 }
 var getDescForChildNode = function(description, datatype) {
 	var nodeDesc = null;
@@ -1130,7 +1134,7 @@ var addPageCallbacks = {
 		alert("addPage was not successful.");
 	},
 	argument : { "nodeIndex": null },
-	timeout : 3000
+	timeout : 30000
 }
 
 var deletePageSubmit = function(e) {
@@ -1173,7 +1177,7 @@ var deletePageCallbacks = {
 		alert("removePage was not successful.");
 	},
 	argument : { "nodeIndex": null },
-	timeout : 3000
+	timeout : 30000
 }
 
 // Define the callbacks for the asyncRequest
@@ -1238,7 +1242,7 @@ var callbacks = {
 			alert("Async call failed!");
 		}
 	},		
-	timeout : 3000
+	timeout : 30000
 }
 var nodeClick = function(node) {
 	labelClick = true;
@@ -1291,7 +1295,7 @@ var imagesByUserCallbacks = {
 	},
 	argument : {
 	},
-	timeout : 3000
+	timeout : 30000
 }
 
 var setLoading = function() {
@@ -1342,6 +1346,11 @@ var isPageElMenuTitle = function(td) {
 
 //function to initialize the tree:
 function treeInit() {
+	//first see if we got an error from the python
+	if (myError) {
+		resetWorkArea(myError, true);
+		return;
+	}
 	// Make the call to the server for JSON data
 	setLoading();
 	YAHOO.util.Connect.asyncRequest('GET',"/getPages?myAdventureKey=" + adventureKey, callbacks);

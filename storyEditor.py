@@ -88,8 +88,8 @@ class GetPages(webapp.RequestHandler):
 	adventure = db.Model.get(myAdventureKey)
 	if adventure == None:
 		return
-	if users.get_current_user() != adventure.realAuthor:
-		adventure = None
+	#if users.get_current_user() != adventure.realAuthor:
+		#adventure = None
 
 	pagesQuery = adventureModel.Page.all()
 	pagesQuery.filter('adventure = ', adventure.key())
@@ -126,7 +126,11 @@ class StoryEditor(webapp.RequestHandler):
 		error = 'error: could not find Adventure ' + myAdventureKey + ' in the database'
 	elif users.get_current_user() and users.get_current_user() != adventure.realAuthor:
 		error = 'error: you do not own this story'
+	elif not users.get_current_user():
+		error = 'error: you are not logged in'
 
+	if error:
+		logging.error("########## ERROR: " + error);
 	defaultTemplateValues = main.getDefaultTemplateValues(self)
 	templateValues = {
 		'adventure': adventure,

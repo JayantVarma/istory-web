@@ -1,0 +1,44 @@
+{% extends "index.html" %}
+{% block sidebar %}
+	<h3>Story Player</h3>
+	<div class="sb1">
+	<div>Experience your story here, or on the iPhone. Look for <b>iStory</b> in the app store.</div>
+	<div>When your story is ready for public viewing, submit it for approval.</div>
+	<div>You can also share this story with people you invite so they can view it before it's approved!</div>
+	</div>
+{% endblock %}
+
+{% block main %}
+	<div>
+	<div id="loadTop"><img src="/stylesheets/loadBig3.gif"></div>
+	<table class="mainContentHeader"><tr>
+		<th style="text-align:right;">"{{ adventure.title }}"</th>
+	</tr><tr>
+		<th width="50%" style="text-align:right;">{{ adventure.author }}</th>
+	</tr></table>
+	<table class="mainContentHeader"><tr>
+		<td class="iconBG-disabled" id="restartStory"><div id="icon-addPage" class="icon-addPageD"></div>Restart Story</td>
+		<td class="iconBG-disabled" id="storyForge"><div id="icon-storyEdit" class="icon-storyEditD"></div>StoryForge</td>
+		<td class="iconBG-disabled" id="shareStory"><div id="icon-deletePage" class="icon-deletePageD"></div>Share Story</td>
+		<td class="iconBG-disabled" id="submitStory"><div id="icon-deletePage" class="icon-deletePageD"></div>Submit Story</td>
+	</tr></table>
+	</div>
+	<div style="height:100%;">
+		<a name="top"></a>
+		<div id="player"><h1>Loading...</h1></div>
+	</div>
+{% endblock %}
+
+{% block footer %}
+<!-- Individual YUI JS files -->
+<script type="text/javascript" src="http://yui.yahooapis.com/2.6.0/build/utilities/utilities.js"></script>
+<script type="text/javascript" src="http://yui.yahooapis.com/2.6.0/build/yahoo-dom-event/yahoo-dom-event.js"></script>
+<script type="text/javascript" src="http://yui.yahooapis.com/2.6.0/build/element/element-beta-min.js"></script>
+<script type="text/javascript" src="http://yui.yahooapis.com/2.6.0/build/container/container.js"></script>
+<script type="text/javascript" src="http://yui.yahooapis.com/2.6.0/build/json/json.js"></script>
+
+<script type="text/javascript">
+{% if adventure.key %}	var MY_ADVENTURE_KEY = "{{ adventure.key }}";{% endif %}
+</script>
+<script src="stylesheets/playStory.js"></script>
+{% endblock %}

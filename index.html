@@ -60,7 +60,7 @@
 {% for adventure in adventures %}
 {% cycle <tr><td>,<td> %}
 	<div class="book">
-		<center><b>{{ adventure.title }}</b><br>
+		<center><b><a href="/playStory?myAdventureKey={{ adventure.key }}">{{ adventure.title }}</a></b><br>
 		<i>{{ adventure.author }}</i><br>
 		{{ adventure.created.date }}</center><hr>
 		<code>{{ adventure.desc|escape }}</code>

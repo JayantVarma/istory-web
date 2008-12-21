@@ -8,6 +8,7 @@
 		<code>The StoryForge awaits =)</code><hr>
 		<table class="mainContentHeader"><tr>
 		<td class="myStoryButtonDisabled"><div class="icon-storyEditD"></div>StoryForge</td>
+		<td class="myStoryButtonDisabled"><div class="icon-play1D"></div>Play Story</td>
 		<td class="myStoryButtonDisabled"><div class="icon-editPageD"></div>Edit Title &amp; Description</td>
 		</tr></table>
 	</div>
@@ -21,6 +22,7 @@
 		<code>{{ adventure.desc|truncatewords:"50"|escape }}</code><hr>
 		<table class="mainContentHeader"><tr>
 		<td class="myStoryButton"><a href="/storyEditor?myAdventureKey={{ adventure.key }}"><div class="icon-storyEdit"></div>StoryForge</a></td>
+		<td class="myStoryButton"><a href="/playStory?myAdventureKey={{ adventure.key }}"><div class="icon-play1"></div>Play Story</a></td>
 		<td class="myStoryButton"><a href="/createStory?key={{ adventure.key }}"><div class="icon-editPage"></div>Edit Title &amp; Description</a></td>
 		</tr></table>
 	</div>
