@@ -32,7 +32,9 @@ class AddAdventure(webapp.RequestHandler):
 			memcache.delete("adventures")
 			memcache.delete("adventures_" + users.get_current_user().email())
 			
-	self.redirect('/myStories')
+	#self.redirect('/myStories')
+	#redirect you right to the story editor
+	self.redirect('/storyEditor?myAdventureKey=' + str(adventure.key()))
 
   def get(self):
 	adventure = None

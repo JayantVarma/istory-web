@@ -71,8 +71,11 @@ var resetWorkArea = function(updateStr, clear, nodeIndex) {
 	}
 }
 
+var tdButtonFunction = function(id, iconName) {
+	return '<td id="TD' + id + '" title="pageElMenu" class="iconBG-dark2"><div title="' + iconName + '" class="' + iconName + '" id="' + id + '"></div></div>';
+}
 var divButtonFunction = function(id, iconName) {
-	return '<td id="TD' + id + '" title="pageElMenu" class="iconBG-dark2"><div title="' + iconName + '" class="' + iconName + '" id="' + id + '"></div></td>';
+	return '<div title="' + iconName + '" class="' + iconName + '" id="' + id + '"></div>';
 }
 
 var addPageElementsHelper = function() {
@@ -142,7 +145,7 @@ var iconMO = function(td, useValue) {
 			//this is for the page element menu, we store the normal class in the title attribute
 			td.className = 'iconBG-light2';
 			icon.className = icon.className + 'MO';
-			//console.log("MO set: " + td.className + ', ' + icon.className);
+			//console.log("MO set: " + td.className + ', ' + icon.className + ', ' + icon.title);
 		}
 		else {
 			//this is for the normal menu buttons
@@ -160,7 +163,12 @@ var iconMOreset = function(td, useValue) {
 		if (useValue) {
 			//this is for the page element menu, we store the normal class in the title attribute
 			td.className = 'iconBG-dark2';
-			icon.className = icon.title;
+			if (icon.className.substr((icon.className.length-2), 2) == 'MO') {
+				icon.className = icon.className.substr(0, (icon.className.length-2) );
+			}
+			if (icon.className.substr((icon.className.length-1), 1) == 'D') {
+				icon.className = icon.className.substr(0, (icon.className.length-1) );
+			}
 			//console.log("MO reset: " + td.className + ', ' + icon.className + ', ' + icon.title);
 		}
 		else {
@@ -173,13 +181,24 @@ var iconMOreset = function(td, useValue) {
 var iconDisable = function(td) {
 	td.className = 'iconBG-disabled';
 	var icon = td.firstChild;
+	if (icon.className.substr((icon.className.length-2), 2) == 'MO') {
+		icon.className = icon.className.substr(0, (icon.className.length-2) );
+	}
+	if (icon.className.substr((icon.className.length-1), 1) == 'D') {
+		icon.className = icon.className.substr(0, (icon.className.length-1) );
+	}
 	icon.className = icon.id + 'D';
 }
 
 var disableDivPageEl = function(div) {
 	div.className = 'iconBG-disabled2';
 	var icon = div.firstChild;
-	icon.className = icon.className.replace('MO', '');
+	if (icon.className.substr((icon.className.length-2), 2) == 'MO') {
+		icon.className = icon.className.substr(0, (icon.className.length-2) );
+	}
+	if (icon.className.substr((icon.className.length-1), 1) == 'D') {
+		icon.className = icon.className.substr(0, (icon.className.length-1) );
+	}
 	icon.className = icon.className + 'D';
 }
 var enableDivPageEl = function(div) {
@@ -293,10 +312,10 @@ var addPageElementToWorkArea = function(pageElement, idx) {
 	}
 	myHTML += '</div><div class="pageElementMenu"><table id="elementMenu"><tr>';
 	myHTML += "<th>Don't forget to save!</th>";
-	myHTML += divButtonFunction('up'+idx, 'icon-elUp');
-	myHTML += divButtonFunction('disable'+idx, 'icon-elDelete');
-	myHTML += divButtonFunction('down'+idx, 'icon-elDown');
-	myHTML += divButtonFunction('save'+idx, 'icon-save');
+	myHTML += tdButtonFunction('up'+idx, 'icon-elUp');
+	myHTML += tdButtonFunction('disable'+idx, 'icon-elDelete');
+	myHTML += tdButtonFunction('down'+idx, 'icon-elDown');
+	myHTML += tdButtonFunction('save'+idx, 'icon-save');
 	myHTML += '<td width="32px"><div class="loadElement"><img src="/stylesheets/load.gif"></div></td>';
 	myHTML += '</tr></table></div>';
 
