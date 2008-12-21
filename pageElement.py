@@ -179,6 +179,8 @@ class SavePageElement(webapp.RequestHandler):
 	myPageOrder = self.request.get('pageOrder')
 	pageElement.pageOrder = int(myPageOrder or 0)
 	pageElement.dataA = self.request.get('dataA')
+	if pageElement.dataA:
+		pageElement.dataA = pageElement.dataA.replace('%u2019', "'")
 	pageElement.dataB = self.request.get('dataB')
 	pageElement.enabled = 1;
 	pageElement.put()
