@@ -71,6 +71,7 @@ body hr {
 	border-color: #000000;
 }
 #treeDiv1 {
+	z-index: 1000;
 	background: #EBEBEB;
 	margin-left: .5em;
 	margin-right: .5em;

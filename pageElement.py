@@ -182,7 +182,9 @@ class SavePageElement(webapp.RequestHandler):
 	if pageElement.dataA:
 		pageElement.dataA = pageElement.dataA.replace('%u2019', "'")
 		pageElement.dataA = pageElement.dataA.replace('%u201C', '"')
-		pageElement.dataA = pageElement.dataA.replace('%u2013', '"')
+		pageElement.dataA = pageElement.dataA.replace('%u201D', '"')
+		pageElement.dataA = pageElement.dataA.replace('%u2026', '...')
+		pageElement.dataA = pageElement.dataA.replace('%u2013', '-')
 	pageElement.dataB = self.request.get('dataB')
 	pageElement.enabled = 1;
 	pageElement.put()

@@ -135,7 +135,7 @@ class StoryEditor(webapp.RequestHandler):
 	templateValues = {
 		'adventure': adventure,
 		'error': error,
-		'title': "iStory - StoryForge - " + adventure.title,
+		'title': "StoryForge - " + adventure.title,
 	}
 	templateValues = dict(defaultTemplateValues, **templateValues)
 

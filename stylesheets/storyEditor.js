@@ -3,6 +3,9 @@ YAHOO.util.Event.onDOMReady(treeInit);
 
 var YUD = YAHOO.util.Dom, YUE = YAHOO.util.Event, YUC = YAHOO.util.Connect;
 
+//if there is no console, set it to null
+try { console.log('init console... done'); } catch(e) { console = { log: function() {} } }
+
 //global variable to allow console inspection of tree:
 var tree;
 
@@ -287,7 +290,7 @@ var addPageElementToWorkArea = function(pageElement, idx) {
 	}
 	else if (pageElement.dataType == 3) {
 		//choice
-		myHTML += '<table class="tableChoice"><tr><td>Choice Description:</td><td><input size="30" maxlength="50" tabindex="' + tabIndex + '" type="text" name="dataA' + idx + '" id="dataA' + idx + '"';
+		myHTML += '<table class="tableChoice"><tr><td>Choice Description:</td><td><input size="30" maxlength="70" tabindex="' + tabIndex + '" type="text" name="dataA' + idx + '" id="dataA' + idx + '"';
 		tabIndex++;
 		if (pageElement.dataA) { myHTML += ' value="' + pageElement.dataA + '"'; }
 		myHTML += '></tr>';
@@ -1034,7 +1037,7 @@ var addOrUpdateChildNode = function(description, datatype, node, pageElement, cu
 		keyToNodeMap[pageElement.key] = currentNode;
 		currentNode.value = pageElement;
 	}
-	currentNode.label = currentNode.index + ',' + currentNode.value.pageOrder + ' ' + currentNode.label;
+	//currentNode.label = currentNode.index + ',' + currentNode.value.pageOrder + ' ' + currentNode.label;
 	tree.draw()
 	return currentNode.index;
 }

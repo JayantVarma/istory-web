@@ -4,9 +4,7 @@ YAHOO.util.Event.onDOMReady(treeInit);
 var YUD = YAHOO.util.Dom, YUE = YAHOO.util.Event, YUC = YAHOO.util.Connect;
 
 //if there is no console, set it to null
-if (!console) {
-	
-}
+try { console.log('init console... done'); } catch(e) { console = { log: function() {} } }
 
 //we also expect the variable MY_ADVENTURE_KEY to be set from the footer
 var adventureKey = '';
@@ -191,6 +189,7 @@ var playPage = function(pageKey) {
 			//text element
 			//console.log("page element text: " + pageElement.dataA.substr(0, 20));
 			if (pageElement.dataA) {
+				pageElement.dataA = pageElement.dataA.replace(/\n/g, '<br>');
 				newDiv.innerHTML = '<div class="playerSmall">' + pageElement.dataA + '</div>';
 			}
 		}

@@ -33,7 +33,7 @@ class Play(webapp.RequestHandler):
 	templateValues = {
 		'adventure': adventure,
 		'error': error,
-		'title': "iStory - " + adventure.title,
+		'title': adventure.title,
 	}
 	templateValues = dict(defaultTemplateValues, **templateValues)
 
