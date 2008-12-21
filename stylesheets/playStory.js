@@ -75,24 +75,20 @@ var eventIconMOreset = function(e) {
 	}
 }
 var iconMO = function(td) {
-	//console.log("iconMO: " + this + " " + this.id);
 	if (!td.id) { return }
 	if (loadingCounter > 0) { return }
 	var icon = td.firstChild;
 	//this is for the normal menu buttons
 	td.className = 'iconBG-light';
 	icon.className = icon.id + 'MO';
-	//console.log("MO set: " + td.className + ', ' + icon.className);
 }
 var iconMOreset = function(td, useValue) {
-	//console.log("iconMO: " + this + " " + this.id);
 	if (!td.id) { return }
 	if (loadingCounter > 0) { return }
 	var icon = td.firstChild;
 	//this is for the normal menu buttons
 	td.className = 'iconBG-dark';
 	icon.className = icon.id;
-	//console.log("MO set: " + td.className + ', ' + icon.className);
 }
 var iconDisable = function(td) {
 	td.className = 'iconBG-disabled';
@@ -144,11 +140,11 @@ var getPagesCallbacks = {
 		}
 		pages = m;
 		for (var i = 0; i < m.length; i++) {
-			console.log("adding " + m[i].key + " to map as page " + i);
+			//console.log("adding " + m[i].key + " to map as page " + i);
 			keyToPageIdMap[m[i].key] = i;
 			numPages++;
 		}
-		console.log("got " + numPages + " pages.");
+		//console.log("got " + numPages + " pages.");
 		playPage(pages[0].key)
 			/*//m.name m.key
 			var page = {
@@ -174,35 +170,36 @@ var getPagesCallbacks = {
 
 var playPageEvent = function(e) {
 	//this sets the focus to the #top href tag
+	//console.log("playing page: " + e);
 	window.location.hash = 'top';
 	playPage(this.id);
 }
 
 var playPage = function(pageKey) {
-	console.log('playPage: ' + pageKey);
+	//console.log('playPage: ' + pageKey);
 	workArea = YUD.get('player');
 	var page = pages[keyToPageIdMap[pageKey]];
 	workArea.innerHTML = '<div><h1>' + page.name + '</h1></div>';
 	for (var i = 0; i < page.elements.length; i++) {
 		var pageElement = page.elements[i];
-		console.log("got page element of type: " + pageElement.dataType);
+		//console.log("got page element of type: " + pageElement.dataType);
 		if (pageElement.dataType == 1) {
 			//text element
-			console.log("page element text: " + pageElement.dataA.substr(0, 20));
+			//console.log("page element text: " + pageElement.dataA.substr(0, 20));
 			if (pageElement.dataA) {
 				workArea.innerHTML += '<div class="playerSmall">' + pageElement.dataA + '</div>';
 			}
 		}
 		if (pageElement.dataType == 2) {
 			//image element
-			console.log("page element image: " + pageElement.dataA);
+			//console.log("page element image: " + pageElement.dataA);
 			if (pageElement.dataA) {
 				workArea.innerHTML += '<div class="playerSmall"><img src="/images?imageKey=' + pageElement.imageRef + '"></div>';
 			}
 		}
 		if (pageElement.dataType == 3) {
 			//choice element
-			console.log("page element choice: " + pageElement.dataA);
+			//console.log("page element choice: " + pageElement.dataA);
 			if (pageElement.dataA) {
 				workArea.innerHTML += '<div class="playerSmallChoice" id="' + pageElement.dataB + '"><table width="100%"><tr><td align="left">' + pageElement.dataA + '</td><td align="right">--></td></tr></table></div>';
 				YAHOO.util.Event.addListener(pageElement.dataB, "click", playPageEvent);
