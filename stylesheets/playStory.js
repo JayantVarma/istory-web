@@ -65,7 +65,6 @@ var enableIcons = function()
 
 var eventIconMO = function(e) {
 	if (this.id) {
-		//console.log(this.id);
 		iconMO(this);
 	}
 }
@@ -168,11 +167,11 @@ var getPagesCallbacks = {
 	timeout : 30000
 }
 
-var playPageEvent = function(e) {
+var playPageEvent = function(e, pageKey) {
+	//console.log("playing page: " + e + ', ' + pageKey);
 	//this sets the focus to the #top href tag
-	//console.log("playing page: " + e);
 	window.location.hash = 'top';
-	playPage(this.id);
+	playPage(pageKey);
 }
 
 var playPage = function(pageKey) {
@@ -182,27 +181,32 @@ var playPage = function(pageKey) {
 	workArea.innerHTML = '<div><h1>' + page.name + '</h1></div>';
 	for (var i = 0; i < page.elements.length; i++) {
 		var pageElement = page.elements[i];
+		//create a new div that we can append to workArea
+		var newDiv = document.createElement('div');
+		newDiv.id = "pageElement" + i;
+		workArea.appendChild(newDiv);
+
 		//console.log("got page element of type: " + pageElement.dataType);
 		if (pageElement.dataType == 1) {
 			//text element
 			//console.log("page element text: " + pageElement.dataA.substr(0, 20));
 			if (pageElement.dataA) {
-				workArea.innerHTML += '<div class="playerSmall">' + pageElement.dataA + '</div>';
+				newDiv.innerHTML = '<div class="playerSmall">' + pageElement.dataA + '</div>';
 			}
 		}
 		if (pageElement.dataType == 2) {
 			//image element
 			//console.log("page element image: " + pageElement.dataA);
 			if (pageElement.dataA) {
-				workArea.innerHTML += '<div class="playerSmall"><img src="/images?imageKey=' + pageElement.imageRef + '"></div>';
+				newDiv.innerHTML = '<div class="playerSmall"><img src="/images?imageKey=' + pageElement.imageRef + '"></div>';
 			}
 		}
 		if (pageElement.dataType == 3) {
 			//choice element
-			//console.log("page element choice: " + pageElement.dataA);
+			//console.log("page element choice: " + pageElement.dataA + ", " + pageElement.dataB + ', ' + i);
 			if (pageElement.dataA) {
-				workArea.innerHTML += '<div class="playerSmallChoice" id="' + pageElement.dataB + '"><table width="100%"><tr><td align="left">' + pageElement.dataA + '</td><td align="right">--></td></tr></table></div>';
-				YAHOO.util.Event.addListener(pageElement.dataB, "click", playPageEvent);
+				newDiv.innerHTML = '<div class="playerSmallChoice" id="choiceClick' + i + '"><table width="100%"><tr><td align="left">' + pageElement.dataA + '</td><td align="right">--></td></tr></table></div>';
+				YUE.addListener('pageElement' + i, "click", playPageEvent, pageElement.dataB);
 			}
 		}
 	}
