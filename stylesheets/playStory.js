@@ -78,12 +78,16 @@ var iconMO = function(td, isLight) {
 	if (!isLight) {
 		//this is for the normal menu buttons
 		td.className = 'iconBG-light';
+		icon.className = icon.id + 'MO'
 	}
 	else {
 		//this is for light background icons
-		td.className = 'iconBG-light2';
+		//if the pagehistory only has 1 element in it, dont do it
+		if (pageHistory.length > 1) {
+			td.className = 'iconBG-light2';
+			icon.className = icon.id + 'MO'
+		}
 	}
-	icon.className = icon.id + 'MO'
 }
 var iconMOreset = function(td, isLight) {
 	if (!td.id) { return }
@@ -92,12 +96,16 @@ var iconMOreset = function(td, isLight) {
 	if (!isLight) {
 		//this is for the normal menu buttons
 		td.className = 'iconBG-dark';
+		icon.className = icon.id;
 	}
 	else {
 		//this is for light background icons
-		td.className = 'iconBG-dark2';
+		//if the pagehistory only has 1 element in it, dont do it
+		if (pageHistory.length > 1) {
+			td.className = 'iconBG-dark2';
+			icon.className = icon.id;
+		}
 	}
-	icon.className = icon.id;
 }
 var iconDisable = function(td) {
 	td.className = 'iconBG-disabled';
@@ -208,12 +216,20 @@ var playPage = function(pageKey) {
 	//add the last page to the history
 	pageHistory.push(pageKey);
 	console.log("adding key to history: " + pageKey);
-	//create the back button and title
+	//create the back button and title, and tooltip for the back button
 	workArea.innerHTML = '<div><table width="100%"><tr><td id="back" class="iconBG-disabled2" width="48px"><div id="icon-back" class="icon-back"></td><td><h1>' + page.name + '</h1></td><td width="48px"></td></tr></table></div>';
-	//add event listeners for the back button
-	YAHOO.util.Event.addListener("back", "mouseover", eventIconMO, true);
-	YAHOO.util.Event.addListener("back", "mouseout", eventIconMOreset, true);
-	YAHOO.util.Event.addListener("back", "click", back);
+	//if the pagehistory only has 1 element in it, change the icon class to disabled
+	if (pageHistory.length == 1) {
+		YUD.get('icon-back').className = 'icon-backD';
+	}
+	else {
+		//only setup the tooltip and listeners if the button is useable
+		new YAHOO.widget.Tooltip("tooltipBack", { autodismissdelay:3000, showdelay:2000, context:"back", text:"Go back a page."});
+		//add event listeners for the back button
+		YAHOO.util.Event.addListener("back", "mouseover", eventIconMO, true);
+		YAHOO.util.Event.addListener("back", "mouseout", eventIconMOreset, true);
+		YAHOO.util.Event.addListener("back", "click", back);
+	}
 	//go through each page element for this page and add it to the HTML
 	for (var i = 0; i < page.elements.length; i++) {
 		var pageElement = page.elements[i];
