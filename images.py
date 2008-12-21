@@ -317,7 +317,7 @@ class Uploader(webapp.RequestHandler):
 
 	#make sure the user is logged in and owns this adventure and page
 	if users.get_current_user():
-		if adventure.realAuthor and adventure.realAuthor != users.get_current_user():
+		if not(users.is_current_user_admin()) and (adventure.realAuthor and adventure.realAuthor != users.get_current_user()):
 			self.error(404)
 			return
 	else:

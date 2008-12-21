@@ -29,7 +29,7 @@ class DeletePage(webapp.RequestHandler):
 		return
 
 	if users.get_current_user():
-		if adventure.realAuthor and adventure.realAuthor != users.get_current_user():
+		if not(users.is_current_user_admin()) and adventure.realAuthor and adventure.realAuthor != users.get_current_user():
 			return
 	else:
 		return
@@ -66,7 +66,7 @@ class AddPage(webapp.RequestHandler):
 		return
 
 	if users.get_current_user():
-		if adventure.realAuthor and adventure.realAuthor != users.get_current_user():
+		if not(users.is_current_user_admin()) and adventure.realAuthor and adventure.realAuthor != users.get_current_user():
 			return
 	else:
 		return
@@ -124,7 +124,7 @@ class StoryEditor(webapp.RequestHandler):
 		error = 'error: no adventure key passed in'
 	if adventure == None:
 		error = 'error: could not find Adventure ' + myAdventureKey + ' in the database'
-	elif users.get_current_user() and users.get_current_user() != adventure.realAuthor:
+	elif not(users.is_current_user_admin()) and users.get_current_user() and users.get_current_user() != adventure.realAuthor:
 		error = 'error: you do not own this story'
 	elif not users.get_current_user():
 		error = 'error: you are not logged in'

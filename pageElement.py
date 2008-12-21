@@ -30,7 +30,7 @@ class MovePageElement(webapp.RequestHandler):
 		logging.error(myElKey + " " + myNewOrder)
 		return
 	if users.get_current_user():
-		if adventure.realAuthor and adventure.realAuthor != users.get_current_user():
+		if not(users.is_current_user_admin()) and adventure.realAuthor and adventure.realAuthor != users.get_current_user():
 			return
 	myNewOrder = int(myNewOrderString)
 	elQuery = adventureModel.PageElement.all()
@@ -89,7 +89,7 @@ class DeletePageElement(webapp.RequestHandler):
 		logging.error("DeletePageElement: no myElKey passed in")
 		return
 	if users.get_current_user():
-		if adventure.realAuthor and adventure.realAuthor != users.get_current_user():
+		if not(users.is_current_user_admin()) and adventure.realAuthor and adventure.realAuthor != users.get_current_user():
 			return
 	else:
 		return
@@ -115,7 +115,7 @@ class DisablePageElement(webapp.RequestHandler):
 		logging.error("DisablePageElement: no myElKey passed in")
 		return
 	if users.get_current_user():
-		if adventure.realAuthor and adventure.realAuthor != users.get_current_user():
+		if not(users.is_current_user_admin()) and adventure.realAuthor and adventure.realAuthor != users.get_current_user():
 			return
 	else:
 		return
@@ -167,7 +167,7 @@ class SavePageElement(webapp.RequestHandler):
 			return
 
 	if users.get_current_user():
-		if adventure.realAuthor and adventure.realAuthor != users.get_current_user():
+		if not(users.is_current_user_admin()) and adventure.realAuthor and adventure.realAuthor != users.get_current_user():
 			return
 	else:
 		return
@@ -218,7 +218,7 @@ class AddPageElement(webapp.RequestHandler):
 		return
 
 	if users.get_current_user():
-		if adventure.realAuthor and adventure.realAuthor != users.get_current_user():
+		if not(users.is_current_user_admin()) and adventure.realAuthor and adventure.realAuthor != users.get_current_user():
 			return
 	else:
 		return

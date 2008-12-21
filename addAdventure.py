@@ -20,7 +20,7 @@ class AddAdventure(webapp.RequestHandler):
 		adventure = adventureModel.Adventure()
 
 	if users.get_current_user():
-		if adventure.realAuthor and adventure.realAuthor != users.get_current_user():
+		if adventure.realAuthor and (adventure.realAuthor != users.get_current_user() or users.is_current_user_admin()):
 			pass
 		else:
 			adventure.realAuthor = users.get_current_user()
