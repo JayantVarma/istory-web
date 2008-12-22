@@ -70,6 +70,9 @@ body hr {
 	border-style: dotted;
 	border-color: #000000;
 }
+.yui-skin-sam .sidebar1 .sb1 li {
+	margin-top: 8px;
+}
 #treeDiv1 {
 	z-index: 1000;
 	background: #EBEBEB;
@@ -279,10 +282,12 @@ img { vertical-align: bottom; }
 .icon-elDelete   { display:block; height:48px; width:41px; background: transparent url(icons24bit.png) 0 -512px no-repeat; }
 .icon-elUp       { display:block; height:48px; width:41px; background: transparent url(icons24bit.png) 0 -576px no-repeat; }
 .icon-elDown     { display:block; height:48px; width:41px; background: transparent url(icons24bit.png) 0 -640px no-repeat; }
-.icon-storyEdit  { display:block; height:64px; width:64px; background: transparent url(icons24bit.png) 0 -704px no-repeat; }
-.icon-play1      { display:block; height:64px; width:64px; background: transparent url(icons24bit.png) 0 -768px no-repeat; }
-.icon-restart    { display:block; height:64px; width:64px; background: transparent url(icons24bit.png) 0 -832px no-repeat; }
+.icon-storyEdit  { display:block; height:48px; width:48px; background: transparent url(icons24bit.png) 0 -704px no-repeat; }
+.icon-play1      { display:block; height:48px; width:48px; background: transparent url(icons24bit.png) 0 -768px no-repeat; }
+.icon-restart    { display:block; height:48px; width:48px; background: transparent url(icons24bit.png) 0 -832px no-repeat; }
 .icon-back       { display:block; height:48px; width:48px; background: transparent url(icons24bit.png) 0 -896px no-repeat; }
+.icon-share      { display:block; height:48px; width:48px; background: transparent url(icons24bit.png) 0 -960px no-repeat; }
+.icon-edit       { display:block; height:48px; width:48px; background: transparent url(icons24bit.png) 0 -1024px no-repeat; }
 
 .icon-deletePageMO { display:block; height:64px; width:64px; background: transparent url(icons24bit.png) -64px 0px no-repeat; }
 .icon-addPageMO    { display:block; height:64px; width:64px; background: transparent url(icons24bit.png) -64px -64px no-repeat; }
@@ -295,10 +300,12 @@ img { vertical-align: bottom; }
 .icon-elDeleteMO   { display:block; height:48px; width:41px; background: transparent url(icons24bit.png) -64px -512px no-repeat; }
 .icon-elUpMO       { display:block; height:48px; width:41px; background: transparent url(icons24bit.png) -64px -576px no-repeat; }
 .icon-elDownMO     { display:block; height:48px; width:41px; background: transparent url(icons24bit.png) -64px -640px no-repeat; }
-.icon-storyEditMO  { display:block; height:64px; width:64px; background: transparent url(icons24bit.png) -64px -704px no-repeat; }
-.icon-play1MO      { display:block; height:64px; width:64px; background: transparent url(icons24bit.png) -64px -768px no-repeat; }
-.icon-restartMO    { display:block; height:64px; width:64px; background: transparent url(icons24bit.png) -64px -832px no-repeat; }
+.icon-storyEditMO  { display:block; height:48px; width:48px; background: transparent url(icons24bit.png) -64px -704px no-repeat; }
+.icon-play1MO      { display:block; height:48px; width:48px; background: transparent url(icons24bit.png) -64px -768px no-repeat; }
+.icon-restartMO    { display:block; height:48px; width:48px; background: transparent url(icons24bit.png) -64px -832px no-repeat; }
 .icon-backMO       { display:block; height:48px; width:48px; background: transparent url(icons24bit.png) -64px -896px no-repeat; }
+.icon-shareMO      { display:block; height:48px; width:48px; background: transparent url(icons24bit.png) -64px -960px no-repeat; }
+.icon-editMO       { display:block; height:48px; width:48px; background: transparent url(icons24bit.png) -64px -1024px no-repeat; }
 
 .icon-deletePageD { display:block; height:64px; width:64px; background: transparent url(icons24bit.png) -128px 0px no-repeat; }
 .icon-addPageD    { display:block; height:64px; width:64px; background: transparent url(icons24bit.png) -128px -64px no-repeat; }
@@ -311,12 +318,14 @@ img { vertical-align: bottom; }
 .icon-elDeleteD   { display:block; height:48px; width:41px; background: transparent url(icons24bit.png) -128px -512px no-repeat; }
 .icon-elUpD       { display:block; height:48px; width:41px; background: transparent url(icons24bit.png) -128px -576px no-repeat; }
 .icon-elDownD     { display:block; height:48px; width:41px; background: transparent url(icons24bit.png) -128px -640px no-repeat; }
-.icon-storyEditD  { display:block; height:64px; width:64px; background: transparent url(icons24bit.png) -128px -704px no-repeat; }
-.icon-play1D      { display:block; height:64px; width:64px; background: transparent url(icons24bit.png) -128px -768px no-repeat; }
-.icon-restartD    { display:block; height:64px; width:64px; background: transparent url(icons24bit.png) -128px -832px no-repeat; }
+.icon-storyEditD  { display:block; height:48px; width:48px; background: transparent url(icons24bit.png) -128px -704px no-repeat; }
+.icon-play1D      { display:block; height:48px; width:48px; background: transparent url(icons24bit.png) -128px -768px no-repeat; }
+.icon-restartD    { display:block; height:48px; width:48px; background: transparent url(icons24bit.png) -128px -832px no-repeat; }
 .icon-backD       { display:block; height:48px; width:48px; background: transparent url(icons24bit.png) -128px -896px no-repeat; }
+.icon-shareD      { display:block; height:48px; width:48px; background: transparent url(icons24bit.png) -128px -960px no-repeat; }
+.icon-editD       { display:block; height:48px; width:48px; background: transparent url(icons24bit.png) -128px -1024px no-repeat; }
 
-#deletePage, #editPage, #addPage, #addPageElementText, #addPageElementImage, #addPageElementChoice {
+#deletePage, #editPage, #addPage, #addPageElementText, #addPageElementImage, #addPageElementChoice, #playStory {
 	cursor:pointer; padding:0px;
 	text-align:center;
 	vertical-align:bottom;
@@ -512,4 +521,33 @@ img { vertical-align: bottom; }
 }
 .inline {
 	display: inline;
+}
+.shareTable {
+	margin:5px;
+	margin-top:15px;
+	border-width: 1px;
+	border-style: dotted;
+	border-color: #000000;
+	background:#DDDDDD;
+	margin-left: auto;
+	margin-right: auto;
+}
+.shareTable th {
+	text-align: center;
+	font-weight: bold;
+	background: #2F2F4F;
+	color: #DDDDDD;
+	padding-left: 5px;
+	padding-right: 5px;
+	border-width: 1px;
+	border-style: dotted;
+	border-color: #000000;
+}
+.shareTable td {
+	font-size: small;
+	padding-left: 5px;
+	padding-right: 5px;
+	border-width: 1px;
+	border-style: dotted;
+	border-color: #000000;
 }

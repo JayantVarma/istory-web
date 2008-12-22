@@ -14,18 +14,21 @@ import main
 
 class AddAdventure(webapp.RequestHandler):
   def post(self):
-	myKey = self.request.get('myKey')
-	logging.error("AddAdventure for key: " + myKey)
-	if myKey:
-		adventure = db.Model.get(myKey)
+	myAdventureKey = self.request.get('myAdventureKey')
+	logging.error("AddAdventure for key: " + myAdventureKey)
+	if myAdventureKey:
+		logging.info("existing adventure.")
+		adventure = db.Model.get(myAdventureKey)
 	else:
+		logging.info("new adventure.")
 		adventure = adventureModel.Adventure()
 
 	if users.get_current_user():
 		if not users.is_current_user_admin() and adventure.realAuthor and adventure.realAuthor != users.get_current_user():
 			pass
 		else:
-			adventure.realAuthor = users.get_current_user()
+			if not adventure.realAuthor:
+				adventure.realAuthor = users.get_current_user()
 			adventure.title = self.request.get('title') or "[no title]"
 			adventure.author = self.request.get('author') or "[no author]"
 			adventure.desc = self.request.get('desc') or "[no description]"
@@ -35,10 +38,14 @@ class AddAdventure(webapp.RequestHandler):
 			memcache.delete("adventures_" + users.get_current_user().email())
 			logging.error("AddAdventure data: " + simplejson.dumps(adventure.toDict()))
 	
-	logging.error("AddAdventure done for key: " + myKey)
+	logging.error("AddAdventure done for key: " + myAdventureKey)
 	#self.redirect('/myStories')
-	#redirect you right to the story editor
-	self.redirect('/storyEditor?myAdventureKey=' + str(adventure.key()))
+	if not myAdventureKey:
+		#redirect you right to the story editor if its a new story
+		self.redirect('/storyEditor?myAdventureKey=' + str(adventure.key()))
+	else:
+		#redirect you back to myStories
+		self.redirect('/myStories')
 
   def get(self):
 	adventure = None
@@ -50,11 +57,11 @@ class AddAdventure(webapp.RequestHandler):
 		url = users.create_logout_url(self.request.uri)
 		url_linktext = 'Logout'
 		buttonText = 'Create Story'
-		myKey = self.request.get('key')
-		if myKey:
+		myAdventureKey = self.request.get('myAdventureKey')
+		if myAdventureKey:
 			title = 'Update Story Details'
 			buttonText = 'Update Story Details'
-			adventure = db.Model.get(myKey)
+			adventure = db.Model.get(myAdventureKey)
 	else:
 		url = users.create_login_url(self.request.uri)
 		url_linktext = 'Login To Create A Story'

@@ -1,0 +1,48 @@
+{% extends "index.html" %}
+
+{% block sidebar %}
+	<h3>Sharing Is Caring</h3>
+	<div class="sb1">
+	<div>Collaborate with your friends and make your story a group effort.</div>
+	<div>There are 3 different ways to share your story:<ul>
+		<li><b>Reader</b> - A Reader can play your story on their iPhone before your story is approved.</li>
+		<li><b>Author</b> - An Author can help create your story in the StoryForge. They can delete content, so be careful! Authors also have the Reader privileges.</li>
+		<li><b>Admin</b> - An Admin can manage sharing preferences, as well as do everything that an Author and a Reader can do.</li>
+	</ul></div>
+	</div>
+{% endblock %}
+
+{% block main %}
+<table class="shareTable">
+	<tr><th colspan="3">Your Adventures</th></tr>
+	<tr><th>Title</th><th>Created Date</th><th>Last Modified</th></tr>
+	{% for adventure in ownedAdventures %}
+		<tr><td>{{ adventure.title }}</td><td>{{ adventure.created.date }}</td><td>{{ adventure.modified.date }}</td></tr>
+	{% endfor %}
+</table>
+<h1></h1>
+<table class="shareTable">
+	<tr><th colspan="5">Adventures That Have Been Shared With You</th></tr>
+	<tr><th>Title</th><th>Created Date</th><th>Last Modified</th><th>Owner</th><th>Your Role</th></tr>
+	{% for adventure in sharedAdventures %}
+		<tr><td>{{ adventure.title }}</td><td>{{ adventure.created.date }}</td><td>{{ adventure.modified.date }}</td><td>{{ adventure.owner }} ({{ adventure.ownerNick }})</td><td>{{ adventure.shareType }}</td></tr>
+	{% endfor %}
+</table>
+{% endblock %}
+
+{% block footer %}
+<!-- Individual YUI JS files -->
+<script type="text/javascript" src="http://yui.yahooapis.com/2.6.0/build/utilities/utilities.js"></script>
+<script type="text/javascript" src="http://yui.yahooapis.com/2.6.0/build/yahoo-dom-event/yahoo-dom-event.js"></script>
+<script type="text/javascript" src="http://yui.yahooapis.com/2.6.0/build/element/element-beta-min.js"></script>
+<script type="text/javascript" src="http://yui.yahooapis.com/2.6.0/build/container/container.js"></script>
+<script type="text/javascript" src="http://yui.yahooapis.com/2.6.0/build/json/json.js"></script>
+
+<script type="text/javascript">
+var MY_ADVENTURE_KEY = '';
+{% if adventure.key %}	MY_ADVENTURE_KEY = "{{ adventure.key }}";{% endif %}
+var MY_ERROR = '';
+{% if error %} MY_ERROR = "{{ error }}"; {% endif %}
+</script>
+<script src="stylesheets/playStory.js"></script>
+{% endblock %}

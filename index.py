@@ -18,7 +18,7 @@ class Index(webapp.RequestHandler):
 	if adventures is not None:
 		return adventures
 	else:
-		adventures_query = adventureModel.Adventure.all().order('-created')
+		adventures_query = adventureModel.Adventure.all().order('created')
 		adventures = adventures_query.fetch(20)
 		if not memcache.add("adventures", adventures, 300):
 			logging.error("memcache set failed.")

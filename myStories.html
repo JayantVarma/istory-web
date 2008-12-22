@@ -8,8 +8,9 @@
 		<code>The StoryForge awaits =)</code><hr>
 		<table class="mainContentHeader"><tr>
 		<td class="myStoryButtonDisabled"><div class="icon-storyEditD"></div>StoryForge</td>
-		<td class="myStoryButtonDisabled"><div class="icon-play1D"></div>Play Story</td>
-		<td class="myStoryButtonDisabled"><div class="icon-editPageD"></div>Edit Title &amp; Description</td>
+		<td class="myStoryButtonDisabled"><div class="icon-play1D"></div>Play</td>
+		<td class="myStoryButtonDisabled"><div class="icon-editD"></div>Edit Title &amp; Description</td>
+		<td class="myStoryButtonDisabled"><div class="icon-shareD"></div>Share</td>
 		</tr></table>
 	</div>
 </td>
@@ -22,8 +23,9 @@
 		<code>{{ adventure.desc|truncatewords:"50"|escape }}</code><hr>
 		<table class="mainContentHeader"><tr>
 		<td class="myStoryButton"><a href="/storyEditor?myAdventureKey={{ adventure.key }}"><div class="icon-storyEdit"></div>StoryForge</a></td>
-		<td class="myStoryButton"><a href="/playStory?myAdventureKey={{ adventure.key }}"><div class="icon-play1"></div>Play Story</a></td>
-		<td class="myStoryButton"><a href="/createStory?key={{ adventure.key }}"><div class="icon-editPage"></div>Edit Title &amp; Description</a></td>
+		<td class="myStoryButton"><a href="/playStory?myAdventureKey={{ adventure.key }}"><div class="icon-play1"></div>Play</a></td>
+		<td class="myStoryButton"><a href="/createStory?myAdventureKey={{ adventure.key }}"><div class="icon-edit"></div>Edit Title &amp; Description</a></td>
+		<td class="myStoryButton"><a href="/share?myAdventureKey={{ adventure.key }}"><div class="icon-share"></div>Share</a></td>
 		</tr></table>
 	</div>
 {% cycle </td></tr>,</td> %}

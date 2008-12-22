@@ -8,8 +8,12 @@ try { console.log('init console... done'); } catch(e) { console = { log: functio
 
 //we also expect the variable MY_ADVENTURE_KEY to be set from the footer
 var adventureKey = '';
+var myError = '';
 if (MY_ADVENTURE_KEY) {
 	adventureKey = MY_ADVENTURE_KEY;
+}
+if (MY_ERROR) {
+	myError = MY_ERROR;
 }
 
 //setup some globals
@@ -21,6 +25,10 @@ var pageHistory = [];
 function treeInit() {
 	// Make the call to the server for JSON data
 	setLoading();
+	if (myError) {
+		YUD.get('player').innerHTML = myError;
+		return;
+	}
 	YUC.asyncRequest('GET',"/getPages?myAdventureKey=" + adventureKey, getPagesCallbacks);
 	YAHOO.util.Event.addListener("restartStory", "mouseover", eventIconMO);
 	YAHOO.util.Event.addListener("restartStory", "mouseout", eventIconMOreset);
@@ -34,6 +42,7 @@ var loadStoryForge = function() {
 	window.location.replace('/storyEditor?myAdventureKey=' + adventureKey);
 }
 var restartStory = function() {
+	pageHistory = [];
 	playPage(pages[0].key);
 }
 

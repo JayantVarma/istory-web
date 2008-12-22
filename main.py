@@ -14,6 +14,7 @@ import storyEditor
 import pageElement
 import images
 import playStory
+import share
 
 def getDefaultTemplateValues(self):
 	myStoriesURL = '/myStories'
@@ -50,6 +51,7 @@ def getDefaultTemplateValues(self):
 application = webapp.WSGIApplication(
 	[
 		('/', index.Index),
+		('/share', share.ViewSharing),
 		('/playStory', playStory.Play),
 		('/createStory', addAdventure.AddAdventure),
 		('/myStories', myStories.MyStories),

@@ -76,3 +76,19 @@ class PageElement(db.Model):
 			'enabled': self.enabled,
 			'imageRef': imageRef,
 		}
+
+class Share(db.Model):
+	adventure = db.ReferenceProperty(Adventure)
+	owner = db.UserProperty()
+	child = db.UserProperty()
+	shareType = db.IntegerProperty()
+	def toDict(self):
+		return {
+			'adventure': self.adventure,
+			'owner': str(self.realAuthor.email()),
+			'child': str(self.realAuthor.email()),
+			'ownerNick': str(self.realAuthor.nickname()),
+			'childNick': str(self.realAuthor.nickname()),
+			'shareType': self.shareType,
+		}
+

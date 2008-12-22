@@ -13,36 +13,40 @@ from django.utils import simplejson
 import adventureModel
 import main
 
-class Play(webapp.RequestHandler):
+class ViewSharing(webapp.RequestHandler):
   def get(self):
 	adventure = None
 	page = None
 	error = None
-	title = None
-
+	title = 'Share and Collaborate'
 	myAdventureKey = self.request.get('myAdventureKey')
-	if myAdventureKey:
-		adventure = db.Model.get(myAdventureKey)
+	ownedAdventures = None
+	sharedAdventures = None
+
+	if not users.get_current_user():
+		error = 'error: you are not logged in'
 	else:
-		error = 'error: no adventure key passed in'
-	if adventure == None:
-		error = 'error: could not find Adventure ' + myAdventureKey + ' in the database'
-	#elif users.get_current_user() and users.get_current_user() != adventure.realAuthor:
-	#	error = 'error: you do not own this story'
-	else:
-		title = adventure.title
-	
+		#we're logged in, so get all the adventures that this person owns or has been shared
+		#owned adventures
+		q1 = adventureModel.Adventure.all()
+		q1.filter('realAuthor = ', users.get_current_user())
+		q1.order('-created')
+		ownedAdventures = q1.fetch(9999)
+		#shared adventures
+		q2 = adventureModel.Share.all()
+		q2.filter('child = ', users.get_current_user())
+		q2.order('-owner')
+		sharedAdventures = q2.fetch(9999)
 
 	defaultTemplateValues = main.getDefaultTemplateValues(self)
 	templateValues = {
-		'adventure': adventure,
+		'adventureKey': myAdventureKey,
 		'error': error,
 		'title': title,
+		'ownedAdventures': ownedAdventures,
+		'sharedAdventures': sharedAdventures,
 	}
 	templateValues = dict(defaultTemplateValues, **templateValues)
 
-	if self.request.get('playLite'):
-		path = os.path.join(os.path.dirname(__file__), 'playStoryLite.html')
-	else:
-		path = os.path.join(os.path.dirname(__file__), 'playStory.html')
+	path = os.path.join(os.path.dirname(__file__), 'share.html')
 	self.response.out.write(template.render(path, templateValues))

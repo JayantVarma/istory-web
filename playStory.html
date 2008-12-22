@@ -1,4 +1,5 @@
 {% extends "index.html" %}
+
 {% block sidebar %}
 	<h3>Story Player</h3>
 	<div class="sb1">
@@ -38,7 +39,10 @@
 <script type="text/javascript" src="http://yui.yahooapis.com/2.6.0/build/json/json.js"></script>
 
 <script type="text/javascript">
-{% if adventure.key %}	var MY_ADVENTURE_KEY = "{{ adventure.key }}";{% endif %}
+var MY_ADVENTURE_KEY = '';
+{% if adventure.key %}	MY_ADVENTURE_KEY = "{{ adventure.key }}";{% endif %}
+var MY_ERROR = '';
+{% if error %} MY_ERROR = "{{ error }}"; {% endif %}
 </script>
 <script src="stylesheets/playStory.js"></script>
 {% endblock %}

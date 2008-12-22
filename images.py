@@ -16,8 +16,28 @@ from django.utils import simplejson
 import adventureModel
 import main
 
-class ImageCropper(webapp.RequestHandler):
-  def getImageInfo(self, data):
+def resizeImage(imageOBJ, width, height, maxW, maxH):
+	logging.info("resizeImage %dx%d to %dx%d" % (width, height, maxH, maxW))
+	
+	#only resize if we have to
+	if width <= maxW and height <= maxH:
+		return(0, 0, False)
+	
+	#we first have to try to do both and then we will see which results in a smaller ratio, then we do that one
+	#get the ratio of the change
+	widthRatio = float(maxW) / float(width)
+	heightRatio = float(maxH) / float(height)
+	ratio = 1.0
+
+	if widthRatio <= heightRatio:
+		ratio = widthRatio;
+	else:
+		ratio = heightRatio;
+	
+	logging.info("resizing to ratio %f, new size = %dx%d" % (ratio, int(ratio*width), int(ratio*height)))
+	return(int(ratio*width), int(ratio*height), True)
+
+def getImageInfo(data):
 	data = str(data)
 	size = len(data)
 	height = -1
@@ -71,7 +91,7 @@ class ImageCropper(webapp.RequestHandler):
 			pass
 	return content_type, width, height
 
-
+class ImageCropper(webapp.RequestHandler):
   def post(self):
 	image = None
 	imageOBJ = None
@@ -119,7 +139,7 @@ class ImageCropper(webapp.RequestHandler):
 		return
 
 	#get the image dimensions
-	contentType, width, height = self.getImageInfo(image.imageData)
+	contentType, width, height = getImageInfo(image.imageData)
 	logging.info("left(" + str(left) + ") right(" + str(right) + ") top(" + str(top) + ") bottom(" + str(bottom) + ") width(" + str(width) + ") height(" + str(height) + ")")
 	
 	#get the borders of the bounding box, as a proportion
@@ -134,20 +154,9 @@ class ImageCropper(webapp.RequestHandler):
 	
 	#if new width is over 300, resize it down to 300
 	#if new height is over 500, resize it down to 500
-	#we first have to try to do both and then we will see which results in a bigger ratio, then we do that one
-	widthRatio = 0.0
-	heightRatio = 0.0
-	if newWidth > 300:
-		widthRatio = newWidth / 300
-	if newHeight > 500:
-		#get the ratio of the change and apply the same to the height
-		heightRatio = newHeight / 500
-	if widthRatio > heightRatio:
-		logging.info("resizing to: 300, " + str(int(heightRatio*newHeight)))
-		imageOBJ.resize(300, int(heightRatio*newHeight))
-	elif heightRatio > widthRatio:
-		logging.info("resizing to: " + str(int(widthRatio*newWidth)) + ", 500")
-		imageOBJ.resize(int(widthRatio*newWidth), 500)
+	resizeW, resizeH, resizeBool = resizeImage(imageOBJ, newWidth, newHeight, 300, 500)
+	if resizeBool:
+		imageOBJ.resize(resizeW, resizeH)
 	
 	#now execute the transforms
 	image.imageData = imageOBJ.execute_transforms()
@@ -252,7 +261,12 @@ class Uploader(webapp.RequestHandler):
 	myPageOrder = int(self.request.get('myPageOrder') or -1)
 	logging.error("Uploader: myImageKey(" + myImageKey + ") myPageElKey(" + myPageElKey + ") myPageKey(" + myPageKey + ") order(" + str(myPageOrder) + ")")
 	if myImageData:
-		logging.error("GOT IMAGE DATA!! " + str(len(myImageData)) + ' bytes.')
+		myImageSizeBytes = len(myImageData)
+		logging.error("GOT IMAGE DATA!! " + str(myImageSizeBytes) + ' bytes.')
+		if myImageSizeBytes > 1048576:
+			logging.error("ERROR: Image was too large(%d bytes). 1 megabyte is the max size." % (myImageSizeBytes))
+			self.response.out.write("ERROR: Image was too large. 1 megabyte is the max size.")
+			return
 	if not myImageData and not myPageElKey and not myImageKey:
 		self.error(404)
 		return
@@ -330,6 +344,25 @@ class Uploader(webapp.RequestHandler):
 	newImage.imageName = myImageName
 	newImage.pageElement = str(pageElement.key())
 	logging.error("imageName(" + newImage.imageName + ") pageElementRef(" + newImage.pageElement + ")")
+	#last step- if the image is greater than 900 pixels in either dimension, resize it
+	if newImage.imageData:
+		imageOBJ = images.Image(newImage.imageData)
+		contentType, width, height = getImageInfo(newImage.imageData)
+		
+		#keep resizing the image until it is below a megabyte
+		startResize = 900
+		counter = 1
+		while ((counter == 1 and (width > 900 or height > 900)) or len(newImage.imageData) > 1048576) and counter < 10:
+			resizeW, resizeH, resizeBool = resizeImage(imageOBJ, width, height, startResize, startResize)
+			logging.info("resize try #%d: resizing image to %dx%d" % (counter, resizeW, resizeH))
+			imageOBJ.resize(resizeW, resizeH)
+			#now execute the transforms
+			newImage.imageData = imageOBJ.execute_transforms()
+			startResize = startResize - 50
+			counter = counter + 1
+	
+	#finally save this image to the db
+	logging.info("saving image to db, size is %d bytes" % (len(newImage.imageData)))
 	newImage.put()
 
 	#now link the image to the new page element

@@ -112,6 +112,7 @@ var disableIcons = function(disableAll)
 	disableDiv('editPage');
 	if (disableAll) {
 		disableDiv('addPage');
+		disableDiv('playStory');
 	}
 }
 var enableIcons = function()
@@ -124,6 +125,7 @@ var enableIcons = function()
 	enableDiv('deletePage');
 	enableDiv('editPage');
 	enableDiv('addPage');
+	enableDiv('playStory');
 }
 
 var eventIconMO = function(e) {
@@ -165,7 +167,7 @@ var iconMO = function(td, useValue) {
 var iconMOreset = function(td, useValue) {
 	if (!td.id) { return }
 	if (loadingCounter > 0) { return }
-	if (currentNodeIndex || td.id == 'addPage') {
+	if (currentNodeIndex || td.id == 'addPage' || td.id == 'playStory') {
 		var icon = td.firstChild;
 		if (useValue) {
 			//this is for the page element menu, we store the normal class in the title attribute
@@ -220,6 +222,11 @@ var enableDiv = function(name) {
 	iconMOreset(td);
 }
 
+var playStory = function(e) {
+	console.log("playStory");
+	window.open('/playStory?myAdventureKey=' + MY_ADVENTURE_KEY + '&playLite=true', 'storyPlayer lite', 'toolbar=no,location=no,directories=no,status=yes,menubar=no,copyhistory=no,scrollbars=yes,resizable=yes,width=400,height=800');
+}
+
 //create and add the page element editing stuff to the work area
 var addPageElementToWorkArea = function(pageElement, idx) {
 	//remove the help text
@@ -256,37 +263,41 @@ var addPageElementToWorkArea = function(pageElement, idx) {
 		}
 		myHTML += '<div id="img' + idx + '">';
 		myHTML += setupImage(idx, pageElement.imageRef, pageElement.dataA, doesImageExist);
-		//start the form
-		myHTML += '</div><form id="imageForm' + idx + '" action="/upload" enctype="multipart/form-data" method="post">';
-		myHTML += '<table class="imageUploadForm">';
-		//if there are any images in the img cache, show them as a list
-		if (imgCache.length > 0) {
-			orVariable = 'Or ';
-			myHTML += '<tr><th>Select An Existing Image</th></tr>';
-			myHTML += '<td><select id="imageList' + idx + '" name="imageList" onchange="imgListChanged(this,this.value,' + idx + ')">';
-			myHTML += '<option value="">-- Image List --';
-			for (var key in imgCache) {
-				if (key == 'length') { continue; }
-				myHTML += '<option value="' + key + '"';
-				if (key == imageRef) {
-					myHTML += ' SELECTED';
+		myHTML += '</div>';
+		//start the form only if we don't already have an image (it's a new page element)
+		if (!pageElKey) {
+			myHTML += '<div id="cropInfo' + idx + '"></div>';
+			myHTML += '<form id="imageForm' + idx + '" action="/upload" enctype="multipart/form-data" method="post">';
+			myHTML += '<table class="imageUploadForm">';
+			//if there are any images in the img cache, show them as a list
+			if (imgCache.length > 0) {
+				orVariable = 'Or ';
+				myHTML += '<tr><th>Select An Existing Image</th></tr>';
+				myHTML += '<td><select id="imageList' + idx + '" name="imageList" onchange="imgListChanged(this,this.value,' + idx + ')">';
+				myHTML += '<option value="">-- Image List --';
+				for (var key in imgCache) {
+					if (key == 'length') { continue; }
+					myHTML += '<option value="' + key + '"';
+					if (key == imageRef) {
+						myHTML += ' SELECTED';
+					}
+					myHTML += '>' + imgCache[key];
 				}
-				myHTML += '>' + imgCache[key];
+				myHTML += '</select></td></tr>';
+				//myHTML += '<tr><td><input type="submit" value="Use Image"></td></tr>';
 			}
-			myHTML += '</select></td></tr>';
-			//myHTML += '<tr><td><input type="submit" value="Use Image"></td></tr>';
+			//make the upload a new image form
+			myHTML += '<tr><th>' + orVariable + 'Upload A New Image</th></tr>';
+			myHTML += '<tr><td><input id="imageData' + idx + '" type="file" name="imageData" /></td></tr>';
+			myHTML += '<tr><td>Image name: <input id="imageName' + idx + '" type="text" name="imageName" value="' + imageName + '"/></td></tr>';
+			myHTML += '<tr><td><input id="submit' + idx + '" type="submit" value="Use / Upload / Rename Image"></td></tr></table>';
+			//also put the page key and page element order into the form
+			myHTML += '<input id="myPageElKey' + idx + '" type="hidden" name="myPageElKey" value="' + pageElKey + '">';
+			myHTML += '<input id="myPageKey' + idx + '" type="hidden" name="myPageKey" value="' + nodeToKeyMap[currentNodeIndex] + '">';
+			myHTML += '<input id="myPageOrder' + idx + '" type="hidden" name="myPageOrder" value="' + idx + '">';
+			myHTML += '<input id="imageRef' + idx + '" type="hidden" name="imageRef" value="' + imageRef + '">';
+			myHTML += '</form>';
 		}
-		//make the upload a new image form
-		myHTML += '<tr><th>' + orVariable + 'Upload A New Image</th></tr>';
-		myHTML += '<tr><td><input id="imageData' + idx + '" type="file" name="imageData" /></td></tr>';
-		myHTML += '<tr><td>Image name: <input id="imageName' + idx + '" type="text" name="imageName" value="' + imageName + '"/></td></tr>';
-		myHTML += '<tr><td><input id="submit' + idx + '" type="submit" value="Use / Upload / Rename Image"></td></tr></table>';
-		//also put the page key and page element order into the form
-		myHTML += '<input id="myPageElKey' + idx + '" type="hidden" name="myPageElKey" value="' + pageElKey + '">';
-		myHTML += '<input id="myPageKey' + idx + '" type="hidden" name="myPageKey" value="' + nodeToKeyMap[currentNodeIndex] + '">';
-		myHTML += '<input id="myPageOrder' + idx + '" type="hidden" name="myPageOrder" value="' + idx + '">';
-		myHTML += '<input id="imageRef' + idx + '" type="hidden" name="imageRef" value="' + imageRef + '">';
-		myHTML += '</form>';
 	}
 	else if (pageElement.dataType == 3) {
 		//choice
@@ -536,7 +547,8 @@ var processImageCallback = function(o) {
 	var m = [];
 	try { m = YAHOO.lang.JSON.parse(o.responseText); }
 	catch (x) {
-		alert("JSON Parse failed! " + x);
+		//alert("JSON Parse failed! " + x);
+		alert(o.responseText);
 		return;
 	}
 	var idx = o.argument.nodeIndex;
@@ -555,6 +567,9 @@ var processImageCallback = function(o) {
 
 	//fire off a page element save, pass in the dom ID of the save button
 	pageElSave('save' + idx);
+	
+	//put the crop info into the cropInfo div
+	YUD.get('cropInfo' + idx).innerHTML = 'You must crop the image if it is bigger than 320 pixels wide. Using the cropping tool will automatically resize it to a maximium size of 320 pixels.';
 }
 
 var uploadImageCallbacks = {
@@ -1359,25 +1374,35 @@ function treeInit() {
 	YAHOO.util.Connect.asyncRequest('GET',"/getPages?myAdventureKey=" + adventureKey, callbacks);
 	setLoading();
 	YAHOO.util.Connect.asyncRequest('GET',"/imagesByUser", imagesByUserCallbacks);
-	YAHOO.util.Event.addListener("deletePage", "click", deletePage);
-	YAHOO.util.Event.addListener("addPage", "click", addPage);
-	YAHOO.util.Event.addListener("editPage", "click", editPage);
+
+	//events for the button icons
 	YAHOO.util.Event.addListener("addPageElementText", "click", addPageElement);
-	YAHOO.util.Event.addListener("addPageElementImage", "click", addPageElement);
-	YAHOO.util.Event.addListener("addPageElementChoice", "click", addPageElement);
-	//mouseover events for the button icons
 	YAHOO.util.Event.addListener("addPageElementText", "mouseover", eventIconMO);
 	YAHOO.util.Event.addListener("addPageElementText", "mouseout", eventIconMOreset);
+
+	YAHOO.util.Event.addListener("addPageElementImage", "click", addPageElement);
 	YAHOO.util.Event.addListener("addPageElementImage", "mouseover", eventIconMO);
 	YAHOO.util.Event.addListener("addPageElementImage", "mouseout", eventIconMOreset);
+
+	YAHOO.util.Event.addListener("addPageElementChoice", "click", addPageElement);
 	YAHOO.util.Event.addListener("addPageElementChoice", "mouseover", eventIconMO);
 	YAHOO.util.Event.addListener("addPageElementChoice", "mouseout", eventIconMOreset);
+
+	YAHOO.util.Event.addListener("addPage", "click", addPage);
 	YAHOO.util.Event.addListener("addPage", "mouseover", eventIconMO);
 	YAHOO.util.Event.addListener("addPage", "mouseout", eventIconMOreset);
+
+	YAHOO.util.Event.addListener("editPage", "click", editPage);
 	YAHOO.util.Event.addListener("editPage", "mouseover", eventIconMO);
 	YAHOO.util.Event.addListener("editPage", "mouseout", eventIconMOreset);
+
+	YAHOO.util.Event.addListener("deletePage", "click", deletePage);
 	YAHOO.util.Event.addListener("deletePage", "mouseover", eventIconMO);
 	YAHOO.util.Event.addListener("deletePage", "mouseout", eventIconMOreset);
+
+	YAHOO.util.Event.addListener("playStory", "mouseover", eventIconMO);
+	YAHOO.util.Event.addListener("playStory", "mouseout", eventIconMOreset);
+	YAHOO.util.Event.addListener("playStory", "click", playStory);
 
 	resetWorkArea();
 	//new YAHOO.widget.Tooltip("tooltipDeletePage", { showdelay: 500, context:"deletePage", text:"Delete This Page"} );
