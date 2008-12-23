@@ -5,7 +5,7 @@
 		<center><b><a href="/createStory">Create A New Story</a></b><br>
 		<hr>
 		<code>The StoryForge awaits =)</code><hr>
-		<table class="mainContentHeader"><tr>
+		<table><tr>
 		<td class="myStoryButtonDisabled"><div class="icon-storyEditD"></div>StoryForge</td>
 		<td class="myStoryButtonDisabled"><div class="icon-play1D"></div>Play</td>
 		<td class="myStoryButtonDisabled"><div class="icon-editD"></div>Edit Title &amp; Description</td>
@@ -13,21 +13,18 @@
 		</tr></table>
 	</div>
 {% for adventure in adventures %}
-<!-->{% cycle <td>,<tr><td> %}-->
 	<div class="book">
 		<center><b>{{ adventure.title }}</b><br>
 		<i>{{ adventure.author }}</i><br>
 		{{ adventure.created.date }}</center><hr>
 		<code>{{ adventure.desc|truncatewords:"50"|escape }}</code><hr>
-		<table class="mainContentHeader"><tr>
+		<table><tr>
 		<td class="myStoryButton"><a href="/storyEditor?myAdventureKey={{ adventure.key }}"><div class="icon-storyEdit"></div>StoryForge</a></td>
 		<td class="myStoryButton"><a href="/playStory?myAdventureKey={{ adventure.key }}"><div class="icon-play1"></div>Play</a></td>
 		<td class="myStoryButton"><a href="/createStory?myAdventureKey={{ adventure.key }}"><div class="icon-edit"></div>Edit Title &amp; Description</a></td>
 		<td class="myStoryButton"><a href="/share?myAdventureKey={{ adventure.key }}"><div class="icon-share"></div>Share</a></td>
 		</tr></table>
 	</div>
-<!-->{% cycle </td></tr>,</td> %}-->
 {% endfor %}
-<!--></table>-->
 </div>
 {% endblock %}

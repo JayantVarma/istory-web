@@ -82,7 +82,7 @@ class AddPage(webapp.RequestHandler):
 	logging.error("returning addPage json: " + simplejson.dumps(page.toDict()))
 
 class GetPages(webapp.RequestHandler):
-  def get(self):
+  def post(self):
 	error = None
 	myAdventureKey = self.request.get('myAdventureKey')
 	adventure = db.Model.get(myAdventureKey)

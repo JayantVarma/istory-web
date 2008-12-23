@@ -891,7 +891,7 @@ var pageElDeleteCallbacks = {
 	timeout : 30000
 }
 var pageElSave = function(e, newPageKey) {
-	if (loadingCounter > 0) { console.log("returning from pageElSave due to loading counter"); return }
+	if (loadingCounter > 0) { return }
 	var obj = YAHOO.util.Event.getTarget(e);
 	if (!obj) {
 		obj = YUD.get(e);
@@ -900,11 +900,14 @@ var pageElSave = function(e, newPageKey) {
 	var myPageKey = nodeToKeyMap[currentNodeIndex];
 	var myPageElNodeIndex = domIdToNodeIndexMap[obj.id];
 	var myNode = tree.getNodeByIndex(myPageElNodeIndex);
-	console.log("saving page element: obj.id(" + obj.id + ") key(" + myPageElKey + ") page(" + myPageKey + ") nodeIdx(" + currentNodeIndex + ") pageElIdx(" + myPageElNodeIndex + ") newPageKey(" + newPageKey + ")");
+	//console.log("saving page element: obj.id(" + obj.id + ") key(" + myPageElKey + ") page(" + myPageKey + ") nodeIdx(" + currentNodeIndex + ") pageElIdx(" + myPageElNodeIndex + ") newPageKey(" + newPageKey + ")");
 
 	var dataA = YAHOO.util.Dom.get('dataA' + myPageElNodeIndex);
 	var dataB = YAHOO.util.Dom.get('dataB' + myPageElNodeIndex);
-	var myDataB = dataB.value;
+	var myDataB = null;
+	if (dataB && dataB.value) {
+		myDataB = dataB.value;
+	}
 	//are we saving a choice? is the value of the choice "new"? then we need to create a new page
 	if (myNode.value.dataType == 3)
 	{
@@ -914,14 +917,14 @@ var pageElSave = function(e, newPageKey) {
 				waitingForPage = 1;
 				var myPageName = '[new page]';
 				if (dataA) { myPageName = dataA.value; }
-				console.log("adding a new choice, but first we're going to create a new page: " + myPageName);
+				//console.log("adding a new choice, but first we're going to create a new page: " + myPageName);
 				addPageSubmit(myPageName, obj);
 				return;
 				//now when addPageSubmit is done they will just call pageElSave again and pass in the obj we passed to them
 			}
 			if (newPageKey) {
 				//addPageSubmit is done, so we just need to set dataB.value to the new page key
-				console.log("got newPageKey: " + newPageKey);
+				//console.log("got newPageKey: " + newPageKey);
 				myDataB = newPageKey;
 				//add the new page to the select list and select it
 				var newPageName = '[new page]';
@@ -931,7 +934,8 @@ var pageElSave = function(e, newPageKey) {
 				newOption.value = newPageKey;
 				//domID of select list is dataB + myPageElNodeIndex
 				var selectList = YUD.get('dataB' + myPageElNodeIndex);
-				selectList.appendChild(newOption);
+				selectList.options[selectList.length-1] = newOption;
+				//selectList.appendChild(newOption);
 				newOption.selected = true;
 			}
 		}
@@ -958,7 +962,7 @@ var pageElSave = function(e, newPageKey) {
 	if (dataA) {
 		myHTML += "&dataA=" + escape(dataA.value);
 	}
-	if (dataB) {
+	if (myDataB) {
 		myHTML += "&dataB=" + escape(myDataB);
 	}
 	var imageRef = YAHOO.util.Dom.get('imageRef' + myPageElNodeIndex);
@@ -1447,9 +1451,9 @@ function treeInit() {
 	}
 	// Make the call to the server for JSON data
 	setLoading();
-	YAHOO.util.Connect.asyncRequest('GET',"/getPages?myAdventureKey=" + adventureKey, callbacks);
+	YAHOO.util.Connect.asyncRequest('POST',"/getPages?myAdventureKey=" + adventureKey, callbacks);
 	setLoading();
-	YAHOO.util.Connect.asyncRequest('GET',"/imagesByUser", imagesByUserCallbacks);
+	YAHOO.util.Connect.asyncRequest('POST',"/imagesByUser", imagesByUserCallbacks);
 
 	//events for the button icons
 	YAHOO.util.Event.addListener("addPageElementText", "click", addPageElement);

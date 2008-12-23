@@ -228,7 +228,7 @@ class ImageServer(webapp.RequestHandler):
 		return
 
 class ImagesByUser(webapp.RequestHandler):
-  def get(self):
+  def getOrPost(self):
 	if users.get_current_user():
 		pass
 	else:
@@ -244,6 +244,12 @@ class ImagesByUser(webapp.RequestHandler):
 		jsonArray.append(image.toDict())
 	self.response.out.write(simplejson.dumps(jsonArray))
 	logging.error(simplejson.dumps(jsonArray))
+
+  def get(self):
+	self.getOrPost()
+
+  def post(self):
+	self.getOrPost()
 
 
 class Uploader(webapp.RequestHandler):

@@ -1,7 +1,8 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-<meta name="verify-v1" content="AJGp4G1LC8v3NaFgx0WIl/CoZD4hijMLXWUC2MQoPJU=" />
+<META HTTP-EQUIV="Pragma" CONTENT="no-cache">
+<META HTTP-EQUIV="Expires" CONTENT="-1">
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <title>iStory beta - {{ title }}</title>
 <link href="/stylesheets/favicon.ico" rel="icon" type="image/x-icon" />
@@ -16,19 +17,18 @@
 <link rel="stylesheet" type="text/css" href="/stylesheets/main.css">
 <!--[if IE]>
 <style type="text/css"> 
-/* place css fixes for all versions of IE in this conditional comment */
-.twoColElsLtHdr #sidebar1 { padding-top: 30px; }
-.twoColElsLtHdr #mainContent { zoom: 1; padding-top: 15px; }
-/* the above proprietary zoom property gives IE the hasLayout it needs to avoid several bugs */
+.layout_sidebar { zoom: 1 }
+.layout_mainContent { zoom: 1; }
+.layout_mainContent .book { }
 </style>
-<![endif]--></head>
+<![endif]-->
+</head>
 <body class="yui-skin-sam">
 
 
 {% block top %}
-<table class="layout_container"><!-- class="container" -->
+<table class="layout_container">
 <tr><td class="layout_header" colspan="2">
-<!-- div class="header" -->
 	<table class="tableHeader"><tr>
 	<th><h1><a href="/">iStory</a> beta</h1></th>
 	<td>
@@ -38,13 +38,11 @@
 		| <a href="{{ myStoriesURL }}">{{ myStories }}</a>
 		{% endif %}
 	</td></tr></table>
-<!-- end #header -->
 </td></tr>
 {% endblock %}
 
 
 <tr><td class="layout_sidebar">
-<!-- div class="sidebar1" -->
 
 {% block sidebar %}
 		<h3>What is iStory?</h3>
@@ -58,38 +56,30 @@
 		</div>
 {% endblock %}
 
-<!-- end #sidebar1 -->
 </td>
 
 {% block middle %}
 {% endblock %}
 
 <td class="layout_mainContent">
-<!-- begin #mainContent -->
-<!--div class="mainContent" -->
 
 {% block main %}
-	<table class="books">
-	<tr><td colspan="2"><div class="book3"><h1>Featured Stories</h1></div></td></tr>
+	<div class="books">
+		<div class="book3"><h1>Featured Stories</h1></div>
 	{% for adventure in adventures %}
-	{% cycle <tr><td>,<td> %}
 		<div class="book">
 			<center><b><a href="/playStory?myAdventureKey={{ adventure.key }}">{{ adventure.title }}</a></b><br>
 			<i>{{ adventure.author }}</i><br>
 			{{ adventure.created.date }}</center><hr>
 			<code>{{ adventure.desc|escape }}</code>
 		</div>
-	{% cycle </td>,</td></tr> %}
 	{% endfor %}
-	</table>
+	</div>
 {% endblock %}
 
-<!-- end #mainContent -->
 </td></tr>
 
 <tr><td class="layout_footer" colspan="2">
-<!-- This clearing element should immediately follow the #mainContent div in order to force the #container div to contain all child floats --><!--br class="clearfloat" / -->
-<!--div class="footer"-->
 
 {% block bottom %}
 		<table width="100%">
@@ -105,8 +95,6 @@
 		</tr></table>
 {% endblock %}
 
-<!-- end #footer -->
-<!-- end #container -->
 </td></tr></table>
 
 {% block footer %}

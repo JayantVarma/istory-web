@@ -29,7 +29,7 @@ function treeInit() {
 		YUD.get('player').innerHTML = myError;
 		return;
 	}
-	YUC.asyncRequest('GET',"/getPages?myAdventureKey=" + adventureKey, getPagesCallbacks);
+	YUC.asyncRequest('POST',"/getPages?myAdventureKey=" + adventureKey, getPagesCallbacks);
 	YAHOO.util.Event.addListener("restartStory", "mouseover", eventIconMO);
 	YAHOO.util.Event.addListener("restartStory", "mouseout", eventIconMOreset);
 	YAHOO.util.Event.addListener("restartStory", "click", restartStory);
