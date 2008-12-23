@@ -86,10 +86,6 @@ body hr {
 	padding: 0px;
 	text-align:left;
 }
-.layout_mainContent .books div {
-	text-align:center;
-	vertical-align:top;
-}
 .layout_mainContent .book {
 	display: inline-block;
 	text-align:center;
