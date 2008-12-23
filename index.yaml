@@ -42,13 +42,13 @@ indexes:
   - name: date
     direction: desc
 
-# Used 71 times in query history.
+# Used 101 times in query history.
 - kind: Image
   properties:
   - name: realAuthor
   - name: imageName
 
-# Used 92 times in query history.
+# Used 122 times in query history.
 - kind: Page
   properties:
   - name: adventure
@@ -61,7 +61,7 @@ indexes:
   - name: page
   - name: pageOrder
 
-# Used 92 times in query history.
+# Used 122 times in query history.
 - kind: PageElement
   properties:
   - name: adventure

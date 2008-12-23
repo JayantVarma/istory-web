@@ -44,6 +44,7 @@ var nodeToKeyMap = {};
 var domIdToKeyMap = {};
 var domIdToNodeIndexMap = {};
 var imageCroppers = {};
+var waitingForPage;
 
 //cache for storing user images
 var imgCache = {};
@@ -79,7 +80,7 @@ var resetWorkArea = function(updateStr, clear, nodeIndex) {
 }
 
 function collapse() {
-	tree.getRoot().collapseAll();
+	tree.collapseAll();
 }
 
 var tdButtonFunction = function(id, iconName) {
@@ -311,6 +312,7 @@ var addPageElementToWorkArea = function(pageElement, idx) {
 		myHTML += '></tr>';
 		myHTML += '<tr><td>Go To:</td><td><select tabindex="' + tabIndex + '" name="dataB' + idx + '" id="dataB' + idx + '">';
 		tabIndex++;
+		myHTML += '  <option value="new">-- New Page --';
 		//use the tree view to loop through the nodes and build a select list of every "page"
 		for (var i = 0; i < tree.getRoot().children.length; i++) {
 			var myChildNode = tree.getRoot().children[i];
@@ -888,8 +890,8 @@ var pageElDeleteCallbacks = {
 	},
 	timeout : 30000
 }
-var pageElSave = function(e) {
-	if (loadingCounter > 0) { return }
+var pageElSave = function(e, newPageKey) {
+	if (loadingCounter > 0) { console.log("returning from pageElSave due to loading counter"); return }
 	var obj = YAHOO.util.Event.getTarget(e);
 	if (!obj) {
 		obj = YUD.get(e);
@@ -897,8 +899,45 @@ var pageElSave = function(e) {
 	var myPageElKey = domIdToKeyMap[obj.id];
 	var myPageKey = nodeToKeyMap[currentNodeIndex];
 	var myPageElNodeIndex = domIdToNodeIndexMap[obj.id];
-	var myHTML = "myPageKey=" + myPageKey;
 	var myNode = tree.getNodeByIndex(myPageElNodeIndex);
+	console.log("saving page element: obj.id(" + obj.id + ") key(" + myPageElKey + ") page(" + myPageKey + ") nodeIdx(" + currentNodeIndex + ") pageElIdx(" + myPageElNodeIndex + ") newPageKey(" + newPageKey + ")");
+
+	var dataA = YAHOO.util.Dom.get('dataA' + myPageElNodeIndex);
+	var dataB = YAHOO.util.Dom.get('dataB' + myPageElNodeIndex);
+	var myDataB = dataB.value;
+	//are we saving a choice? is the value of the choice "new"? then we need to create a new page
+	if (myNode.value.dataType == 3)
+	{
+		if (dataB.value == 'new') {
+			if (!newPageKey) {
+				//we need to create a new page
+				waitingForPage = 1;
+				var myPageName = '[new page]';
+				if (dataA) { myPageName = dataA.value; }
+				console.log("adding a new choice, but first we're going to create a new page: " + myPageName);
+				addPageSubmit(myPageName, obj);
+				return;
+				//now when addPageSubmit is done they will just call pageElSave again and pass in the obj we passed to them
+			}
+			if (newPageKey) {
+				//addPageSubmit is done, so we just need to set dataB.value to the new page key
+				console.log("got newPageKey: " + newPageKey);
+				myDataB = newPageKey;
+				//add the new page to the select list and select it
+				var newPageName = '[new page]';
+				if (dataA) { newPageName = dataA.value; }
+				var newOption = document.createElement('option');
+				newOption.text = newPageName;
+				newOption.value = newPageKey;
+				//domID of select list is dataB + myPageElNodeIndex
+				var selectList = YUD.get('dataB' + myPageElNodeIndex);
+				selectList.appendChild(newOption);
+				newOption.selected = true;
+			}
+		}
+	}
+	
+	var myHTML = "myPageKey=" + myPageKey;
 	//console.log('pageElSave: ' + obj.id + ', ' + myPageElKey);
 	if (myPageElKey) {
 		//existing node
@@ -916,13 +955,11 @@ var pageElSave = function(e) {
 	if (pageOrder) {
 		myHTML += "&pageOrder=" + escape(pageOrder);
 	}	
-	var dataA = YAHOO.util.Dom.get('dataA' + myPageElNodeIndex);
 	if (dataA) {
 		myHTML += "&dataA=" + escape(dataA.value);
 	}
-	var dataB = YAHOO.util.Dom.get('dataB' + myPageElNodeIndex);
 	if (dataB) {
-		myHTML += "&dataB=" + escape(dataB.value);
+		myHTML += "&dataB=" + escape(myDataB);
 	}
 	var imageRef = YAHOO.util.Dom.get('imageRef' + myPageElNodeIndex);
 	if (imageRef) {
@@ -934,6 +971,7 @@ var pageElSave = function(e) {
 		imgCache[imageRef.value] = imageName.value;
 	}
 	setLoading();
+	console.log("saving page el: " + myHTML);
 	YAHOO.util.Connect.asyncRequest('POST', '/savePageElement', pageElSaveCallbacks, myHTML);
 }
 var pageElSaveCallbacks = {
@@ -1110,18 +1148,34 @@ var addOrUpdatePage = function(pageKey) {
 	//new YAHOO.widget.Tooltip("tooltipAddPageSubmit", { showdelay: 500, context:"addPageSubmit", text:"Save"} );
 }
 		
-var addPageSubmit = function(e) {
+var addPageSubmit = function(e, pageElForm) {
 	//myAdventureKey myPageKey pageName
-	var pageKeyHTML = '';
-	if (currentPage.key) {
-		pageKeyHTML = "&myPageKey=" + currentPage.key;
-	}
+	//this is used for the normal new and edit page buttons, but also for adding a choice + page at the same time
+	//if the new or edit page buttons are used, we will have the 'newPageName' object
+	//if we're adding a choice + page, we pass in the page name
+	//pageElForm will only be set if we're adding a choice + page
 	addPageCallbacks.argument.nodeIndex = currentNodeIndex;
+	var pageKeyHTML = '';
+	var newPageName = YAHOO.util.Dom.get('newPageName');
+	if (newPageName) {
+		newPageName = newPageName.value
+		if (currentPage.key) {
+			pageKeyHTML = "&myPageKey=" + currentPage.key;
+		}
+	}
+	//else we use the passed in object, for the choice+page path
+	else { 
+		newPageName = e;
+		addPageCallbacks.argument.pageElForm = pageElForm;
+		//also reset the nodeIndex so it knows we're adding a new page
+		addPageCallbacks.argument.nodeIndex = null;
+		}
+	console.log("newPageName: " + newPageName + ", " + pageKeyHTML);
 	setLoading();
 	YAHOO.util.Connect.asyncRequest('POST', '/addPage', addPageCallbacks,
 		"myAdventureKey=" + adventureKey
 		+ pageKeyHTML
-		+ "&pageName=" + YAHOO.util.Dom.get('newPageName').value
+		+ "&pageName=" + newPageName
 	);
 }
 var addPageCallbacks = {
@@ -1141,21 +1195,38 @@ var addPageCallbacks = {
 			//console.log(currentNodeIndex + '|' + o.argument.nodeIndex);
 			var myNode = tree.getNodeByIndex(o.argument.nodeIndex);
 			if (myNode) {
+				console.log("updating existing page");
 				myNode.label = m.name;
 			}
 			else {
+				console.log("adding new page to tree");
 				myNode = new YAHOO.widget.TextNode(m.name, tree.getRoot(), false);
+				myNode.insertBefore(tree.getRoot().children[0]);
 				myNode.value = m.key;
 			}
-			currentPage.name = myNode.label;
-			nodeClick(myNode);
+			if (waitingForPage) {
+				//this means that we tried to add a choice + new page and we need to add the choice now
+				setLoaded();
+				tree.draw();
+				waitingForPage = 0;
+				console.log("just added new page, got key back: " + m.key + ", and form data: " + o.argument.pageElForm);
+				pageElSave(o.argument.pageElForm, m.key);
+			}
+			else {
+				//normal operation of add page
+				setLoaded();
+				currentPage.name = myNode.label;
+				nodeClick(myNode);
+			}
 		}
-		setLoaded();
 	},
 	failure : function (o) {
 		alert("addPage was not successful.");
 	},
-	argument : { "nodeIndex": null },
+	argument : {
+		"nodeIndex": null,
+		"pageElForm": null
+	},
 	timeout : 30000
 }
 
@@ -1222,6 +1293,7 @@ var callbacks = {
 			var m = messages[i];
 			//m.name m.key
 			var tmpNode = new YAHOO.widget.TextNode(m.name, tree.getRoot(), true);
+			tmpNode.insertBefore(tree.getRoot().children[0]);
 			tmpNode.value = m.key;
 			numPages++;
 			for (var x = 0, xLen = m.elements.length; x < xLen; ++x) {
@@ -1244,7 +1316,7 @@ var callbacks = {
 
 		tree.subscribe("collapse", function(node) {
 			if (labelClick) {
-				labelclick = false;
+				labelClick = false;
 				return false;
 			}
 			labelClick = false;
