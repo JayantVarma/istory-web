@@ -78,6 +78,10 @@ var resetWorkArea = function(updateStr, clear, nodeIndex) {
 	}
 }
 
+function collapse() {
+	tree.getRoot().collapseAll();
+}
+
 var tdButtonFunction = function(id, iconName) {
 	return '<td id="TD' + id + '" title="pageElMenu" class="iconBG-dark2"><div title="' + iconName + '" class="' + iconName + '" id="' + id + '"></div></div>';
 }
@@ -1024,7 +1028,7 @@ var getDescForChildNode = function(description, datatype) {
 		var prefix = 't: ';
 		if (datatype == 2) { prefix = 'i: '; }
 		else if (datatype == 3) { prefix = 'c: '; }
-		nodeDesc = description.substr(0, 15);
+		nodeDesc = description.substr(0, 21);
 		nodeDesc = prefix + nodeDesc.replace(/\n/g, ' ');
 	}
 	else {

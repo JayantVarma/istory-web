@@ -1,7 +1,6 @@
 {% extends "index.html" %}
 {% block main %}
-<table class="books"><tr>
-<td>
+<div class="books">
 	<div class="book">
 		<center><b><a href="/createStory">Create A New Story</a></b><br>
 		<hr>
@@ -13,9 +12,8 @@
 		<td class="myStoryButtonDisabled"><div class="icon-shareD"></div>Share</td>
 		</tr></table>
 	</div>
-</td>
 {% for adventure in adventures %}
-{% cycle <td>,<tr><td> %}
+<!-->{% cycle <td>,<tr><td> %}-->
 	<div class="book">
 		<center><b>{{ adventure.title }}</b><br>
 		<i>{{ adventure.author }}</i><br>
@@ -28,7 +26,8 @@
 		<td class="myStoryButton"><a href="/share?myAdventureKey={{ adventure.key }}"><div class="icon-share"></div>Share</a></td>
 		</tr></table>
 	</div>
-{% cycle </td></tr>,</td> %}
+<!-->{% cycle </td></tr>,</td> %}-->
 {% endfor %}
-</table>
+<!--></table>-->
+</div>
 {% endblock %}

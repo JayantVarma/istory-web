@@ -23,23 +23,29 @@
 </style>
 <![endif]--></head>
 <body class="yui-skin-sam">
+
+
 {% block top %}
-<div class="container">
-
-	<div class="header">
-		<table class="tableHeader"><tr>
-		<th><h1><a href="/">iStory</a> beta</h1></th>
-		<td>
-			<a href="{{ loginURL }}">{{ login }}</a>
-			{% if loggedIn %}
-			{{ currentUser }}
-			| <a href="{{ myStoriesURL }}">{{ myStories }}</a>
-			{% endif %}
-		</td></tr></table>
-	<!-- end #header --></div>
-
-	<div class="sidebar1">
+<table class="layout_container"><!-- class="container" -->
+<tr><td class="layout_header" colspan="2">
+<!-- div class="header" -->
+	<table class="tableHeader"><tr>
+	<th><h1><a href="/">iStory</a> beta</h1></th>
+	<td>
+		<a href="{{ loginURL }}">{{ login }}</a>
+		{% if loggedIn %}
+		{{ currentUser }}
+		| <a href="{{ myStoriesURL }}">{{ myStories }}</a>
+		{% endif %}
+	</td></tr></table>
+<!-- end #header -->
+</td></tr>
 {% endblock %}
+
+
+<tr><td class="layout_sidebar">
+<!-- div class="sidebar1" -->
+
 {% block sidebar %}
 		<h3>What is iStory?</h3>
 		<div class="sb1">
@@ -52,32 +58,40 @@
 		</div>
 {% endblock %}
 
-{% block middle %}
-	<!-- end #sidebar1 --></div>
+<!-- end #sidebar1 -->
+</td>
 
-	<!-- begin #mainContent -->
-	<div class="mainContent">
+{% block middle %}
 {% endblock %}
+
+<td class="layout_mainContent">
+<!-- begin #mainContent -->
+<!--div class="mainContent" -->
+
 {% block main %}
-<table class="books">
-<tr><td colspan="2"><div class="book3"><h1>Featured Stories</h1></div></td></tr>
-{% for adventure in adventures %}
-{% cycle <tr><td>,<td> %}
-	<div class="book">
-		<center><b><a href="/playStory?myAdventureKey={{ adventure.key }}">{{ adventure.title }}</a></b><br>
-		<i>{{ adventure.author }}</i><br>
-		{{ adventure.created.date }}</center><hr>
-		<code>{{ adventure.desc|escape }}</code>
-	</div>
-{% cycle </td>,</td></tr> %}
-{% endfor %}
-</table>
+	<table class="books">
+	<tr><td colspan="2"><div class="book3"><h1>Featured Stories</h1></div></td></tr>
+	{% for adventure in adventures %}
+	{% cycle <tr><td>,<td> %}
+		<div class="book">
+			<center><b><a href="/playStory?myAdventureKey={{ adventure.key }}">{{ adventure.title }}</a></b><br>
+			<i>{{ adventure.author }}</i><br>
+			{{ adventure.created.date }}</center><hr>
+			<code>{{ adventure.desc|escape }}</code>
+		</div>
+	{% cycle </td>,</td></tr> %}
+	{% endfor %}
+	</table>
 {% endblock %}
+
+<!-- end #mainContent -->
+</td></tr>
+
+<tr><td class="layout_footer" colspan="2">
+<!-- This clearing element should immediately follow the #mainContent div in order to force the #container div to contain all child floats --><!--br class="clearfloat" / -->
+<!--div class="footer"-->
 
 {% block bottom %}
-	<!-- end #mainContent --></div>
-	<!-- This clearing element should immediately follow the #mainContent div in order to force the #container div to contain all child floats --><br class="clearfloat" />
-	<div class="footer">
 		<table width="100%">
 		<tr>
 			<td>Powered by <a href="http://code.google.com/appengine/">Google App Engine</a></td>
@@ -89,9 +103,11 @@
 			<td>CacheHits({{ cacheHits }}) CacheMisses({{ cacheMisses }})</td>
 			{% endif %}
 		</tr></table>
-	<!-- end #footer --></div>
-<!-- end #container --></div>
 {% endblock %}
+
+<!-- end #footer -->
+<!-- end #container -->
+</td></tr></table>
 
 {% block footer %}
 {% endblock %}

@@ -5,10 +5,10 @@
 	<form action="/createStory" method="post">
 	<table class="table1">
 	<tr><th colspan="2"><h1>{{ title }}</h1></th></tr>
-	<tr><th>Title:</th><td><input type="text" name="title" value="{{ adventure.title }}" size="30" maxlength="100"></td></tr>
-	<tr><th>Author:</th><td><input type="text" name="author" value="{{ adventure.author }}" size="30" maxlength="100"></td></tr>
-	<tr><th>Description:</th><td><textarea name="desc" rows="3" cols="50">{{ adventure.desc }}</textarea></td></tr>
-	<tr><td colspan="2"><center><input type="submit" value="{{ buttonText }}"></center></td></tr>
+	<tr><th>Title:</th><td><input tabindex="1" type="text" name="title" value="{{ adventure.title }}" size="30" maxlength="100"></td></tr>
+	<tr><th>Author:</th><td><input tabindex="2" type="text" name="author" value="{{ adventure.author }}" size="30" maxlength="100"></td></tr>
+	<tr><th>Description:</th><td><textarea tabindex="3" name="desc" rows="3" cols="50">{{ adventure.desc }}</textarea></td></tr>
+	<tr><td colspan="2"><center><input tabindex="4" type="submit" value="{{ buttonText }}"></center></td></tr>
 	<input type="hidden" name="myAdventureKey" value="{{ adventure.key }}">
 	</table>
 	</form>

@@ -2,35 +2,35 @@
 {% block sidebar %}
 		<h3>StoryForge</h3>
 		<hr>
-		<h2>Table of Contents</h2>
+		<h2>Table of Contents <a href="javascript:collapse()">[-]</a></h2>
 		<div id="treeDiv1"></div>
 {% endblock %}
 
 {% block main %}
-		<div>
-		<div id="loadTop"><img src="/stylesheets/loadBig3.gif"></div>
-		<table class="mainContentHeader"><tr>
-			<th colspan="2" style="text-align:right;">"{{ adventure.title }}"</th>
-		</tr><tr>
-			<th style="text-align:left;">Page: <span id="currentPage"></span></th>
-			<th style="text-align:right;">{{ adventure.author }}</th>
-		</tr></table>
-		<table class="mainContentHeader"><tr>
-		<td class="iconBG-disabled" id="addPageElementText"><div id="icon-addText" class="icon-addTextD"></div>Add Text</td>
-		<td class="iconBG-disabled" id="addPageElementImage"><div id="icon-addImage" class="icon-addImageD"></div>Add Image</td>
-		<td class="iconBG-disabled" id="addPageElementChoice"><div id="icon-addChoice" class="icon-addChoiceD"></div>Add Choice</td>
-		<td class="iconBG-disabled" id="addPage"><div id="icon-addPage" class="icon-addPageD"></div>New Page</td>
-		<td class="iconBG-disabled" id="editPage"><div id="icon-editPage" class="icon-editPageD"></div>Edit Page</td>
-		<td class="iconBG-disabled" id="deletePage"><div id="icon-deletePage" class="icon-deletePageD"></div>Delete Page</td>
-		<td class="iconBG-disabled" id="playStory"><div id="icon-play1" class="icon-play1D"></div>Play Story</td>
-		</tr></table>
-		</div>
-		<div style="height:100%;">
-			<div id="workAreaHolder">
-				<div id="workAreaHelper"></div>
-				<div id="workArea"></div>
-			</div>
-		</div>
+<div>
+<div id="loadTop"><img src="/stylesheets/loadBig3.gif"></div>
+<table class="mainContentHeader"><tr>
+	<th colspan="2" style="text-align:right;">"{{ adventure.title }}"</th>
+	</tr><tr>
+	<th style="text-align:left;">Page: <span id="currentPage"></span></th>
+	<th style="text-align:right;">{{ adventure.author }}</th>
+</tr></table>
+<table class="mainContentHeader"><tr>
+	<td class="iconBG-disabled" id="addPageElementText"><div id="icon-addText" class="icon-addTextD"></div>Add Text</td>
+	<td class="iconBG-disabled" id="addPageElementImage"><div id="icon-addImage" class="icon-addImageD"></div>Add Image</td>
+	<td class="iconBG-disabled" id="addPageElementChoice"><div id="icon-addChoice" class="icon-addChoiceD"></div>Add Choice</td>
+	<td class="iconBG-disabled" id="addPage"><div id="icon-addPage" class="icon-addPageD"></div>New Page</td>
+	<td class="iconBG-disabled" id="editPage"><div id="icon-editPage" class="icon-editPageD"></div>Edit Page</td>
+	<td class="iconBG-disabled" id="deletePage"><div id="icon-deletePage" class="icon-deletePageD"></div>Delete Page</td>
+	<td class="iconBG-disabled" id="playStory"><div id="icon-play1" class="icon-play1D"></div>Play Story</td>
+</tr></table>
+</div>
+<div>
+	<div id="workAreaHolder">
+		<div id="workAreaHelper"></div>
+		<div id="workArea"></div>
+	</div>
+</div>
 {% endblock %}
 
 {% block footer %}
