@@ -14,8 +14,8 @@
 	</div>
 {% for adventure in adventures %}
 	<div class="book">
-		<center><b>{{ adventure.title }}</b><br>
-		<i>{{ adventure.author }}</i><br>
+		<center><b>{{ adventure.title|escape }}</b><br>
+		<i>{{ adventure.author|escape }}</i><br>
 		{{ adventure.created.date }}</center><hr>
 		<code>{{ adventure.desc|truncatewords:"50"|escape }}</code><hr>
 		<table><tr>

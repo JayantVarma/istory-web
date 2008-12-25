@@ -1,5 +1,6 @@
 from google.appengine.ext import db
 import logging
+import cgi
 
 class Adventure(db.Model):
 	title = db.StringProperty(multiline=False)
@@ -11,9 +12,9 @@ class Adventure(db.Model):
 	modified = db.DateTimeProperty(auto_now=True)
 	def toDict(self):
 		return {
-			'title': self.title,
-			'author': self.author,
-			'desc': self.desc,
+			'title': cgi.escape(self.title),
+			'author': cgi.escape(self.author),
+			'desc': cgi.escape(self.desc),
 		}
 
 class Page(db.Model):
@@ -25,7 +26,7 @@ class Page(db.Model):
 		return {
 			#'adventure': str(self.adventure.key()),
 			'key': str(self.key()),
-			'name': self.name,
+			'name': cgi.escape(self.name),
 		}
 
 class Image(db.Model):
@@ -39,8 +40,8 @@ class Image(db.Model):
 	def toDict(self):
 		return {
 			'adventure': str(self.adventure.key()),
-			'imageName': self.imageName,
-			'realAuthor': str(self.realAuthor.nickname()),
+			'imageName': cgi.escape(self.imageName),
+			'realAuthor': cgi.escape(str(self.realAuthor.nickname())),
 			'key': str(self.key()),
 			'pageElement': self.pageElement,
 		}
@@ -71,8 +72,8 @@ class PageElement(db.Model):
 			'key': str(self.key()),
 			'dataType': self.dataType,
 			'pageOrder': self.pageOrder,
-			'dataA': self.dataA,
-			'dataB': self.dataB,
+			'dataA': cgi.escape(self.dataA),
+			'dataB': cgi.escape(self.dataB),
 			'enabled': self.enabled,
 			'imageRef': imageRef,
 		}
@@ -85,10 +86,10 @@ class Share(db.Model):
 	def toDict(self):
 		return {
 			'adventure': self.adventure,
-			'owner': str(self.realAuthor.email()),
-			'child': str(self.realAuthor.email()),
-			'ownerNick': str(self.realAuthor.nickname()),
-			'childNick': str(self.realAuthor.nickname()),
+			'owner': cgi.escape(str(self.realAuthor.email())),
+			'child': cgi.escape(str(self.realAuthor.email())),
+			'ownerNick': cgi.escape(str(self.realAuthor.nickname())),
+			'childNick': cgi.escape(str(self.realAuthor.nickname())),
 			'shareType': self.shareType,
 		}
 

@@ -69,8 +69,8 @@
 		<div class="book3"><h1>Featured Stories</h1></div>
 	{% for adventure in adventures %}
 		<div class="book">
-			<center><b><a href="/playStory?myAdventureKey={{ adventure.key }}">{{ adventure.title }}</a></b><br>
-			<i>{{ adventure.author }}</i><br>
+			<center><b><a href="/playStory?myAdventureKey={{ adventure.key }}">{{ adventure.title|escape }}</a></b><br>
+			<i>{{ adventure.author|escape }}</i><br>
 			{{ adventure.created.date }}</center><hr>
 			<code>{{ adventure.desc|escape }}</code>
 		</div>

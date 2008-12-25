@@ -22,7 +22,7 @@ indexes:
   - name: date
     direction: desc
 
-# Used 29 times in query history.
+# Used 31 times in query history.
 - kind: Adventure
   properties:
   - name: realAuthor

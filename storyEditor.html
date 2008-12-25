@@ -10,10 +10,10 @@
 <div>
 <div id="loadTop"><img src="/stylesheets/loadBig3.gif"></div>
 <table class="mainContentHeader"><tr>
-	<th colspan="2" style="text-align:right;">"{{ adventure.title }}"</th>
+	<th colspan="2" style="text-align:right;">"{{ adventure.title|escape }}"</th>
 	</tr><tr>
 	<th style="text-align:left;">Page: <span id="currentPage"></span></th>
-	<th style="text-align:right;">{{ adventure.author }}</th>
+	<th style="text-align:right;">{{ adventure.author|escape }}</th>
 </tr></table>
 <table class="mainContentHeader"><tr>
 	<td class="iconBG-disabled" id="addPageElementText"><div id="icon-addText" class="icon-addTextD"></div>Add Text</td>

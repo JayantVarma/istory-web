@@ -17,7 +17,7 @@
 	<tr><th colspan="3">Your Adventures</th></tr>
 	<tr><th>Title</th><th>Created Date</th><th>Last Modified</th></tr>
 	{% for adventure in ownedAdventures %}
-		<tr><td>{{ adventure.title }}</td><td>{{ adventure.created.date }}</td><td>{{ adventure.modified.date }}</td></tr>
+		<tr><td>{{ adventure.title|escape }}</td><td>{{ adventure.created.date }}</td><td>{{ adventure.modified.date }}</td></tr>
 	{% endfor %}
 </table>
 <h1></h1>
@@ -25,7 +25,7 @@
 	<tr><th colspan="5">Adventures That Have Been Shared With You</th></tr>
 	<tr><th>Title</th><th>Created Date</th><th>Last Modified</th><th>Owner</th><th>Your Role</th></tr>
 	{% for adventure in sharedAdventures %}
-		<tr><td>{{ adventure.title }}</td><td>{{ adventure.created.date }}</td><td>{{ adventure.modified.date }}</td><td>{{ adventure.owner }} ({{ adventure.ownerNick }})</td><td>{{ adventure.shareType }}</td></tr>
+		<tr><td>{{ adventure.title|escape }}</td><td>{{ adventure.created.date }}</td><td>{{ adventure.modified.date }}</td><td>{{ adventure.owner|escape }} ({{ adventure.ownerNick|escape }})</td><td>{{ adventure.shareType|escape }}</td></tr>
 	{% endfor %}
 </table>
 {% endblock %}
