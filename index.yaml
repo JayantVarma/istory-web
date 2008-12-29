@@ -22,7 +22,7 @@ indexes:
   - name: date
     direction: desc
 
-# Used 198 times in query history.
+# Used 206 times in query history.
 - kind: Adventure
   properties:
   - name: realAuthor
@@ -42,13 +42,13 @@ indexes:
   - name: date
     direction: desc
 
-# Used 150 times in query history.
+# Used 160 times in query history.
 - kind: Image
   properties:
   - name: realAuthor
   - name: imageName
 
-# Used 182 times in query history.
+# Used 207 times in query history.
 - kind: Page
   properties:
   - name: adventure
@@ -61,11 +61,18 @@ indexes:
   - name: page
   - name: pageOrder
 
-# Used 182 times in query history.
+# Used 207 times in query history.
 - kind: PageElement
   properties:
   - name: adventure
   - name: pageOrder
+
+# Used 31 times in query history.
+- kind: Share
+  properties:
+  - name: adventure
+  - name: child
+  - name: role
 
 # Used once in query history.
 - kind: Share
@@ -75,7 +82,7 @@ indexes:
   - name: role
   - name: status
 
-# Used 6 times in query history.
+# Used 12 times in query history.
 - kind: Share
   properties:
   - name: adventure
@@ -89,11 +96,20 @@ indexes:
   - name: adventure
   - name: created
 
-# Used 22 times in query history.
+# Used 51 times in query history.
 - kind: Share
   properties:
   - name: adventure
   - name: status
+  - name: created
+
+# Used once in query history.
+- kind: Share
+  properties:
+  - name: adventure
+  - name: status
+  - name: role
+    direction: desc
   - name: created
 
 # Used 140 times in query history.
@@ -103,7 +119,33 @@ indexes:
   - name: owner
     direction: desc
 
-# Used 54 times in query history.
+# Used 13 times in query history.
+- kind: Share
+  properties:
+  - name: child
+  - name: status
+
+# Used once in query history.
+- kind: Share
+  properties:
+  - name: child
+  - name: status
+    direction: desc
+  - name: created
+    direction: desc
+
+# Used 19 times in query history.
+- kind: Share
+  properties:
+  - name: child
+  - name: status
+    direction: desc
+  - name: role
+    direction: desc
+  - name: created
+    direction: desc
+
+# Used 126 times in query history.
 - kind: Share
   properties:
   - name: childEmail

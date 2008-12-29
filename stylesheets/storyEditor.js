@@ -153,7 +153,7 @@ var iconMO = function(td, useValue) {
 	//console.log("iconMO: " + this + " " + this.id);
 	if (!td.id) { return }
 	if (loadingCounter > 0) { return }
-	if (currentNodeIndex || td.id == 'addPage') {
+	if (currentNodeIndex || td.id == 'addPage' || td.id == 'playStory') {
 		var icon = td.firstChild;
 		if (useValue) {
 			//this is for the page element menu, we store the normal class in the title attribute
@@ -973,6 +973,7 @@ var pageElSave = function(e, newPageKey) {
 	if (imageName) {
 		myHTML += "&imageName=" + escape(imageName.value);
 		imgCache[imageRef.value] = imageName.value;
+		imgCache['length'] = (imgCache['length']||0) + 1
 	}
 	setLoading();
 	console.log("saving page el: " + myHTML);
@@ -1480,9 +1481,9 @@ function treeInit() {
 	YAHOO.util.Event.addListener("deletePage", "mouseover", eventIconMO);
 	YAHOO.util.Event.addListener("deletePage", "mouseout", eventIconMOreset);
 
+	YAHOO.util.Event.addListener("playStory", "click", playStory);
 	YAHOO.util.Event.addListener("playStory", "mouseover", eventIconMO);
 	YAHOO.util.Event.addListener("playStory", "mouseout", eventIconMOreset);
-	YAHOO.util.Event.addListener("playStory", "click", playStory);
 
 	resetWorkArea();
 	//new YAHOO.widget.Tooltip("tooltipDeletePage", { showdelay: 500, context:"deletePage", text:"Delete This Page"} );

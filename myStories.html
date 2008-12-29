@@ -11,22 +11,43 @@
 		<code>The StoryForge awaits =)</code><hr>
 		<table><tr>
 		<td class="myStoryButtonDisabled"><div class="icon-storyEditD"></div>StoryForge</td>
-		<td class="myStoryButtonDisabled"><div class="icon-play1D"></div>Play</td>
+		<td class="myStoryButtonDisabled"><div class="icon-playD"></div>Play</td>
 		<td class="myStoryButtonDisabled"><div class="icon-editD"></div>Edit Title &amp; Description</td>
 		<td class="myStoryButtonDisabled"><div class="icon-shareD"></div>Share</td>
 		</tr></table>
 	</div>
-{% for adventure in adventures %}
+{% for share in shares %}
 	<div class="book">
-		<center><b>{{ adventure.title|escape }}</b><br>
-		<i>{{ adventure.author|escape }}</i><br>
-		{{ adventure.created.date }}</center><hr>
-		<code>{{ adventure.desc|truncatewords:"50"|escape }}</code><hr>
+		<center><b>{{ share.adventure.title|escape }}</b><br>
+		<i>{{ share.adventure.author|escape }}</i><br>
+		{{ share.adventure.created.date }} ({{ share.roleName }})</center><hr>
+		<code>{{ share.adventure.desc|truncatewords:"30"|escape }}</code><hr>
 		<table><tr>
-		<td class="myStoryButton"><a href="/storyEditor?myAdventureKey={{ adventure.key }}"><div class="icon-storyEdit"></div>StoryForge</a></td>
-		<td class="myStoryButton"><a href="/playStory?myAdventureKey={{ adventure.key }}"><div class="icon-play1"></div>Play</a></td>
-		<td class="myStoryButton"><a href="/createStory?myAdventureKey={{ adventure.key }}"><div class="icon-edit"></div>Edit Title &amp; Description</a></td>
-		<td class="myStoryButton"><a href="/share?myAdventureKey={{ adventure.key }}"><div class="icon-share"></div>Share</a></td>
+
+		{% if share.isAuthor %}
+			<td class="myStoryButton"><a href="/storyEditor?myAdventureKey={{ share.adventure.key }}"><div class="icon-storyEdit"></div>StoryForge</a></td>
+		{% else %}
+			<td class="myStoryButtonDisabled"><div class="icon-storyEditD"></div>StoryForge</td>
+		{% endif %}
+
+		{% if share.isReader %}
+			<td class="myStoryButton"><a href="/playStory?myAdventureKey={{ share.adventure.key }}"><div class="icon-play"></div>Play</a></td>
+		{% else %}
+			<td class="myStoryButtonDisabled"><div class="icon-playD"></div>Play</td>
+		{% endif %}
+
+		{% if share.isAdmin %}
+			<td class="myStoryButton"><a href="/createStory?myAdventureKey={{ share.adventure.key }}"><div class="icon-edit"></div>Edit Title &amp; Description</a></td>
+		{% else %}
+			<td class="myStoryButtonDisabled"><div class="icon-editD"></div>Edit Title &amp; Description</td>
+		{% endif %}
+
+		{% if share.isAdmin %}
+			<td class="myStoryButton"><a href="/share?myAdventureKey={{ share.adventure.key }}"><div class="icon-share"></div>Share</a></td>
+		{% else %}
+			<td class="myStoryButtonDisabled"><div class="icon-shareD"></div>Share</td>
+		{% endif %}
+
 		</tr></table>
 	</div>
 {% endfor %}

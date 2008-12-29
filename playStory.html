@@ -13,14 +13,14 @@
 	<div>
 	<div id="loadTop"><img src="/stylesheets/loadBig3.gif"></div>
 	<table class="mainContentHeader"><tr>
-		<th style="text-align:right;">"{{ adventure.title }}"</th>
+		<th style="text-align:right;">"{{ adventure.title|escape }}"</th>
 	</tr><tr>
-		<th width="50%" style="text-align:right;">{{ adventure.author }}</th>
+		<th width="50%" style="text-align:right;">{{ adventure.author|escape }}</th>
 	</tr></table>
 	<table class="mainContentHeader"><tr>
 		<td class="iconBG-disabled" id="restartStory"><div id="icon-restart" class="icon-restartD"></div>Restart Story</td>
 		<td class="iconBG-disabled" id="storyForge"><div id="icon-storyEdit" class="icon-storyEditD"></div>StoryForge</td>
-		<td class="iconBG-disabled" id="shareStory"><div id="icon-deletePage" class="icon-deletePageD"></div>Share Story</td>
+		<td class="iconBG-disabled" id="shareStory"><div id="icon-share" class="icon-shareD"></div>Share Story</td>
 		<td class="iconBG-disabled" id="submitStory"><div id="icon-deletePage" class="icon-deletePageD"></div>Submit Story</td>
 	</tr></table>
 	</div>
@@ -42,6 +42,8 @@ var MY_ADVENTURE_KEY = '';
 {% if adventure.key %}	MY_ADVENTURE_KEY = "{{ adventure.key }}";{% endif %}
 var MY_ERROR = '';
 {% if error %} MY_ERROR = "{{ error }}"; {% endif %}
+var IS_USER_ADMIN = {{ isUserAdmin|lower }};
+var IS_USER_AUTHOR = {{ isUserAuthor|lower }};
 </script>
 <script src="stylesheets/playStory.js"></script>
 {% endblock %}

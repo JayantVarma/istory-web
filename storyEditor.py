@@ -15,21 +15,23 @@ import main
 
 class DeletePage(webapp.RequestHandler):
   def post(self):
-	logging.error("DeletePage: begin")
+	logging.info("DeletePage: begin")
 	myPageKey = self.request.get('myPageKey')
 	if myPageKey:
-		logging.error("DeletePage: myPageKey found: " + myPageKey)
+		logging.info("DeletePage: myPageKey found: " + myPageKey)
 		page = db.Model.get(myPageKey)
 		adventure = page.adventure
 		if (page == None or adventure == None):
-			logging.error("DeletePage: page or adventure were null")
+			logging.info("DeletePage: page or adventure were null")
 			return
 	else:
-		logging.error("DeletePage: no pageKey passed in")
+		logging.info("DeletePage: no pageKey passed in")
 		return
 
 	if users.get_current_user():
-		if not(users.is_current_user_admin()) and adventure.realAuthor and adventure.realAuthor != users.get_current_user():
+		if not main.isUserAuthor(users.get_current_user(), adventure):
+			logging.warning('DeletePage post: you are not an author of this adventure')
+			error = 'Error: You are not an author of this adventure'
 			return
 	else:
 		return
@@ -38,48 +40,50 @@ class DeletePage(webapp.RequestHandler):
 	query = adventureModel.PageElement.all().filter('page =', page.key())
 	pageElements = query.fetch(1000)
 	for pageElement in pageElements:
-		logging.error(pageElement.key())
+		logging.info(pageElement.key())
 	db.delete(pageElements)
 	page.delete()
 	jsonResponse = "page and all page elements deleted"
 	self.response.out.write(simplejson.dumps(jsonResponse))
-	logging.error("returning addPage json: " + simplejson.dumps(jsonResponse))
+	logging.info("returning addPage json: " + simplejson.dumps(jsonResponse))
 
 class AddPage(webapp.RequestHandler):
   def post(self):
-	logging.error("AddPage: begin")
+	logging.info("AddPage: begin")
 	myPageKey = self.request.get('myPageKey')
 	myAdventureKey = self.request.get('myAdventureKey')
 	adventure = None
 	page = None
 	if myPageKey:
-		logging.error("AddPage: myPageKey found: " + myPageKey)
+		logging.info("AddPage: myPageKey found: " + myPageKey)
 		page = db.Model.get(myPageKey)
 		adventure = page.adventure
 	elif myAdventureKey:
-		logging.error("AddPage: myAdventureKey found: " + myAdventureKey)
+		logging.info("AddPage: myAdventureKey found: " + myAdventureKey)
 		page = adventureModel.Page()
 		adventure = db.Model.get(myAdventureKey)
 		page.adventure = adventure.key()
 	else:
-		logging.error("AddPage: no pageKey or adventureKey passed in")
+		logging.info("AddPage: no pageKey or adventureKey passed in")
 		return
 
 	if users.get_current_user():
-		if not(users.is_current_user_admin()) and adventure.realAuthor and adventure.realAuthor != users.get_current_user():
+		if not main.isUserAuthor(users.get_current_user(), adventure):
+			logging.warning('AddPage post: you are not an author of this adventure')
+			error = 'Error: You are not an author of this adventure'
 			return
 	else:
 		return
 
 	if (page == None or adventure == None):
-		logging.error("DeletePage: page or adventure were null")
+		logging.info("DeletePage: page or adventure were null")
 		return
 
 	page.name = self.request.get('pageName')
 	page.put()
 	#memcache.delete("pages_" + adventure.key())
 	self.response.out.write(simplejson.dumps(page.toDict()))
-	logging.error("returning addPage json: " + simplejson.dumps(page.toDict()))
+	logging.info("returning addPage json: " + simplejson.dumps(page.toDict()))
 
 class GetPages(webapp.RequestHandler):
   def post(self):
@@ -88,8 +92,13 @@ class GetPages(webapp.RequestHandler):
 	adventure = db.Model.get(myAdventureKey)
 	if adventure == None:
 		return
-	#if users.get_current_user() != adventure.realAuthor:
-		#adventure = None
+	if users.get_current_user():
+		if not main.isUserReader(users.get_current_user(), adventure):
+			logging.warning('GetPages post: you are not a reader of this adventure')
+			error = 'Error: You are not a reader of this adventure'
+			return
+	else:
+		return
 
 	pagesQuery = adventureModel.Page.all()
 	pagesQuery.filter('adventure = ', adventure.key())
@@ -109,8 +118,7 @@ class GetPages(webapp.RequestHandler):
 		pageDict['elements'] = elementsArray
 		pagesJSON.append(pageDict)
 	self.response.out.write(simplejson.dumps(pagesJSON))
-	logging.error("got " + str(len(pagesJSON)) + " pages for key " + myAdventureKey)
-	#logging.error(simplejson.dumps(pagesJSON))
+	logging.info("got " + str(len(pagesJSON)) + " pages for key " + myAdventureKey)
 
 class StoryEditor(webapp.RequestHandler):
   def get(self):
@@ -125,13 +133,14 @@ class StoryEditor(webapp.RequestHandler):
 		error = 'error: no adventure key passed in'
 	if adventure == None:
 		error = 'error: could not find Adventure ' + myAdventureKey + ' in the database'
-	elif not(users.is_current_user_admin()) and users.get_current_user() and users.get_current_user() != adventure.realAuthor:
-		error = 'error: you do not own this story'
+	elif not main.isUserAuthor(users.get_current_user(), adventure):
+		logging.warning('StoryEditor get: you are not an author of this adventure')
+		error = 'Error: You are not an author of this adventure'
 	elif not users.get_current_user():
 		error = 'error: you are not logged in'
 
 	if error:
-		logging.error("########## ERROR: " + error);
+		logging.info("########## ERROR: " + error);
 	defaultTemplateValues = main.getDefaultTemplateValues(self)
 	templateValues = {
 		'adventure': adventure,

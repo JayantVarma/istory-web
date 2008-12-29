@@ -20,6 +20,7 @@ class ShareInvite(webapp.RequestHandler):
 	self.get()
 
   def get(self):
+	#this method takes an existing share invite record and accepts it
 	#get the invite from the db
 	error = None
 	state = None
@@ -57,6 +58,14 @@ class ShareInvite(webapp.RequestHandler):
 					share.status = 2
 					share.child = users.get_current_user()
 					share.put()
+					#delete the current adventure cache object
+					memcache.delete("adventures_" + share.child.email())
+					#remove the share invite cache object
+					memcache.delete("invites_" + share.childEmail)
+					memcache.delete("invites_" + users.get_current_user().email())
+					#remove the user share object from cache
+					removeUserShareCache(share.child, str(share.adventure.key()))
+					removeUserShareCache(share.child, str(share.adventure.key()))
 		else:
 			logging.info("ShareInvite: invite ignored")
 			error = "Invite ignored."
@@ -107,9 +116,10 @@ class ViewSharing(webapp.RequestHandler):
 		return
 
 	#make sure we're the owner
-	if not(users.is_current_user_admin()) and adventure.realAuthor and adventure.realAuthor != users.get_current_user():
-		logging.warning('ViewSharing post: you are not the owner of this adventure')
-		error = 'Error: You are not the owner of this adventure'
+	#if not(users.is_current_user_admin()) and adventure.realAuthor and adventure.realAuthor != users.get_current_user():
+	if not main.isUserAdmin(users.get_current_user(), adventure):
+		logging.warning('ViewSharing post: you are not an admin of this adventure')
+		error = 'Error: You are not an admin of this adventure'
 		self.response.out.write(error)
 		return
 
@@ -135,6 +145,9 @@ class ViewSharing(webapp.RequestHandler):
 		share.inviteKey += i
 	share.role = myRole
 	share.put()
+
+	#remove the share invite cache object
+	memcache.delete("invites_" + myEmail)
 	
 	#send the invite email
 	subject = 'You have an iStory invite from %s' % (users.get_current_user().nickname())
@@ -176,12 +189,12 @@ The iStory team
 		if not adventure:
 			logging.info("ViewSharing get: adventure key was not found")
 			error = 'Error: adventure was not found'
-		elif not(users.is_current_user_admin()) and adventure.realAuthor and adventure.realAuthor != users.get_current_user():
-			logging.info("ViewSharing get: you do not own this adventure")
-			error = 'Error: you do not own this adventure'
+		elif not main.isUserAdmin(users.get_current_user(), adventure):
+			logging.warning('ViewSharing get: you are not an admin of this adventure')
+			error = 'Error: You are not an admin of this adventure'
 		else:
 			#get all the shares for this adventure
-			q1 = adventureModel.Share.all().filter('adventure =', adventure).filter('status >=', 1).order('status').order('created')
+			q1 = adventureModel.Share.all().filter('adventure =', adventure).filter('status >=', 1).order('status').order('-role').order('created')
 			shares = q1.fetch(9999)
 			logging.info("got %d shares for adventure %s" % (len(shares), adventure.title))
 			#find your role in this adventure
@@ -189,10 +202,6 @@ The iStory team
 				if share.child == users.get_current_user():
 					yourRole = share
 					break
-			#get any pending share invites
-			q2 = adventureModel.Share.all().filter('status =', 1).filter('childEmail =', users.get_current_user().email()).order('-created')
-			shareInvites = q2.fetch(9999)
-			logging.info("got %d invites for user %s" % (len(shareInvites), users.get_current_user().email()))
 
 	defaultTemplateValues = main.getDefaultTemplateValues(self)
 	templateValues = {
@@ -202,7 +211,6 @@ The iStory team
 		'title': title,
 		'shares': shares,
 		'yourRole': yourRole,
-		'shareInvites': shareInvites,
 	}
 	templateValues = dict(defaultTemplateValues, **templateValues)
 
@@ -221,9 +229,9 @@ class RemoveShare(webapp.RequestHandler):
 		error = "Error: share did not exist"
 		self.response.out.write(error)
 		return
-	elif not(users.is_current_user_admin()) and share.adventure.realAuthor and share.adventure.realAuthor != users.get_current_user():
-		logging.info("RemoveShare: you do not own this adventure")
-		error = 'Error: you do not own this adventure'
+	elif not main.isUserAdmin(users.get_current_user(), share.adventure):
+		logging.warning('RemoveShare post: you are not an admin of this adventure')
+		error = 'Error: You are not an admin of this adventure'
 		self.response.out.write(error)
 		return
 	elif share.adventure.realAuthor == share.child:
@@ -233,11 +241,30 @@ class RemoveShare(webapp.RequestHandler):
 		return
 	else:
 		jsonText = simplejson.dumps(share.toDict())
+		#remove the oadventure object from cache
+		memcache.delete("adventures_" + share.child.email())
+		#remove the user share object from cache
+		removeUserShareCache(share.child, str(share.adventure.key()))
+		#delete the db record
 		share.delete()
+		#just for good measure, remove the share invite cache
+		memcache.delete("invites_" + share.child.email())
+		#done
 		logging.info('RemoveShare: share deleted: ' + jsonText)
 		self.response.out.write(jsonText)
 
 
+def removeUserShareCache(user, adventureKey):
+	q = adventureModel.Share.all().filter('status =', 2).filter('child =', user)
+	counter = 0
+	shares = q.fetch(9999)
+	for share in shares:
+		for n in range(0, share.role):
+			cacheString = str(n+1) + ',' + user.email() + ',' + str(adventureKey)
+			logging.info("RemoveShare: removing cache record: " + cacheString)
+			counter += 1
+			memcache.delete(cacheString)
+	logging.info("RemoveShare: removed %d shares from cache for user %s" % (counter, user.email()))
 
 
 

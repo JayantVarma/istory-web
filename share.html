@@ -18,10 +18,6 @@
 <div class="infoBar">{{ error }}</div>
 {% else %}
 
-{% for shareInvite in shareInvites %}
-<div class="infoBar"><a href="/shareInvite?key={{ shareInvite.inviteKey }}">You have been invited to be {{ shareInvite.roleNamePhrase }} on '{{ shareInvite.adventure.title }}' by {{ shareInvite.owner.nickname|escape }}</a></div>
-{% endfor %}
-
 <table class="shareTable">
 	<tr><th id="storyName">{{ adventure.title|escape }}</th></tr>
 	<tr><th>Your role: {{ yourRole.roleName }}</th></tr>

@@ -33,13 +33,23 @@ function treeInit() {
 	YAHOO.util.Event.addListener("restartStory", "mouseover", eventIconMO);
 	YAHOO.util.Event.addListener("restartStory", "mouseout", eventIconMOreset);
 	YAHOO.util.Event.addListener("restartStory", "click", restartStory);
-	YAHOO.util.Event.addListener("storyForge", "mouseover", eventIconMO);
-	YAHOO.util.Event.addListener("storyForge", "mouseout", eventIconMOreset);
-	YAHOO.util.Event.addListener("storyForge", "click", loadStoryForge);
+	if (IS_USER_AUTHOR) {
+		YAHOO.util.Event.addListener("storyForge", "mouseover", eventIconMO);
+		YAHOO.util.Event.addListener("storyForge", "mouseout", eventIconMOreset);
+		YAHOO.util.Event.addListener("storyForge", "click", loadStoryForge);
+	}
+	if (IS_USER_ADMIN) {
+		YAHOO.util.Event.addListener("shareStory", "mouseover", eventIconMO);
+		YAHOO.util.Event.addListener("shareStory", "mouseout", eventIconMOreset);
+		YAHOO.util.Event.addListener("shareStory", "click", loadShareStory);
+	}
 }
 
 var loadStoryForge = function() {
 	window.location.replace('/storyEditor?myAdventureKey=' + adventureKey);
+}
+var loadShareStory = function() {
+	window.location.replace('/share?myAdventureKey=' + adventureKey);
 }
 var restartStory = function() {
 	pageHistory = [];
@@ -62,12 +72,14 @@ var disableIcons = function()
 {
 	disableDiv('restartStory');
 	disableDiv('storyForge');
+	disableDiv('shareStory');
 }
 var enableIcons = function()
 {
 	if (loadingCounter > 0) { return; }
 	enableDiv('restartStory');
-	enableDiv('storyForge');
+	if (IS_USER_AUTHOR) { enableDiv('storyForge'); }
+	if (IS_USER_ADMIN) { enableDiv('shareStory'); }
 }
 
 var eventIconMO = function(e, isLight) {
@@ -171,7 +183,9 @@ var getPagesCallbacks = {
 			numPages++;
 		}
 		//console.log("got " + numPages + " pages.");
-		playPage(pages[0].key)
+		if (pages[0]) {
+			playPage(pages[0].key)
+		}
 			/*//m.name m.key
 			var page = {
 				'key': m.key,

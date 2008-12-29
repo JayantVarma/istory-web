@@ -1,6 +1,7 @@
 import os
 from google.appengine.ext.webapp import template
 import cgi
+import logging
 from google.appengine.api import users
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp.util import run_wsgi_app
@@ -15,6 +16,62 @@ import pageElement
 import images
 import playStory
 import share
+
+def isUserAdmin(user, adventure):
+	if isUserSomething(user, adventure, 3):
+		return True
+	return False
+def isUserAuthor(user, adventure):
+	if isUserSomething(user, adventure, 2):
+		return True
+	return False
+def isUserReader(user, adventure):
+	return True
+	if isUserSomething(user, adventure, 1):
+		return True
+	return False
+
+def isUserSomething(user, adventure, role):
+	share = None
+	if not user or not adventure or not role:
+		logging.info("isUserSomething: function requires 3 arguments, user & adventure & role")
+		return False
+	#if user is admin, just return true
+	if users.is_current_user_admin():
+		return True
+	#format for cache string is role,email,adventureKey
+	cacheString = str(role) + ',' + user.email() + ',' + str(adventure.key())
+	logging.info("isUserSomething: cacheString: " + cacheString)
+	share = memcache.get(cacheString)
+	if share is not None and share != "None":
+		logging.info("isUserSomething: fetched share from cache. user has this role")
+		return True
+	elif share is not None and share == "None":
+		logging.info("isUserSomething: user does not have this role (from cache)")
+		return False
+	else:
+		q = adventureModel.Share.all().filter('adventure =', adventure).filter('role >=', role).filter('child =', user)
+		shares = q.fetch(1)
+		for myShare in shares:
+			share = myShare
+		if share is not None:
+			#user has this role
+			logging.info("isUserSomething: fetched share from db. user has this role")
+			#add cache entries for the other roles, if necessary
+			#admin adds cache entries for both author and reader
+			#author adds cache entries for reader
+			for n in range(0, role):
+				cacheString = str(n+1) + ',' + user.email() + ',' + str(adventure.key())
+				logging.info("isUserSomething: adding cache record: " + cacheString)
+				if not memcache.add(cacheString, share, 3600):
+					logging.info("memcache set failed.")
+			#done
+			return True
+	#user does not have this role
+	logging.info("isUserSomething: user does not have this role (not from cache)")
+	if not memcache.add(cacheString, "None", 3600):
+		logging.info("isUserSomething false memcache set failed.")
+	return False
 
 def getDefaultTemplateValues(self):
 	myStoriesURL = '/myStories'

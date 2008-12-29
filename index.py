@@ -21,7 +21,7 @@ class Index(webapp.RequestHandler):
 		adventures_query = adventureModel.Adventure.all().order('created')
 		adventures = adventures_query.fetch(20)
 		if not memcache.add("adventures", adventures, 300):
-			logging.error("memcache set failed.")
+			logging.info("memcache set failed.")
 		return adventures
 
   def get(self):

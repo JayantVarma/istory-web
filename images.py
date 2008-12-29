@@ -111,16 +111,16 @@ class ImageCropper(webapp.RequestHandler):
 		right = newWidth + left
 		bottom = newHeight + top
 	except Exception, e:
-		logging.error('%s: %s' % (e.__class__.__name__, e))
+		logging.info('%s: %s' % (e.__class__.__name__, e))
 		self.error(404)
 		return
 
 	if imageKey:
-		logging.error("attempting to resize image with key " + imageKey)
+		logging.info("attempting to resize image with key " + imageKey)
 		try:
 			image = db.get(imageKey)
 		except Exception, e:
-			logging.error('%s: %s' % (e.__class__.__name__, e))
+			logging.info('%s: %s' % (e.__class__.__name__, e))
 	if image.imageData:
 		logging.info("got image data.")
 		adventure = image.adventure
@@ -131,7 +131,7 @@ class ImageCropper(webapp.RequestHandler):
 
 	#make sure the user is logged in and owns this adventure and page
 	if users.get_current_user():
-		if adventure and adventure.realAuthor and adventure.realAuthor != users.get_current_user():
+		if not main.isUserAuthor(users.get_current_user(), adventure):
 			self.error(404)
 			return
 	else:
@@ -163,7 +163,7 @@ class ImageCropper(webapp.RequestHandler):
 	image.put()
 		
 	self.response.out.write(simplejson.dumps('success'))
-	logging.error(simplejson.dumps('success'))
+	logging.info(simplejson.dumps('success'))
 
 class ImageManager(webapp.RequestHandler):
   def get(self):
@@ -191,8 +191,9 @@ class ImageManager(webapp.RequestHandler):
 		error = 'error: no adventure key passed in'
 	if adventure == None:
 		error = 'error: could not find Adventure ' + myAdventureKey + ' in the database'
-	elif users.get_current_user() != adventure.realAuthor:
-		error = 'error: you do not own this story'
+	elif not main.isUserAuthor(users.get_current_user(), adventure):
+		logging.warning('ImageManager get: you are not an author of this adventure')
+		error = 'Error: You are not an author of this adventure'
 		adventure = None
 
 	template_values = {
@@ -210,11 +211,11 @@ class ImageServer(webapp.RequestHandler):
 	image = None
 	imageKey = self.request.get('imageKey')
 	if imageKey:
-		logging.error("serving image with key " + imageKey)
+		logging.info("serving image with key " + imageKey)
 		try:
 			image = db.get(imageKey)
 		except Exception, e:
-			logging.error('%s: %s' % (e.__class__.__name__, e))
+			logging.info('%s: %s' % (e.__class__.__name__, e))
 			#need to put an image in here that we can use for missing shit
 			imageQuery = adventureModel.Image.all()
 			images = imageQuery.fetch(1);
@@ -234,7 +235,7 @@ class ImagesByUser(webapp.RequestHandler):
 	else:
 		self.error(404)
 		return
-	#get all the images that they own
+	#get all the images that they own and all the images in this adventure
 	imgQuery = adventureModel.Image.all()
 	imgQuery.filter('realAuthor = ', users.get_current_user())
 	imgQuery.order('imageName')
@@ -243,7 +244,7 @@ class ImagesByUser(webapp.RequestHandler):
 	for image in images:
 		jsonArray.append(image.toDict())
 	self.response.out.write(simplejson.dumps(jsonArray))
-	logging.error(simplejson.dumps(jsonArray))
+	logging.info(simplejson.dumps(jsonArray))
 
   def get(self):
 	self.getOrPost()
@@ -254,7 +255,7 @@ class ImagesByUser(webapp.RequestHandler):
 
 class Uploader(webapp.RequestHandler):
   def post(self):
-	logging.error("Uploader post start")
+	logging.info("Uploader post start")
 	pageElement = None
 	adventure = None
 	page = None
@@ -265,12 +266,12 @@ class Uploader(webapp.RequestHandler):
 	myPageElKey = self.request.get('myPageElKey')
 	myPageKey = self.request.get('myPageKey')
 	myPageOrder = int(self.request.get('myPageOrder') or -1)
-	logging.error("Uploader: myImageKey(" + myImageKey + ") myPageElKey(" + myPageElKey + ") myPageKey(" + myPageKey + ") order(" + str(myPageOrder) + ")")
+	logging.info("Uploader: myImageKey(" + myImageKey + ") myPageElKey(" + myPageElKey + ") myPageKey(" + myPageKey + ") order(" + str(myPageOrder) + ")")
 	if myImageData:
 		myImageSizeBytes = len(myImageData)
-		logging.error("GOT IMAGE DATA!! " + str(myImageSizeBytes) + ' bytes.')
+		logging.info("GOT IMAGE DATA!! " + str(myImageSizeBytes) + ' bytes.')
 		if myImageSizeBytes > 1048576:
-			logging.error("ERROR: Image was too large(%d bytes). 1 megabyte is the max size." % (myImageSizeBytes))
+			logging.info("ERROR: Image was too large(%d bytes). 1 megabyte is the max size." % (myImageSizeBytes))
 			self.response.out.write("ERROR: Image was too large. 1 megabyte is the max size.")
 			return
 	if not myImageData and not myPageElKey and not myImageKey:
@@ -288,13 +289,13 @@ class Uploader(webapp.RequestHandler):
 			return		
 	else:
 		#we create the page element that will reference the new image
-		logging.error('Uploader: creating new pageElement')
+		logging.info('Uploader: creating new pageElement')
 		pageElement = adventureModel.PageElement()
 		pageElement.dataType = 2
 		pageElement.enabled = 1
 		pageElement.pageOrder = myPageOrder
 		if (not myPageKey):
-			logging.error("Uploader: expected myPageKey but it is null")
+			logging.info("Uploader: expected myPageKey but it is null")
 			if myImageData:
 				self.response.out.write(simplejson.dumps(len(myImageData)))
 			#self.error(404)
@@ -324,7 +325,7 @@ class Uploader(webapp.RequestHandler):
 		#if the existing image data is different from the new image data, we need to create a new image
 		#then set the image data, we dont need to set the image data if the old and new images are the same
 		if newImage.imageData != myImageData:
-			logging.error("the existing image data is different(" + str(len(myImageData)) + ").. lets create a new image")
+			logging.info("the existing image data is different(" + str(len(myImageData)) + ").. lets create a new image")
 			newImage = adventureModel.Image()
 			newImage.imageData = db.Blob(myImageData)
 	elif len(myImageData) > 100:
@@ -337,7 +338,8 @@ class Uploader(webapp.RequestHandler):
 
 	#make sure the user is logged in and owns this adventure and page
 	if users.get_current_user():
-		if not(users.is_current_user_admin()) and (adventure.realAuthor and adventure.realAuthor != users.get_current_user()):
+		if not main.isUserAuthor(users.get_current_user(), adventure):
+			logging.warning('Uploader post: you are not an author of this adventure')
 			self.error(404)
 			return
 	else:
@@ -349,7 +351,7 @@ class Uploader(webapp.RequestHandler):
 	newImage.realAuthor = users.get_current_user()
 	newImage.imageName = myImageName
 	newImage.pageElement = str(pageElement.key())
-	logging.error("imageName(" + newImage.imageName + ") pageElementRef(" + newImage.pageElement + ")")
+	logging.info("imageName(" + newImage.imageName + ") pageElementRef(" + newImage.pageElement + ")")
 	#last step- if the image is greater than 900 pixels in either dimension, resize it
 	if newImage.imageData:
 		imageOBJ = images.Image(newImage.imageData)
@@ -378,4 +380,4 @@ class Uploader(webapp.RequestHandler):
 
 	#send the json response, it includes the page element key
 	self.response.out.write(simplejson.dumps(newImage.toDict()))
-	logging.error(simplejson.dumps(newImage.toDict()))
+	logging.info(simplejson.dumps(newImage.toDict()))

@@ -103,7 +103,11 @@ body hr {
 	border-style: dotted;
 	border-color: #000000;
 }
-
+.layout_mainContent .book div {
+	margin-left: auto;
+	margin-right: auto;
+	text-align: center;
+}
 .layout_mainContent .book table {
 	font-size:x-small;
 }
@@ -223,7 +227,7 @@ img { vertical-align: bottom; }
 .icon-elUp       { display:block; height:48px; width:41px; background: transparent url(icons24bit.png) 0 -576px no-repeat; }
 .icon-elDown     { display:block; height:48px; width:41px; background: transparent url(icons24bit.png) 0 -640px no-repeat; }
 .icon-storyEdit  { display:block; height:48px; width:48px; background: transparent url(icons24bit.png) 0 -704px no-repeat; }
-.icon-play1      { display:block; height:48px; width:48px; background: transparent url(icons24bit.png) 0 -768px no-repeat; }
+.icon-play       { display:block; height:48px; width:48px; background: transparent url(icons24bit.png) 0 -768px no-repeat; }
 .icon-restart    { display:block; height:48px; width:48px; background: transparent url(icons24bit.png) 0 -832px no-repeat; }
 .icon-back       { display:block; height:48px; width:48px; background: transparent url(icons24bit.png) 0 -896px no-repeat; }
 .icon-share      { display:block; height:48px; width:48px; background: transparent url(icons24bit.png) 0 -960px no-repeat; }
@@ -241,7 +245,7 @@ img { vertical-align: bottom; }
 .icon-elUpMO       { display:block; height:48px; width:41px; background: transparent url(icons24bit.png) -64px -576px no-repeat; }
 .icon-elDownMO     { display:block; height:48px; width:41px; background: transparent url(icons24bit.png) -64px -640px no-repeat; }
 .icon-storyEditMO  { display:block; height:48px; width:48px; background: transparent url(icons24bit.png) -64px -704px no-repeat; }
-.icon-play1MO      { display:block; height:48px; width:48px; background: transparent url(icons24bit.png) -64px -768px no-repeat; }
+.icon-playMO       { display:block; height:48px; width:48px; background: transparent url(icons24bit.png) -64px -768px no-repeat; }
 .icon-restartMO    { display:block; height:48px; width:48px; background: transparent url(icons24bit.png) -64px -832px no-repeat; }
 .icon-backMO       { display:block; height:48px; width:48px; background: transparent url(icons24bit.png) -64px -896px no-repeat; }
 .icon-shareMO      { display:block; height:48px; width:48px; background: transparent url(icons24bit.png) -64px -960px no-repeat; }
@@ -259,7 +263,7 @@ img { vertical-align: bottom; }
 .icon-elUpD       { display:block; height:48px; width:41px; background: transparent url(icons24bit.png) -128px -576px no-repeat; }
 .icon-elDownD     { display:block; height:48px; width:41px; background: transparent url(icons24bit.png) -128px -640px no-repeat; }
 .icon-storyEditD  { display:block; height:48px; width:48px; background: transparent url(icons24bit.png) -128px -704px no-repeat; }
-.icon-play1D      { display:block; height:48px; width:48px; background: transparent url(icons24bit.png) -128px -768px no-repeat; }
+.icon-playD       { display:block; height:48px; width:48px; background: transparent url(icons24bit.png) -128px -768px no-repeat; }
 .icon-restartD    { display:block; height:48px; width:48px; background: transparent url(icons24bit.png) -128px -832px no-repeat; }
 .icon-backD       { display:block; height:48px; width:48px; background: transparent url(icons24bit.png) -128px -896px no-repeat; }
 .icon-shareD      { display:block; height:48px; width:48px; background: transparent url(icons24bit.png) -128px -960px no-repeat; }

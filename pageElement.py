@@ -16,21 +16,23 @@ import main
 class MovePageElement(webapp.RequestHandler):
   def post(self):
 	time.sleep(.1)
-	logging.error("MovePageElement: begin")
+	logging.info("MovePageElement: begin")
 	myElKey = self.request.get('myElKey')
 	myNewOrderString = self.request.get('myNewOrder')
 	adventure = None;
 	changingPageEl = None;
 	if myElKey and myNewOrderString:
-		logging.error("MovePageElement: myElKey found: " + myElKey)
+		logging.info("MovePageElement: myElKey found: " + myElKey)
 		changingPageEl = db.Model.get(myElKey)
 		adventure = changingPageEl.adventure
 	else:
-		logging.error("MovePageElement: myElKey or myNewOrder not passed in")
-		logging.error(myElKey + " " + myNewOrder)
+		logging.info("MovePageElement: myElKey or myNewOrder not passed in")
+		logging.info(myElKey + " " + myNewOrder)
 		return
 	if users.get_current_user():
-		if not(users.is_current_user_admin()) and adventure.realAuthor and adventure.realAuthor != users.get_current_user():
+		if not main.isUserAuthor(users.get_current_user(), adventure):
+			logging.warning('MovePageElement post: you are not an author of this adventure')
+			error = 'Error: You are not an author of this adventure'
 			return
 	myNewOrder = int(myNewOrderString)
 	elQuery = adventureModel.PageElement.all()
@@ -69,63 +71,67 @@ class MovePageElement(webapp.RequestHandler):
 	counter = 0
 	jsonArray = []
 	for element in elementsArray:
-		logging.error("MovePageElement: elementsArray[" + str(counter) + "] order(" + str(element.pageOrder) + ") : " + element.dataA)
+		logging.info("MovePageElement: elementsArray[" + str(counter) + "] order(" + str(element.pageOrder) + ") : " + element.dataA)
 		counter = counter + 1
 		element.put()
 		jsonArray.append(element.toDict())
 	self.response.out.write(simplejson.dumps(jsonArray))
-	logging.error(simplejson.dumps(jsonArray))
+	logging.info(simplejson.dumps(jsonArray))
 
 class DeletePageElement(webapp.RequestHandler):
   def post(self):
 	time.sleep(.1)
-	logging.error("DeletePageElement: begin")
+	logging.info("DeletePageElement: begin")
 	myElKey = self.request.get('myElKey')
 	if myElKey:
-		logging.error("DeletePageElement: myElKey found: " + myElKey)
+		logging.info("DeletePageElement: myElKey found: " + myElKey)
 		pageEl = db.Model.get(myElKey)
 		adventure = pageEl.adventure
 	else:
-		logging.error("DeletePageElement: no myElKey passed in")
+		logging.info("DeletePageElement: no myElKey passed in")
 		return
 	if users.get_current_user():
-		if not(users.is_current_user_admin()) and adventure.realAuthor and adventure.realAuthor != users.get_current_user():
+		if not main.isUserAuthor(users.get_current_user(), adventure):
+			logging.warning('DeletePageElement post: you are not an author of this adventure')
+			error = 'Error: You are not an author of this adventure'
 			return
 	else:
 		return
 	if (pageEl == None or adventure == None):
-		logging.error("DeletePageElement: pageEl or adventure were null")
+		logging.info("DeletePageElement: pageEl or adventure were null")
 		return
 	if (pageEl.enabled != 0):
-		logging.error("DisablePageElement: cannot delete a page element that is not disabled")
+		logging.info("DisablePageElement: cannot delete a page element that is not disabled")
 		return
 	pageEl.delete()
 	self.response.out.write(simplejson.dumps("success"))
-	logging.error("DeletePageElement: returning json: " + simplejson.dumps("success"))
+	logging.info("DeletePageElement: returning json: " + simplejson.dumps("success"))
 
 class DisablePageElement(webapp.RequestHandler):
   def post(self):
-	logging.error("DisablePageElement: begin")
+	logging.info("DisablePageElement: begin")
 	myElKey = self.request.get('myElKey')
 	if myElKey:
-		logging.error("DisablePageElement: myElKey found: " + myElKey)
+		logging.info("DisablePageElement: myElKey found: " + myElKey)
 		pageEl = db.Model.get(myElKey)
 		adventure = pageEl.adventure
 	else:
-		logging.error("DisablePageElement: no myElKey passed in")
+		logging.info("DisablePageElement: no myElKey passed in")
 		return
 	if users.get_current_user():
-		if not(users.is_current_user_admin()) and adventure.realAuthor and adventure.realAuthor != users.get_current_user():
+		if not main.isUserAuthor(users.get_current_user(), adventure):
+			logging.warning('DisablePageElement post: you are not an author of this adventure')
+			error = 'Error: You are not an author of this adventure'
 			return
 	else:
 		return
 	if (pageEl == None or adventure == None):
-		logging.error("DisablePageElement: pageEl or adventure were null")
+		logging.info("DisablePageElement: pageEl or adventure were null")
 		return
 	pageEl.enabled = 0
 	pageEl.put()
 	self.response.out.write(simplejson.dumps("success"))
-	logging.error("DisablePageElement: returning json: " + simplejson.dumps("success"))
+	logging.info("DisablePageElement: returning json: " + simplejson.dumps("success"))
 
 class SavePageElement(webapp.RequestHandler):
   def post(self):
@@ -136,23 +142,23 @@ class SavePageElement(webapp.RequestHandler):
 		"addPageElementImage": 2,
 		"addPageElementChoice": 3,
 	}
-	logging.error("SavePageElement begin")
+	logging.info("SavePageElement begin")
 	myPageElKey = self.request.get('myPageElKey')
 	pageElement = None
 	page = None
 	adventure = None
 	if myPageElKey:
 		#existing page element
-		logging.error("SavePageElement: key(" + myPageElKey + ") passed in did exist in DB, must be existing")
+		logging.info("SavePageElement: key(" + myPageElKey + ") passed in did exist in DB, must be existing")
 		pageElement = db.Model.get(myPageElKey)
 		page = pageElement.page
 		adventure = pageElement.adventure
 	else:
 		#new page element
-		logging.error("SavePageElement: key passed in did not exist in DB, must be new")
+		logging.info("SavePageElement: key passed in did not exist in DB, must be new")
 		myPageKey = self.request.get('myPageKey')
 		if (not myPageKey):
-			logging.error("SavePageELement: expected myPageKey but it is null")
+			logging.info("SavePageELement: expected myPageKey but it is null")
 			return
 		page = db.Model.get(myPageKey)
 		adventure = page.adventure
@@ -163,17 +169,19 @@ class SavePageElement(webapp.RequestHandler):
 		try:
 			pageElement.dataType = int(dataType)
 		except:
-			logging.error("SavePageElement: expected elementType because new pageElement, but did not get it")
+			logging.info("SavePageElement: expected elementType because new pageElement, but did not get it")
 			return
 
 	if users.get_current_user():
-		if not(users.is_current_user_admin()) and adventure.realAuthor and adventure.realAuthor != users.get_current_user():
+		if not main.isUserAuthor(users.get_current_user(), adventure):
+			logging.warning('SavePageElement post: you are not an author of this adventure')
+			error = 'Error: You are not an author of this adventure'
 			return
 	else:
 		return
 
 	if not adventure or not page:
-		logging.error("SavePageElement: could not find page or adventure. myPageKey(" + myPageKey + ")")
+		logging.info("SavePageElement: could not find page or adventure. myPageKey(" + myPageKey + ")")
 
 	pageElement.page = page.key()
 	myPageOrder = self.request.get('pageOrder')
@@ -190,7 +198,7 @@ class SavePageElement(webapp.RequestHandler):
 	pageElement.put()
 	myImgRef = self.request.get('imageRef')
 	if myImgRef:
-		logging.error("imageRef passed in: " + myImgRef)
+		logging.info("imageRef passed in: " + myImgRef)
 		img = db.Model.get(myImgRef)
 		img.imageName = self.request.get('imageName')
 		img.pageElement = str(pageElement.key())
@@ -198,14 +206,14 @@ class SavePageElement(webapp.RequestHandler):
 		pageElement.dataA = img.imageName
 		pageElement.imageRef = img.key()
 		pageElement.put()
-	logging.error("dataA: " + pageElement.dataA)
-	logging.error("dataB: " + pageElement.dataB)
+	logging.info("dataA: " + pageElement.dataA)
+	logging.info("dataB: " + pageElement.dataB)
 	self.response.out.write(simplejson.dumps(pageElement.toDict()))
-	logging.error("SavePageElement: returning json: " + simplejson.dumps(pageElement.toDict()))
+	logging.info("SavePageElement: returning json: " + simplejson.dumps(pageElement.toDict()))
 
 class AddPageElement(webapp.RequestHandler):
   def post(self):
-	logging.error("AddPageElement: begin")
+	logging.info("AddPageElement: begin")
 	myPageKey = self.request.get('myPageKey')
 	myElementType = self.request.get('elementType')
 	myPageOrder = self.request.get('pageOrder')
@@ -216,21 +224,23 @@ class AddPageElement(webapp.RequestHandler):
 	}
 	page = None
 	if myPageKey:
-		logging.error("AddPageElement: myPageKey found: " + myPageKey)
+		logging.info("AddPageElement: myPageKey found: " + myPageKey)
 		page = db.Model.get(myPageKey)
 		adventure = page.adventure
 	else:
-		logging.error("AddPageElement: no pageKey passed in")
+		logging.info("AddPageElement: no pageKey passed in")
 		return
 
 	if users.get_current_user():
-		if not(users.is_current_user_admin()) and adventure.realAuthor and adventure.realAuthor != users.get_current_user():
+		if not main.isUserAuthor(users.get_current_user(), adventure):
+			logging.warning('AddPageElement post: you are not an author of this adventure')
+			error = 'Error: You are not an author of this adventure'
 			return
 	else:
 		return
 
 	if (page == None or adventure == None):
-		logging.error("AddPageElement: page or adventure were null")
+		logging.info("AddPageElement: page or adventure were null")
 		return
 
 	pageElement = adventureModel.PageElement()
@@ -244,4 +254,4 @@ class AddPageElement(webapp.RequestHandler):
 	pageElement.put()
 	#memcache.delete("pages_" + adventure.key())
 	self.response.out.write(simplejson.dumps(pageElement.toDict()))
-	logging.error("AddPageElement: returning json: " + simplejson.dumps(pageElement.toDict()))
+	logging.info("AddPageElement: returning json: " + simplejson.dumps(pageElement.toDict()))

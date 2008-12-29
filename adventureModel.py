@@ -63,7 +63,7 @@ class PageElement(db.Model):
 			if self.imageRef:
 				imageRef = str(self.imageRef.key())
 		except Exception, e:
-			logging.error('%s: %s' % (e.__class__.__name__, e))
+			logging.info('%s: %s' % (e.__class__.__name__, e))
 			self.imageRef = None
 			self.put()
 		return {
@@ -89,6 +89,18 @@ class Share(db.Model):
 	status = db.IntegerProperty()
 	created = db.DateTimeProperty(auto_now_add=True)
 	modified = db.DateTimeProperty(auto_now=True)
+	def isAdmin(self):
+		if self.role >= 3:
+			return True
+		return False
+	def isAuthor(self):
+		if self.role >= 2:
+			return True
+		return False
+	def isReader(self):
+		if self.role >= 1:
+			return True
+		return False
 	def statusName(self):
 		statusName = 'None'
 		if self.status == 1:

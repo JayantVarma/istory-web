@@ -22,22 +22,31 @@ class Play(webapp.RequestHandler):
 
 	myAdventureKey = self.request.get('myAdventureKey')
 	if myAdventureKey:
-		adventure = db.Model.get(myAdventureKey)
+		adventure = memcache.get(myAdventureKey)
+		if adventure:
+			logging.info("Play: got adventure from cache")
+		else:
+			logging.info("Play: got adventure from db")
+			adventure = db.Model.get(myAdventureKey)
+			memcache.add(myAdventureKey, adventure, 3600)
 	else:
-		error = 'error: no adventure key passed in'
+		error = 'Error: no adventure key passed in'
 	if adventure == None:
-		error = 'error: could not find Adventure ' + myAdventureKey + ' in the database'
-	#elif users.get_current_user() and users.get_current_user() != adventure.realAuthor:
-	#	error = 'error: you do not own this story'
+		error = 'Error: could not find Adventure ' + myAdventureKey + ' in the database'
+	elif not main.isUserReader(users.get_current_user(), adventure):
+		error = 'Error: You are not a reader of this adventure'
 	else:
 		title = adventure.title
-	
+	if error:
+		logging.info('Play get: ' + error)
 
 	defaultTemplateValues = main.getDefaultTemplateValues(self)
 	templateValues = {
 		'adventure': adventure,
 		'error': error,
 		'title': title,
+		'isUserAuthor': main.isUserAuthor(users.get_current_user(), adventure),
+		'isUserAdmin': main.isUserAdmin(users.get_current_user(), adventure),
 	}
 	templateValues = dict(defaultTemplateValues, **templateValues)
 
