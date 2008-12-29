@@ -37,11 +37,17 @@ class MyStories(webapp.RequestHandler):
 		return
 
 	adventures = self.getMyAdventures(myUser)
+	
+	#get any pending share invites
+	q = adventureModel.Share.all().filter('status =', 1).filter('childEmail =', users.get_current_user().email()).order('-created')
+	shareInvites = q.fetch(9999)
+	logging.info("got %d invites for user %s" % (len(shareInvites), users.get_current_user().email()))
 
 	defaultTemplateValues = main.getDefaultTemplateValues(self)
 	templateValues = {
 		'title': 'My Stories',
 		'adventures': adventures,
+		'shareInvites': shareInvites
 	}
 	templateValues = dict(defaultTemplateValues, **templateValues)
 

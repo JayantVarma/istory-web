@@ -1,5 +1,9 @@
 {% extends "index.html" %}
 {% block main %}
+{% for shareInvite in shareInvites %}
+<div class="infoBar"><a href="/shareInvite?key={{ shareInvite.inviteKey }}">You have been invited to be {{ shareInvite.roleNamePhrase }} on '{{ shareInvite.adventure.title }}' by {{ shareInvite.owner.nickname }}</a></div>
+{% endfor %}
+
 <div class="books">
 	<div class="book">
 		<center><b><a href="/createStory">Create A New Story</a></b><br>

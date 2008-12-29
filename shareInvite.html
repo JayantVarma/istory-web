@@ -1,0 +1,36 @@
+{% extends "index.html" %}
+
+{% block main %}
+
+{% if error %}
+<div class="infoBar">{{ error }}</div>
+{% else %}
+
+{% ifequal state "1" %}
+<div class="infoBar">Do you want to accept this invitation from {{ share.owner.nickname }}? You will be {{ share.roleNamePhrase }} on the story '{{ share.adventure.title }}'.
+<table><tr>
+<td><form method="GET" action="/shareInvite">
+	<input type="hidden" name="shareInviteKey" value="{{ share.key }}" />
+	<input type="hidden" name="response" value="1" />
+	<input type="submit" value="Accept" />
+</form></td>
+<td><form method="GET" action="/shareInvite">
+	<input type="hidden" name="shareInviteKey" value="{{ share.key }}" />
+	<input type="hidden" name="response" value="0" />
+	<input type="submit" value="Ignore" />
+</form></td>
+</tr></table>
+</div>
+{% endifequal %}
+
+{% ifequal state "2" %}
+<div class="infoBar">Invitation accepted. You are now {{ share.roleNamePhrase }} on the story '{{ share.adventure.title }}'<br><br>
+Now that you're a part of this story, you will see it in your <a href="/myStories">My Stories</a> page. From there, you can do more.
+</div>
+{% endifequal %}
+
+{% endif %}
+{% endblock %}
+
+{% block footer %}
+{% endblock %}

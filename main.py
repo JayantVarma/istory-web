@@ -52,6 +52,8 @@ application = webapp.WSGIApplication(
 	[
 		('/', index.Index),
 		('/share', share.ViewSharing),
+		('/removeShare', share.RemoveShare),
+		('/shareInvite', share.ShareInvite),
 		('/playStory', playStory.Play),
 		('/createStory', addAdventure.AddAdventure),
 		('/myStories', myStories.MyStories),

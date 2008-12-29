@@ -67,29 +67,76 @@ class PageElement(db.Model):
 			self.imageRef = None
 			self.put()
 		return {
-			'page': str(self.page.key()),
+			'page':      str(self.page.key()),
 			'adventure': str(self.adventure.key()),
-			'key': str(self.key()),
-			'dataType': self.dataType,
+			'key':       str(self.key()),
+			'dataType':  self.dataType,
 			'pageOrder': self.pageOrder,
-			'dataA': cgi.escape(self.dataA),
-			'dataB': cgi.escape(self.dataB),
-			'enabled': self.enabled,
-			'imageRef': imageRef,
+			'dataA':     cgi.escape(self.dataA),
+			'dataB':     cgi.escape(self.dataB),
+			'enabled':   self.enabled,
+			'imageRef':  imageRef,
 		}
 
 class Share(db.Model):
 	adventure = db.ReferenceProperty(Adventure)
 	owner = db.UserProperty()
 	child = db.UserProperty()
-	shareType = db.IntegerProperty()
+	childEmail = db.StringProperty(multiline=False)
+	childName = db.StringProperty(multiline=False)
+	role = db.IntegerProperty()
+	inviteKey = db.StringProperty(multiline=False)
+	status = db.IntegerProperty()
+	created = db.DateTimeProperty(auto_now_add=True)
+	modified = db.DateTimeProperty(auto_now=True)
+	def statusName(self):
+		statusName = 'None'
+		if self.status == 1:
+			statusName = 'Pending'
+		if self.status == 2:
+			statusName = 'Accepted'
+		if self.status == -1:
+			statusName = 'Denied'
+		return statusName
+	def roleName(self):
+		roleName = 'None'
+		if self.role == 1:
+			roleName = 'Reader'
+		elif self.role == 2:
+			roleName = 'Author'
+		elif self.role == 3:
+			roleName = 'Admin'
+		return roleName
+	def roleNamePhrase(self):
+		roleName = 'None'
+		if self.role == 1:
+			roleName = 'a Reader'
+		elif self.role == 2:
+			roleName = 'an Author'
+		elif self.role == 3:
+			roleName = 'an Admin'
+		return roleName
 	def toDict(self):
+		myChild = None
+		myChildNick = None
+		if self.child:
+			myChild = self.child.email()
+			myChildNick = self.child.nickname()
 		return {
-			'adventure': self.adventure,
-			'owner': cgi.escape(str(self.realAuthor.email())),
-			'child': cgi.escape(str(self.realAuthor.email())),
-			'ownerNick': cgi.escape(str(self.realAuthor.nickname())),
-			'childNick': cgi.escape(str(self.realAuthor.nickname())),
-			'shareType': self.shareType,
+			'adventure':      str(self.adventure.key()),
+			'owner':          cgi.escape(str(self.owner.email())),
+			'child':          cgi.escape(str(myChild)),
+			'ownerNick':      cgi.escape(str(self.owner.nickname())),
+			'childNick':      cgi.escape(str(myChildNick)),
+			'childEmail':     cgi.escape(self.childEmail),
+			'childName':      cgi.escape(self.childName),
+			'role':           cgi.escape(str(self.role)),
+			'roleName':       cgi.escape(self.roleName()),
+			'roleNamePhrase': cgi.escape(self.roleNamePhrase()),
+			'inviteKey':      cgi.escape(self.inviteKey),
+			'status':         cgi.escape(str(self.status)),
+			'statusName':     cgi.escape(self.statusName()),
 		}
+
+
 

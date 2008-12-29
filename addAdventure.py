@@ -37,6 +37,14 @@ class AddAdventure(webapp.RequestHandler):
 			memcache.delete("adventures")
 			memcache.delete("adventures_" + users.get_current_user().email())
 			logging.error("AddAdventure data: " + simplejson.dumps(adventure.toDict()))
+			#now create an admin role for this user + adventure
+			share = adventureModel.Share()
+			share.adventure = adventure
+			share.owner = users.get_current_user()
+			share.child = users.get_current_user()
+			share.role = 3
+			share.status = 2
+			share.put()
 	
 	logging.error("AddAdventure done for key: " + myAdventureKey)
 	#self.redirect('/myStories')

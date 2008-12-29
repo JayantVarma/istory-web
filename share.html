@@ -4,7 +4,7 @@
 	<h3>Sharing Is Caring</h3>
 	<div class="sb1">
 	<div>Collaborate with your friends and make your story a group effort.</div>
-	<div>There are 3 different ways to share your story:<ul>
+	<div>There are 3 different ways to share your story (roles):<ul>
 		<li><b>Reader</b> - A Reader can play your story on their iPhone before your story is approved.</li>
 		<li><b>Author</b> - An Author can help create your story in the StoryForge. They can delete content, so be careful! Authors also have the Reader privileges.</li>
 		<li><b>Admin</b> - An Admin can manage sharing preferences, as well as do everything that an Author and a Reader can do.</li>
@@ -13,29 +13,76 @@
 {% endblock %}
 
 {% block main %}
+<div id="infoBar"></div>
+{% if error %}
+<div class="infoBar">{{ error }}</div>
+{% else %}
+
+{% for shareInvite in shareInvites %}
+<div class="infoBar"><a href="/shareInvite?key={{ shareInvite.inviteKey }}">You have been invited to be {{ shareInvite.roleNamePhrase }} on '{{ shareInvite.adventure.title }}' by {{ shareInvite.owner.nickname|escape }}</a></div>
+{% endfor %}
+
 <table class="shareTable">
-	<tr><th colspan="3">Your Adventures</th></tr>
-	<tr><th>Title</th><th>Created Date</th><th>Last Modified</th></tr>
-	{% for adventure in ownedAdventures %}
-		<tr><td>{{ adventure.title|escape }}</td><td>{{ adventure.created.date }}</td><td>{{ adventure.modified.date }}</td></tr>
-	{% endfor %}
+	<tr><th id="storyName">{{ adventure.title|escape }}</th></tr>
+	<tr><th>Your role: {{ yourRole.roleName }}</th></tr>
+	{% ifequal yourRole.roleName "Admin" %}
+	<tr><td class="button"><a href="javascript:shareForm('{{ adventure.key }}')">Share This Story</a></td></tr>
+	{% endifequal %}
 </table>
-<h1></h1>
 <table class="shareTable">
-	<tr><th colspan="5">Adventures That Have Been Shared With You</th></tr>
-	<tr><th>Title</th><th>Created Date</th><th>Last Modified</th><th>Owner</th><th>Your Role</th></tr>
-	{% for adventure in sharedAdventures %}
-		<tr><td>{{ adventure.title|escape }}</td><td>{{ adventure.created.date }}</td><td>{{ adventure.modified.date }}</td><td>{{ adventure.owner|escape }} ({{ adventure.ownerNick|escape }})</td><td>{{ adventure.shareType|escape }}</td></tr>
+	<tr><th colspan="4">This adventure is shared with:</th></tr>
+	<tr><th>Person</th><th>Shared Date</th><th>Role</th><th>Remove</th></tr>
+	{% if shares %}
+	{% for share in shares %}
+		<tr>
+			<td id="sharePerson">{% ifequal share.statusName "Pending" %}{{ share.childName|escape }} ({{ share.childEmail|escape }}){% else %}{{ share.child.nickname|escape }}({{ share.child.email|escape }}){% endifequal %}</td>
+			<td>{{ share.created.date }}</td>
+			<td>{{ share.roleName|escape }} {% ifequal share.statusName "Pending" %} (invited){% endifequal %}</td>
+			<td class="button"><a href="javascript:removeShare('{{ share.key }}')">Remove</a></td>
+		</tr>
 	{% endfor %}
+	{% else %}
+		<tr><td>-</td><td>-</td><td>-</td></tr>
+	{% endif %}
 </table>
+
+{% endif %}
 {% endblock %}
 
 {% block footer %}
+<div class="dialog" id="dialogAddNewShare" style="visibility:hidden">
+	<div id="dialogHeader" class="hd">Share This Story</div>
+	<div class="bd">
+		<form name="formAddNewShare" method="POST" action="/share">
+			<p>Who do you want to share this story with?</p>
+			<label for="name">Name:</label><input type="text" name="name" size="30" maxlength="100"/><br>
+			<label for="email">Email:</label><input type="text" name="email" size="30" maxlength="100"/><br>
+			<label for="role">Role:</label><select name="role">
+				<option value="1">Reader
+				<option value="2">Author
+				<option value="3">Admin
+			</select><br>
+			<input id="shareFormAdventureKey" type="hidden" name="myAdventureKey" value="" />
+		</form>
+	</div>
+</div>
+
+<div class="dialog" id="dialogRemoveShare" style="visibility:hidden">
+	<div id="dialogRemoveHeader" class="hd">Remove Share</div>
+	<div class="bd">
+		<form name="formRemoveShare" method="POST" action="/removeShare">
+			<p>Are you sure you want to remove this share?</p>
+			<input id="shareKey" type="hidden" name="myShareKey" value="" />
+		</form>
+	</div>
+</div>
+
 <script type="text/javascript" src="http://yui.yahooapis.com/2.6.0/build/utilities/utilities.js"></script>
 <script type="text/javascript" src="http://yui.yahooapis.com/2.6.0/build/yahoo-dom-event/yahoo-dom-event.js"></script>
 <script type="text/javascript" src="http://yui.yahooapis.com/2.6.0/build/element/element-beta-min.js"></script>
 <script type="text/javascript" src="http://yui.yahooapis.com/2.6.0/build/container/container.js"></script>
 <script type="text/javascript" src="http://yui.yahooapis.com/2.6.0/build/json/json.js"></script>
+<script type="text/javascript" src="http://yui.yahooapis.com/2.6.0/build/button/button-min.js"></script>
 
 <script type="text/javascript">
 var MY_ADVENTURE_KEY = '';
@@ -43,5 +90,5 @@ var MY_ADVENTURE_KEY = '';
 var MY_ERROR = '';
 {% if error %} MY_ERROR = "{{ error }}"; {% endif %}
 </script>
-<script src="stylesheets/playStory.js"></script>
+<script src="stylesheets/shareStory.js"></script>
 {% endblock %}
