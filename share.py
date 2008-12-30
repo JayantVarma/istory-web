@@ -202,6 +202,10 @@ The iStory team
 				if share.child == users.get_current_user():
 					yourRole = share
 					break
+			if yourRole == None and users.is_current_user_admin():
+				logging.info("Share get: used mega admin powers to grant admin to %s" % users.get_current_user().email())
+				yourRole = adventureModel.Share()
+				yourRole.role = 3
 
 	defaultTemplateValues = main.getDefaultTemplateValues(self)
 	templateValues = {
