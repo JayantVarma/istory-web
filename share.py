@@ -152,9 +152,9 @@ class ViewSharing(webapp.RequestHandler):
 	#send the invite email
 	subject = 'You have an iStory invite from %s' % (users.get_current_user().nickname())
 	body = """
-Hello %s
+Hello %s,
 
-You have been invited to collaborate with %s (%s) on the story, '%s'. Just click the link below and you'll be taken to the iStory website, where you can participate in the next generation story telling experience of iStory.
+You have been invited to collaborate with %s (%s) on the story, '%s'. Just click the link below and you'll be taken to the iStory website, where you can participate in this next generation story telling experience.
 
 http://istoryweb.appspot.com/shareInvite?key=%s
 
@@ -162,7 +162,7 @@ We hope you enjoy iStory!
 Thanks,
 The iStory team
 """ % (myName, users.get_current_user().nickname(), users.get_current_user().email(), adventure.title, share.inviteKey)
-	mail.send_mail('istoryadmin@gmail.com', myEmail, subject, body)
+	mail.send_mail(users.get_current_user().email(), myEmail, subject, body)
 	
 	#send the json response back to the web
 	logging.info('ViewSharing post: here is the invite: ' + simplejson.dumps(share.toDict()) )
