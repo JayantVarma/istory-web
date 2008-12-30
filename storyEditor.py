@@ -92,12 +92,9 @@ class GetPages(webapp.RequestHandler):
 	adventure = db.Model.get(myAdventureKey)
 	if adventure == None:
 		return
-	if users.get_current_user():
-		if not main.isUserReader(users.get_current_user(), adventure):
-			logging.warning('GetPages post: you are not a reader of this adventure')
-			error = 'Error: You are not a reader of this adventure'
-			return
-	else:
+	elif not main.isUserReader(users.get_current_user(), adventure):
+		logging.warning('GetPages post: you are not a reader of this adventure')
+		error = 'Error: You are not a reader of this adventure'
 		return
 
 	pagesQuery = adventureModel.Page.all()
