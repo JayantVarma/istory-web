@@ -18,6 +18,20 @@ import playStory
 import share
 import admin
 
+def getAdventure(key):
+	#this returns an adventure object from the cache (if it exists there) or from the db (and then adds it to the cache)
+	if not key:
+		logging.error("ERROR: getAdventure called with no key")
+		return None
+	adventure = memcache.get(key)
+	if adventure:
+		return adventure
+	adventure = db.Model.get(key)
+	if adventure:
+		memcache.add(key, adventure, 3600)
+		return adventure
+	return None
+
 def isUserAdmin(user, adventure):
 	if isUserSomething(user, adventure, 3):
 		return True

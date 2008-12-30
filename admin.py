@@ -60,6 +60,7 @@ class Admin(webapp.RequestHandler):
 			output += "Admin get: delete story: deleted %d records from Adventure<br>" % 1
 			db.delete(a)
 			memcache.delete("adventures")
+			memcache.delete(var)
 
 	defaultTemplateValues = main.getDefaultTemplateValues(self)
 	templateValues = {

@@ -27,7 +27,7 @@ class Play(webapp.RequestHandler):
 			logging.info("Play: got adventure from cache")
 		else:
 			logging.info("Play: got adventure from db")
-			adventure = db.Model.get(myAdventureKey)
+			adventure = main.getAdventure(myAdventureKey)
 			memcache.add(myAdventureKey, adventure, 3600)
 	else:
 		error = 'Error: no adventure key passed in'

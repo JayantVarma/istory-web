@@ -23,7 +23,7 @@ class AddAdventure(webapp.RequestHandler):
 		error = "Error: You need to login."
 	if myAdventureKey:
 		logging.info("existing adventure.")
-		adventure = db.Model.get(myAdventureKey)
+		adventure = main.getAdventure(myAdventureKey)
 		if not main.isUserAdmin(users.get_current_user(), adventure):
 			logging.warning('AddAdventure post: you are not an admin of this adventure')
 			error = "Error: You are not an admin of this adventure."
@@ -93,7 +93,7 @@ class AddAdventure(webapp.RequestHandler):
 		if myAdventureKey:
 			title = 'Update Story Details'
 			buttonText = 'Update Story Details'
-			adventure = db.Model.get(myAdventureKey)
+			adventure = main.getAdventure(myAdventureKey)
 	else:
 		url = users.create_login_url(self.request.uri)
 		url_linktext = 'Login To Create A Story'

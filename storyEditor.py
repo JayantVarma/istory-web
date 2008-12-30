@@ -36,7 +36,7 @@ class DeletePage(webapp.RequestHandler):
 	else:
 		return
 
-	#memcache.delete("pages_" + adventure.key())
+	memcache.delete("pages" + str(adventure.key()))
 	query = adventureModel.PageElement.all().filter('page =', page.key())
 	pageElements = query.fetch(1000)
 	for pageElement in pageElements:
@@ -61,7 +61,7 @@ class AddPage(webapp.RequestHandler):
 	elif myAdventureKey:
 		logging.info("AddPage: myAdventureKey found: " + myAdventureKey)
 		page = adventureModel.Page()
-		adventure = db.Model.get(myAdventureKey)
+		adventure = main.getAdventure(myAdventureKey)
 		page.adventure = adventure.key()
 	else:
 		logging.info("AddPage: no pageKey or adventureKey passed in")
@@ -81,7 +81,7 @@ class AddPage(webapp.RequestHandler):
 
 	page.name = self.request.get('pageName')
 	page.put()
-	#memcache.delete("pages_" + adventure.key())
+	memcache.delete("pages" + str(adventure.key()))
 	self.response.out.write(simplejson.dumps(page.toDict()))
 	logging.info("returning addPage json: " + simplejson.dumps(page.toDict()))
 
@@ -89,7 +89,7 @@ class GetPages(webapp.RequestHandler):
   def post(self):
 	error = None
 	myAdventureKey = self.request.get('myAdventureKey')
-	adventure = db.Model.get(myAdventureKey)
+	adventure = main.getAdventure(myAdventureKey)
 	if adventure == None:
 		return
 	elif not main.isUserReader(users.get_current_user(), adventure):
@@ -97,25 +97,31 @@ class GetPages(webapp.RequestHandler):
 		error = 'Error: You are not a reader of this adventure'
 		return
 
-	pagesQuery = adventureModel.Page.all()
-	pagesQuery.filter('adventure = ', adventure.key())
-	pagesQuery.order('created')
-	pages = pagesQuery.fetch(9999)
-	elQuery = adventureModel.PageElement.all()
-	elQuery.filter('adventure = ', adventure.key())
-	elQuery.order('pageOrder')
-	elements = elQuery.fetch(9999)
-	pagesJSON = []
-	for page in pages:
-		elementsArray = []
-		for element in elements:
-			if element.page.key() == page.key():
-				elementsArray.append(element.toDict())
-		pageDict = page.toDict()
-		pageDict['elements'] = elementsArray
-		pagesJSON.append(pageDict)
+	pagesJSON = memcache.get('pages' + str(adventure.key()))
+	if pagesJSON:
+		logging.info("GetPages: post: got %d pages from cache for story %s" % (len(pagesJSON), myAdventureKey))
+	else:
+		pagesQuery = adventureModel.Page.all()
+		pagesQuery.filter('adventure = ', adventure.key())
+		pagesQuery.order('created')
+		pages = pagesQuery.fetch(9999)
+		elQuery = adventureModel.PageElement.all()
+		elQuery.filter('adventure = ', adventure.key())
+		elQuery.order('pageOrder')
+		elements = elQuery.fetch(9999)
+		pagesJSON = []
+		for page in pages:
+			elementsArray = []
+			for element in elements:
+				if element.page.key() == page.key():
+					elementsArray.append(element.toDict())
+			pageDict = page.toDict()
+			pageDict['elements'] = elementsArray
+			pagesJSON.append(pageDict)
+		logging.info("GetPages: post: got %d pages from db for story %s" % (len(pagesJSON), myAdventureKey))
+		memcache.add('pages' + str(adventure.key()), pagesJSON, 3600)
+
 	self.response.out.write(simplejson.dumps(pagesJSON))
-	logging.info("got " + str(len(pagesJSON)) + " pages for key " + myAdventureKey)
 
 class StoryEditor(webapp.RequestHandler):
   def get(self):
@@ -125,7 +131,7 @@ class StoryEditor(webapp.RequestHandler):
 	
 	myAdventureKey = self.request.get('myAdventureKey')
 	if myAdventureKey:
-		adventure = db.Model.get(myAdventureKey)
+		adventure = main.getAdventure(myAdventureKey)
 	else:
 		error = 'error: no adventure key passed in'
 	if adventure == None:

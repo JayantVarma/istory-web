@@ -75,13 +75,15 @@ class MovePageElement(webapp.RequestHandler):
 		counter = counter + 1
 		element.put()
 		jsonArray.append(element.toDict())
+
+	memcache.delete("pages" + str(adventure.key()))
 	self.response.out.write(simplejson.dumps(jsonArray))
 	logging.info(simplejson.dumps(jsonArray))
 
 class DeletePageElement(webapp.RequestHandler):
   def post(self):
-	time.sleep(.1)
 	logging.info("DeletePageElement: begin")
+	adventure = None
 	myElKey = self.request.get('myElKey')
 	if myElKey:
 		logging.info("DeletePageElement: myElKey found: " + myElKey)
@@ -104,12 +106,14 @@ class DeletePageElement(webapp.RequestHandler):
 		logging.info("DisablePageElement: cannot delete a page element that is not disabled")
 		return
 	pageEl.delete()
-	self.response.out.write(simplejson.dumps("success"))
+	memcache.delete("pages" + str(adventure.key()))
 	logging.info("DeletePageElement: returning json: " + simplejson.dumps("success"))
+	self.response.out.write(simplejson.dumps("success"))
 
 class DisablePageElement(webapp.RequestHandler):
   def post(self):
 	logging.info("DisablePageElement: begin")
+	adventure = None
 	myElKey = self.request.get('myElKey')
 	if myElKey:
 		logging.info("DisablePageElement: myElKey found: " + myElKey)
@@ -130,12 +134,12 @@ class DisablePageElement(webapp.RequestHandler):
 		return
 	pageEl.enabled = 0
 	pageEl.put()
-	self.response.out.write(simplejson.dumps("success"))
+	memcache.delete("pages" + str(adventure.key()))
 	logging.info("DisablePageElement: returning json: " + simplejson.dumps("success"))
+	self.response.out.write(simplejson.dumps("success"))
 
 class SavePageElement(webapp.RequestHandler):
   def post(self):
-	time.sleep(.1)
 	#this method supports adding or updating page elements
 	elementTypes = {
 		"addPageElementText": 1,
@@ -188,6 +192,7 @@ class SavePageElement(webapp.RequestHandler):
 	pageElement.pageOrder = int(myPageOrder or 0)
 	pageElement.dataA = self.request.get('dataA')
 	if pageElement.dataA:
+		#this replaces the funky quotes and stuff from MS Word / Google Docs with normal characters
 		pageElement.dataA = pageElement.dataA.replace('%u2019', "'")
 		pageElement.dataA = pageElement.dataA.replace('%u201C', '"')
 		pageElement.dataA = pageElement.dataA.replace('%u201D', '"')
@@ -203,17 +208,21 @@ class SavePageElement(webapp.RequestHandler):
 		img.imageName = self.request.get('imageName')
 		img.pageElement = str(pageElement.key())
 		img.put()
+		#memcache.delete("img" + str(img.key()))
+		#memcache.delete("images" + users.get_current_user().email())
 		pageElement.dataA = img.imageName
 		pageElement.imageRef = img.key()
 		pageElement.put()
 	logging.info("dataA: " + pageElement.dataA)
 	logging.info("dataB: " + pageElement.dataB)
-	self.response.out.write(simplejson.dumps(pageElement.toDict()))
+	memcache.delete("pages" + str(adventure.key()))
 	logging.info("SavePageElement: returning json: " + simplejson.dumps(pageElement.toDict()))
+	self.response.out.write(simplejson.dumps(pageElement.toDict()))
 
 class AddPageElement(webapp.RequestHandler):
   def post(self):
 	logging.info("AddPageElement: begin")
+	adventure = None
 	myPageKey = self.request.get('myPageKey')
 	myElementType = self.request.get('elementType')
 	myPageOrder = self.request.get('pageOrder')
@@ -252,6 +261,6 @@ class AddPageElement(webapp.RequestHandler):
 	pageElement.dataB = self.request.get('dataB')
 	pageElement.enabled = 1;
 	pageElement.put()
-	#memcache.delete("pages_" + adventure.key())
-	self.response.out.write(simplejson.dumps(pageElement.toDict()))
+	memcache.delete("pages" + str(adventure.key()))
 	logging.info("AddPageElement: returning json: " + simplejson.dumps(pageElement.toDict()))
+	self.response.out.write(simplejson.dumps(pageElement.toDict()))

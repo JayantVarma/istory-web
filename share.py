@@ -108,7 +108,7 @@ class ViewSharing(webapp.RequestHandler):
 		return
 
 	#get the adventure
-	adventure = db.Model.get(myAdventureKey)
+	adventure = main.getAdventure(myAdventureKey)
 	if not adventure:
 		logging.warning('ViewSharing post: adventure key %s does not exist' % (myAdventureKey))
 		error = 'Error: adventure key %s does not exist' % (myAdventureKey)
@@ -185,7 +185,7 @@ The iStory team
 	else:
 		if myAdventureKey:
 			#get the adventure
-			adventure = db.Model.get(myAdventureKey)
+			adventure = main.getAdventure(myAdventureKey)
 		if not adventure:
 			logging.info("ViewSharing get: adventure key was not found")
 			error = 'Error: adventure was not found'

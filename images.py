@@ -161,12 +161,15 @@ class ImageCropper(webapp.RequestHandler):
 	#now execute the transforms
 	image.imageData = imageOBJ.execute_transforms()
 	image.put()
-		
+	memcache.delete("img" + str(image.key()))
+	memcache.delete("images" + users.get_current_user().email())
+
 	self.response.out.write(simplejson.dumps('success'))
 	logging.info(simplejson.dumps('success'))
 
 class ImageManager(webapp.RequestHandler):
   def get(self):
+	#THIS CLASS IS CURRENTLY NOT BEING USED
 	adventure = None
 	error = None
 	if users.get_current_user():
@@ -186,7 +189,7 @@ class ImageManager(webapp.RequestHandler):
 	
 	myAdventureKey = self.request.get('myAdventureKey')
 	if myAdventureKey:
-		adventure = db.Model.get(myAdventureKey)
+		adventure = main.getAdventure(myAdventureKey)
 	else:
 		error = 'error: no adventure key passed in'
 	if adventure == None:
@@ -202,7 +205,7 @@ class ImageManager(webapp.RequestHandler):
 	}
 
 	main.printHeader(self, 'Image Manager')
-	path = os.path.join(os.path.dirname(__file__), 'upload.html')
+	path = os.path.join(os.path.dirname(__file__), 'images.html')
 	self.response.out.write(template.render(path, template_values))
 	main.printFooter(self, template_values)
 
@@ -211,16 +214,30 @@ class ImageServer(webapp.RequestHandler):
 	image = None
 	imageKey = self.request.get('imageKey')
 	if imageKey:
-		logging.info("serving image with key " + imageKey)
-		try:
-			image = db.get(imageKey)
-		except Exception, e:
-			logging.info('%s: %s' % (e.__class__.__name__, e))
-			#need to put an image in here that we can use for missing shit
-			imageQuery = adventureModel.Image.all()
-			images = imageQuery.fetch(1);
-			for singleImage in images:
-				image = singleImage
+		image = memcache.get("img" + imageKey)
+		if image:
+			logging.info("serving image from cache with key " + imageKey)
+		else:
+			hadException = False
+			try:
+				image = db.get(imageKey)
+			except Exception, e:
+				hadException = True
+				logging.error('%s: %s' % (e.__class__.__name__, e))
+				#need to put an image in here that we can use for missing shit
+				image = memcache.get("img" + "unknown")
+				if image:
+					logging.info("serving unknown image from cache with key " + imageKey)
+				else:
+					imageQuery = adventureModel.Image.all()
+					images = imageQuery.fetch(1);
+					for singleImage in images:
+						image = singleImage
+					memcache.add("img" + "unknown", image, 3600)
+					logging.info("serving unknown image from db with key " + imageKey)
+			if not hadException:
+				memcache.add("img" + imageKey, image, 3600)
+				logging.info("serving image from db with key " + imageKey)
 	if image.imageData:
 		self.response.headers['Content-Type'] = 'image/png'
 		self.response.out.write(image.imageData)
@@ -230,19 +247,26 @@ class ImageServer(webapp.RequestHandler):
 
 class ImagesByUser(webapp.RequestHandler):
   def getOrPost(self):
+	jsonArray = None
 	if users.get_current_user():
 		pass
 	else:
 		self.error(404)
 		return
-	#get all the images that they own and all the images in this adventure
-	imgQuery = adventureModel.Image.all()
-	imgQuery.filter('realAuthor = ', users.get_current_user())
-	imgQuery.order('imageName')
-	images = imgQuery.fetch(9999)
-	jsonArray = []
-	for image in images:
-		jsonArray.append(image.toDict())
+	#get all the images that they own
+	jsonArray = memcache.get("images" + users.get_current_user().email())
+	if jsonArray:
+		logging.info("ImagesByUser: serving %d images from cache" % len(jsonArray))
+	else:
+		imgQuery = adventureModel.Image.all()
+		imgQuery.filter('realAuthor = ', users.get_current_user())
+		imgQuery.order('imageName')
+		images = imgQuery.fetch(9999)
+		jsonArray = []
+		for image in images:
+			jsonArray.append(image.toDict())
+		logging.info("ImagesByUser: serving %d images from db" % len(jsonArray))
+		memcache.add("images" + users.get_current_user().email(), jsonArray, 3600)
 	self.response.out.write(simplejson.dumps(jsonArray))
 	logging.info(simplejson.dumps(jsonArray))
 
@@ -372,6 +396,8 @@ class Uploader(webapp.RequestHandler):
 	#finally save this image to the db
 	logging.info("saving image to db, size is %d bytes" % (len(newImage.imageData)))
 	newImage.put()
+	memcache.delete("img" + str(newImage.key()))
+	memcache.delete("images" + users.get_current_user().email())
 
 	#now link the image to the new page element
 	pageElement.imageRef = newImage.key()

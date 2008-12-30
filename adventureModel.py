@@ -66,6 +66,9 @@ class PageElement(db.Model):
 			logging.info('%s: %s' % (e.__class__.__name__, e))
 			self.imageRef = None
 			self.put()
+		myDataB = None
+		if self.dataB:
+			myDataB = cgi.escape(self.dataB)
 		return {
 			'page':      str(self.page.key()),
 			'adventure': str(self.adventure.key()),
@@ -73,7 +76,7 @@ class PageElement(db.Model):
 			'dataType':  self.dataType,
 			'pageOrder': self.pageOrder,
 			'dataA':     cgi.escape(self.dataA),
-			'dataB':     cgi.escape(self.dataB),
+			'dataB':     myDataB,
 			'enabled':   self.enabled,
 			'imageRef':  imageRef,
 		}
