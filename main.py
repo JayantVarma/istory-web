@@ -16,6 +16,7 @@ import pageElement
 import images
 import playStory
 import share
+import admin
 
 def isUserAdmin(user, adventure):
 	if isUserSomething(user, adventure, 3):
@@ -108,6 +109,7 @@ def getDefaultTemplateValues(self):
 application = webapp.WSGIApplication(
 	[
 		('/', index.Index),
+		('/admin', admin.Admin),
 		('/share', share.ViewSharing),
 		('/removeShare', share.RemoveShare),
 		('/shareInvite', share.ShareInvite),

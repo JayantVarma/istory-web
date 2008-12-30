@@ -1,0 +1,25 @@
+{% extends "index.html" %}
+
+{% block sidebar %}
+<h3>Admin</h3>
+<div class="sb1">
+<div>Do admin stuff here.</div>
+{% endblock %}
+
+{% block main %}
+<div class="book3" style="text-align: left;">
+	<form method="get" action="/admin">
+	<p>command: <select name="command">
+			<option value="delete story">delete story
+	</select></p>
+	<p>var: <input type="text" name="var" size="50"></p>
+	<p><input type="submit"></p>
+	</form>
+</div>
+
+<div class="book3" style="text-align: left;">
+	<p style="font-size: x-small;">
+	{{ output }}
+	</p>
+</div>
+{% endblock %}
