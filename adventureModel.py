@@ -135,14 +135,14 @@ class Share(db.Model):
 		myChild = None
 		myChildNick = None
 		if self.child:
-			myChild = self.child.email()
-			myChildNick = self.child.nickname()
+			myChild = cgi.escape(str(self.child.email()))
+			myChildNick = cgi.escape(str(self.child.nickname()))
 		return {
 			'adventure':      str(self.adventure.key()),
 			'owner':          cgi.escape(str(self.owner.email())),
-			'child':          cgi.escape(str(myChild)),
+			'child':          myChild,
 			'ownerNick':      cgi.escape(str(self.owner.nickname())),
-			'childNick':      cgi.escape(str(myChildNick)),
+			'childNick':      myChildNick,
 			'childEmail':     cgi.escape(self.childEmail),
 			'childName':      cgi.escape(self.childName),
 			'role':           cgi.escape(str(self.role)),
@@ -153,5 +153,19 @@ class Share(db.Model):
 			'statusName':     cgi.escape(self.statusName()),
 		}
 
-
+class UserVotes(db.Model):
+	adventure = db.ReferenceProperty(Adventure)
+	voter = db.UserProperty()
+	comment = db.StringProperty(multiline=False)
+	vote = db.IntegerProperty()
+	def toDict(self):
+		myComment = None
+		if self.comment:
+			myComment = cgi.escape(self.comment)
+		return {
+			'adventure': str(self.adventure.key()),
+			'voter':     cgi.escape(str(self.owner.email())),
+			'comment':   myComment,
+			'vote':      cgi.escape(str(self.vote))
+		}
 

@@ -43,6 +43,30 @@ function treeInit() {
 		YAHOO.util.Event.addListener("shareStory", "mouseout", eventIconMOreset);
 		YAHOO.util.Event.addListener("shareStory", "click", loadShareStory);
 	}
+	//for voting stars
+	for (var i = 1; i <= 5; i++) {
+		YAHOO.util.Event.addListener("star" + i, "mouseover", starMO, i);
+		YAHOO.util.Event.addListener("star" + i, "mouseout", starMOreset, i);
+		YAHOO.util.Event.addListener("star" + i, "click", starClick, i);
+	}
+}
+
+var starMO = function(e, starNumber) {
+	for (var i = 1; i <= starNumber; i++) {
+		var td = YUD.get("star" + i);
+		var icon = td.firstChild;
+		icon.className = "icon-starFull";
+	}
+}
+var starMOreset = function(e, starNumber) {
+	for (var i = 1; i <= starNumber; i++) {
+		var td = YUD.get("star" + i);
+		var icon = td.firstChild;
+		icon.className = "icon-starEmpty";
+	}
+}
+var starClick = function(e, starNumber) {
+	console.log(starNumber);
 }
 
 var loadStoryForge = function() {
@@ -281,7 +305,7 @@ var playPage = function(pageKey) {
 			//choice element
 			//console.log("page element choice: " + pageElement.dataA + ", " + pageElement.dataB + ', ' + i);
 			if (pageElement.dataA) {
-				newDiv.innerHTML = '<div class="playerSmallChoice" id="choiceClick' + i + '"><table width="100%"><tr><td align="left">' + pageElement.dataA + '</td><td align="right">--></td></tr></table></div>';
+				newDiv.innerHTML = '<div class="playerSmallChoice" id="choiceClick' + i + '"><table width="100%"><tr><td align="left">' + pageElement.dataA + '</td><td align="right" width="25px">--></td></tr></table></div>';
 				YUE.addListener('pageElement' + i, "click", playPageEvent, pageElement.dataB);
 			}
 		}

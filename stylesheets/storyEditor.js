@@ -347,12 +347,14 @@ var addPageElementToWorkArea = function(pageElement, idx) {
 	myHTML += '<hr>';
 	newDiv.innerHTML += myHTML;
 	if (pageElement.key) {
+		domIdToKeyMap['DIV' + idx] = pageElement.key;
 		domIdToKeyMap['up' + idx] = pageElement.key;
 		domIdToKeyMap['disable' + idx] = pageElement.key;
 		domIdToKeyMap['delete' + idx] = pageElement.key;
 		domIdToKeyMap['down' + idx] = pageElement.key;
 		domIdToKeyMap['save' + idx] = pageElement.key;
 	}
+	domIdToNodeIndexMap['DIV' + idx] = idx;
 	domIdToNodeIndexMap['up' + idx] = idx;
 	domIdToNodeIndexMap['disable' + idx] = idx;
 	domIdToNodeIndexMap['delete' + idx] = idx;
@@ -599,96 +601,80 @@ var uploadImageCallbacks = {
 var pageElUp = function(e) {
 	if (loadingCounter > 0) { return }
 	var obj = YAHOO.util.Event.getTarget(e);
-	//get key of current page element
-	var myKey = domIdToKeyMap[obj.id];
 	var myIndex = domIdToNodeIndexMap[obj.id];
-	var myPage = tree.getNodeByIndex(currentNodeIndex);
-	var myChildren = myPage.children;
-	var newOrder = 0;
-	//we need to get the current pageOrder of the node, then look at every other node's pageOrder.
-	//we're moving up, so we want to decrease the page order of the current node
-	//the node with the same pageOrder of the currentNode gets +1, so it will move down and the current node will take its place
-	//we only want to make these changes if the currentNode is NOT the lowest
-	var myNode = tree.getNodeByIndex(myIndex);
-	//if this node's pageOrder is greater than or equal to the number of children, we need to fix the pageOrder
-	//set the pageOrder to the length-1
-	if (myNode.value.pageOrder >= myChildren.length) {
-		myNode.value.pageOrder = ((myChildren.length)-1);
-	}
-	//if this node's pageOrder is less than 0, we need to fix the pageOrder
-	//set the pageOrder to 0
-	if (myNode.value.pageOrder < 0) {
-		myNode.value.pageOrder = 0;
-	}
-	var sorted = false;
-	for (var i = 0; i < myChildren.length; i++) {
-		childNodeIndex = myChildren[i].index;
-		var myChildNode = tree.getNodeByIndex(childNodeIndex);
-		//if the node's pageOrder is greater than or equal to the number of children, we need to fix the pageOrder
-		//set the pageOrder to the length-1
-		if (myChildNode.value.pageOrder >= myChildren.length) {
-			myChildNode.value.pageOrder = ((myChildren.length)-1);
-		}
-		//if this node's pageOrder is less than 0, we need to fix the pageOrder
-		//set the pageOrder to 0
-		if (myChildNode.value.pageOrder < 0) {
-			myChildNode.value.pageOrder = 0;
-		}
-		//check the pageOrder of the node to see if it is the same as what the currentNode's new pageOrder would be
-		//console.log("checking: " + myChildNode.value.pageOrder + ' vs ' + (myNode.value.pageOrder-1));
-		if (!sorted && myChildNode.value.pageOrder == (myNode.value.pageOrder-1)) {
-			//now decrease the pageOrder of the currentNode and increase the page order of the other (swapping them)
-			myNode.value.pageOrder--
-			myChildNode.value.pageOrder++;
-			//commit the changes to the DB if the page elements exist there
-			if (myNode.value.key) {
-				var myHTML = "myElKey=" + myNode.value.key + "&myNewOrder=" + myNode.value.pageOrder;
-				setLoading();
-				YAHOO.util.Connect.asyncRequest('POST', '/movePageElement', moveCallbacks, myHTML);
-			}
-			if (myChildNode.value.key) {
-				var myHTML = "myElKey=" + myChildNode.value.key + "&myNewOrder=" + myChildNode.value.pageOrder;
-				setLoading();
-				YAHOO.util.Connect.asyncRequest('POST', '/movePageElement', moveCallbacks, myHTML);
-			}
-			//set sorted to true so we dont sort any more
-			//if we dont do this, you can end up moving it all the way down/up the page
-			sorted = true;
-		}
-		//done, now we need to sort the tree and the divs
-		nodeKey = nodeToKeyMap[childNodeIndex];
-		//console.log("pageUP " + i + ", " + myChildren[i] + ", " + nodeKey + ", " + myKey + ', ' + childNodeIndex + ', ' + myIndex);
-		//check the node indexes instead of the keys
-		if (childNodeIndex == myIndex) {
-		//if (nodeKey == myKey) {
-			//console.log("this is the node we clicked on");
+	//use myIndex to get the dom object of the page element DIV we're moving
+	var myMovingDiv = YUD.get("DIV" + myIndex);
+	//get parent div for the work area, where all the page elements are
+	var pageElements = YUD.get("pageElementsWorkArea");
+	console.log("obj: " + obj + ", parent: " + parent);
+	//loop through the parent div's children (the page elements)
+	for (var i = pageElements.childNodes.length-1; i >= 0;  i--) {
+		pageEl = pageElements.childNodes[i];
+		console.log(pageEl);
+		//is this the node we're moving?
+		if (myMovingDiv == pageEl) {
+			console.log("   this is the div we're moving");
 			//this is the page element that we clicked on
-			//get the previous sibling, remove this node from the tree, then insert it before the previous sibling
-			var myNode = myChildren[i];
-			var previousSibling = myNode.previousSibling;
-			if (previousSibling) {
-				tree.removeNode(myNode, false);
-				//console.log("inserting node(" + myNode + ") before old node(" + previousSibling + ")");
-				var insertedNode = myNode.insertBefore(previousSibling);
-				//console.log(insertedNode);
-				//now we just need to re-order the html DIVs so the work area display is adjusted with the new order
-				//DIV ID is DIV + node index
-				//get the previous DIV, remove this DIV from the parent DIV, then insert it before the previous DIV
-				myDiv = YAHOO.util.Dom.get('DIV' + childNodeIndex);
-				myParentDiv = myDiv.parentNode;
-				myPreviousDiv = YAHOO.util.Dom.getPreviousSibling(myDiv);
-				//console.log(myDiv + ', ' + myParentDiv + ', ' + myPreviousDiv);
-				if (myPreviousDiv) {
-					removedNode = myParentDiv.removeChild(myDiv);
-					myParentDiv.insertBefore(removedNode, myPreviousDiv);
+			//get the next DIV, remove this DIV from the parent DIV, then insert it before the previous DIV
+			myPreviousDiv = YUD.getPreviousSibling(myMovingDiv);
+			if (myPreviousDiv) {
+				myPreviousDivNode = tree.getNodeByIndex(domIdToNodeIndexMap[myPreviousDiv.id]);
+				myPreviousDivNode.value.pageOrder = i;
+				removedDiv = pageElements.removeChild(myMovingDiv);
+				removedDivNode = tree.getNodeByIndex(domIdToNodeIndexMap[removedDiv.id]);
+				removedDivNode.value.pageOrder = i+1;
+				pageElements.insertBefore(removedDiv, myPreviousDiv.previousSibling);
+				console.log("   moved div to pageOrder: " + removedDivNode.value.pageOrder);
+				console.log("   moved next sibling div to pageOrder: " + myPreviousDivNode.value.pageOrder);
+				if (removedDivNode.value.key) {
+					var myHTML = "myElKey=" + removedDivNode.value.key + "&myNewOrder=" + removedDivNode.value.pageOrder;
+					console.log(myHTML);
+					setLoading();
+					YAHOO.util.Connect.asyncRequest('POST', '/movePageElement', moveCallbacks, myHTML);
+				}
+				if (myPreviousDivNode.value.key) {
+					var myHTML = "myElKey=" + myPreviousDivNode.value.key + "&myNewOrder=" + myPreviousDivNode.value.pageOrder;
+					console.log(myHTML);
+					setLoading();
+					YAHOO.util.Connect.asyncRequest('POST', '/movePageElement', moveCallbacks, myHTML);
+				}
+				//increase the counter because we handled the next DIV already
+				i--;
+				//now move the node in the tree
+				tree.removeNode(removedDivNode, false);
+				removedDivNode.insertBefore(myPreviousDivNode);
+			}
+			else {
+				//the node is already at the top so
+				//assign this div's node an up to date pageOrder
+				myNode = tree.getNodeByIndex(domIdToNodeIndexMap[pageEl.id]);
+				myNode.value.pageOrder = i;
+				console.log("   the node of this div: " + myNode + ", pageOrder: " + myNode.value.pageOrder);
+				if (myNode.value.key) {
+					var myHTML = "myElKey=" + myNode.value.key + "&myNewOrder=" + myNode.value.pageOrder;
+					console.log(myHTML);
+					setLoading();
+					YAHOO.util.Connect.asyncRequest('POST', '/movePageElement', moveCallbacks, myHTML);
 				}
 			}
-			break;
 		}
-		newOrder++;
+		else {
+			//this is not the node we're moving so just
+			//assign this div's node an up to date pageOrder
+			myNode = tree.getNodeByIndex(domIdToNodeIndexMap[pageEl.id]);
+			myNode.value.pageOrder = i;
+			console.log("   the node of this div: " + myNode + ", pageOrder: " + myNode.value.pageOrder);
+			if (myNode.value.key) {
+				var myHTML = "myElKey=" + myNode.value.key + "&myNewOrder=" + myNode.value.pageOrder;
+				console.log(myHTML);
+				setLoading();
+				YAHOO.util.Connect.asyncRequest('POST', '/movePageElement', moveCallbacks, myHTML);
+			}
+		}
 	}
 	tree.draw();
 }
+
 var moveCallbacks = {
 	success : function (o) {
 		// Process the JSON data returned from the server
@@ -708,94 +694,84 @@ var moveCallbacks = {
 	argument : { },
 	timeout : 30000
 }
+
 var pageElDown = function(e) {
 	if (loadingCounter > 0) { return }
 	var obj = YAHOO.util.Event.getTarget(e);
-	//get key of current page element
-	var myKey = domIdToKeyMap[obj.id];
 	var myIndex = domIdToNodeIndexMap[obj.id];
-	var myPage = tree.getNodeByIndex(currentNodeIndex);
-	var myChildren = myPage.children;
-	var newOrder = 0;
-	//we need to get the current pageOrder of the node, then look at every other node's pageOrder.
-	//we're moving down, so we want to increase the page order of the current node
-	//the node with the same pageOrder of the currentNode gets -1, so it will move up and the current node will take its place
-	//we only want to make these changes if the currentNode is NOT the highest
-	var myNode = tree.getNodeByIndex(myIndex);
-	//if this node's pageOrder is greater than or equal to the number of children, we need to fix the pageOrder
-	//set the pageOrder to the length-1
-	if (myNode.value.pageOrder >= myChildren.length) {
-		myNode.value.pageOrder = ((myChildren.length)-1);
-	}
-	//if this node's pageOrder is less than 0, we need to fix the pageOrder
-	//set the pageOrder to 0
-	if (myNode.value.pageOrder < 0) {
-		myNode.value.pageOrder = 0;
-	}
-	var sorted = false;
-	for (var i = 0; i < myChildren.length; i++) {
-		childNodeIndex = myChildren[i].index;
-		var myChildNode = tree.getNodeByIndex(childNodeIndex);
-		//if the node's pageOrder is greater than or equal to the number of children, we need to fix the pageOrder
-		//set the pageOrder to the length-1
-		if (myChildNode.value.pageOrder >= myChildren.length) {
-			myChildNode.value.pageOrder = ((myChildren.length)-1);
-		}
-		//if this node's pageOrder is less than 0, we need to fix the pageOrder
-		//set the pageOrder to 0
-		if (myChildNode.value.pageOrder < 0) {
-			myChildNode.value.pageOrder = 0;
-		}
-		//check the pageOrder of the node to see if it is the same as what the currentNode's new pageOrder would be
-		if (!sorted && myChildNode.value.pageOrder == (myNode.value.pageOrder+1)) {
-			//now increase the pageOrder of the currentNode and decrease the page order of the other (swapping them)
-			myNode.value.pageOrder++;
-			myChildNode.value.pageOrder--;
-			//commit the changes to the DB if the page elements exist there
-			if (myNode.value.key) {
-				var myHTML = "myElKey=" + myNode.value.key + "&myNewOrder=" + myNode.value.pageOrder;
-				setLoading();
-				YAHOO.util.Connect.asyncRequest('POST', '/movePageElement', moveCallbacks, myHTML);
-			}
-			if (myChildNode.value.key) {
-				var myHTML = "myElKey=" + myChildNode.value.key + "&myNewOrder=" + myChildNode.value.pageOrder;
-				setLoading();
-				YAHOO.util.Connect.asyncRequest('POST', '/movePageElement', moveCallbacks, myHTML);
-			}
-			//set sorted to true so we dont sort any more
-			//if we dont do this, you can end up moving it all the way down/up the page
-			sorted = true;
-		}
-		//done, now we need to sort the tree and the divs
-		
-		nodeKey = nodeToKeyMap[childNodeIndex];
-		//check the node indexes instead of the keys
-		if (childNodeIndex == myIndex) {
-		//if (nodeKey == myKey) {
+	//use myIndex to get the dom object of the page element DIV we're moving
+	var myMovingDiv = YUD.get("DIV" + myIndex);
+	//get parent div for the work area, where all the page elements are
+	var pageElements = YUD.get("pageElementsWorkArea");
+	console.log("obj: " + obj + ", parent: " + parent);
+	//loop through the parent div's children (the page elements)
+	for (var i = 0; i < pageElements.childNodes.length; i++) {
+		pageEl = pageElements.childNodes[i];
+		console.log(pageEl);
+		//is this the node we're moving?
+		if (myMovingDiv == pageEl) {
+			console.log("   this is the div we're moving");
 			//this is the page element that we clicked on
-			//get the next sibling, remove this node from the tree, then insert it after the next sibling
-			var myNode = myChildren[i];
-			var nextSibling = myNode.nextSibling;
-			if (nextSibling) {
-				tree.removeNode(myNode, false);
-				myNode.insertAfter(nextSibling);
-				//now we just need to re-order the html DIVs so the work area display is adjusted with the new order
-				//DIV ID is DIV + node index
-				//get the next DIV, remove this DIV from the parent DIV, then insert it after the next DIV
-				myDiv = YAHOO.util.Dom.get('DIV' + childNodeIndex);
-				myParentDiv = myDiv.parentNode;
-				myNextDiv = YAHOO.util.Dom.getNextSibling(myDiv);
-				if (myNextDiv) {
-					removedNode = myParentDiv.removeChild(myDiv);
-					myParentDiv.insertBefore(removedNode, myNextDiv.nextSibling);
+			//get the next DIV, remove this DIV from the parent DIV, then insert it after the next DIV
+			myNextDiv = YUD.getNextSibling(myMovingDiv);
+			if (myNextDiv) {
+				myNextDivNode = tree.getNodeByIndex(domIdToNodeIndexMap[myNextDiv.id]);
+				myNextDivNode.value.pageOrder = i;
+				removedDiv = pageElements.removeChild(myMovingDiv);
+				removedDivNode = tree.getNodeByIndex(domIdToNodeIndexMap[removedDiv.id]);
+				removedDivNode.value.pageOrder = i+1;
+				pageElements.insertBefore(removedDiv, myNextDiv.nextSibling);
+				console.log("   moved div to pageOrder: " + removedDivNode.value.pageOrder);
+				console.log("   moved next sibling div to pageOrder: " + myNextDivNode.value.pageOrder);
+				if (removedDivNode.value.key) {
+					var myHTML = "myElKey=" + removedDivNode.value.key + "&myNewOrder=" + removedDivNode.value.pageOrder;
+					console.log(myHTML);
+					setLoading();
+					YAHOO.util.Connect.asyncRequest('POST', '/movePageElement', moveCallbacks, myHTML);
+				}
+				if (myNextDivNode.value.key) {
+					var myHTML = "myElKey=" + myNextDivNode.value.key + "&myNewOrder=" + myNextDivNode.value.pageOrder;
+					console.log(myHTML);
+					setLoading();
+					YAHOO.util.Connect.asyncRequest('POST', '/movePageElement', moveCallbacks, myHTML);
+				}
+				//increase the counter because we handled the next DIV already
+				i++;
+				//now move the node in the tree
+				tree.removeNode(removedDivNode, false);
+				removedDivNode.insertAfter(myNextDivNode);
+			}
+			else {
+				//the node is already at the bottom so
+				//assign this div's node an up to date pageOrder
+				myNode = tree.getNodeByIndex(domIdToNodeIndexMap[pageEl.id]);
+				myNode.value.pageOrder = i;
+				console.log("   the node of this div: " + myNode + ", pageOrder: " + myNode.value.pageOrder);
+				if (myNode.value.key) {
+					var myHTML = "myElKey=" + myNode.value.key + "&myNewOrder=" + myNode.value.pageOrder;
+					console.log(myHTML);
+					setLoading();
+					YAHOO.util.Connect.asyncRequest('POST', '/movePageElement', moveCallbacks, myHTML);
 				}
 			}
-			//break;
 		}
-		newOrder++;
+		else {
+			//this is not the node we're moving so just
+			//assign this div's node an up to date pageOrder
+			myNode = tree.getNodeByIndex(domIdToNodeIndexMap[pageEl.id]);
+			myNode.value.pageOrder = i;
+			console.log("   the node of this div: " + myNode + ", pageOrder: " + myNode.value.pageOrder);
+			if (myNode.value.key) {
+				var myHTML = "myElKey=" + myNode.value.key + "&myNewOrder=" + myNode.value.pageOrder;
+				console.log(myHTML);
+				setLoading();
+				YAHOO.util.Connect.asyncRequest('POST', '/movePageElement', moveCallbacks, myHTML);
+			}
+		}
 	}
 	tree.draw();
 }
+
 var pageElDisable = function(e) {
 	if (loadingCounter > 0) { return }
 	var obj = YAHOO.util.Event.getTarget(e);
@@ -811,6 +787,7 @@ var pageElDisable = function(e) {
 		markPageElAsDisabled(domIdToNodeIndexMap[obj.id]);
 	}
 }
+
 var markPageElAsDisabled = function(idx) {
 	var newDiv = document.createElement('div');
 	var belowWorkArea = YAHOO.util.Dom.get('belowElWorkArea' + idx);
@@ -843,9 +820,24 @@ var pageElDisableCallbacks = {
 }
 var removePageElementNodeFromTree = function(nodeIndex) {
 	var myNode = tree.getNodeByIndex(nodeIndex);
+
 	if (myNode) {
+		/*
+		var oldPageOrder = myNode.value.pageOrder;
+		console.log("deleting page node with pageOrder: " + oldPageOrder);
+		//now we need to loop through all the other nodes and reduce their page orders by 1 if they were above this deleted nodes page order
+		for (var i = 0; i < myNode.parent.children.length; i++ ) {
+			var newNode = myNode.parent.children[i];
+			console.log("newnode page order: " + newNode.value.pageOrder);
+			if (newNode.value.pageOrder >= oldPageOrder) {
+				console.log("reducing newnode pageOrder by 1");
+				newNode.value.pageOrder--;
+			}
+		}*/
+		//done, not remove the node from the tree
 		tree.removeNode(myNode, true);
 	}
+
 	tree.draw();
 	var pageElementsWorkArea = YAHOO.util.Dom.get('pageElementsWorkArea');
 	var myDiv = YAHOO.util.Dom.get('DIV' + nodeIndex);
@@ -1032,7 +1024,7 @@ var addPageElement = function(e) {
 	for (var i = 0; i < myNode.children.length; i++) {
 		if (myNode.children[i].value.pageOrder >= pageOrder) {
 			pageOrder = (myNode.children[i].value.pageOrder + 1);
-			//console.log('node: ' + myNode.children[i] + ', new pageOrder set to ' + pageOrder);
+			console.log('node: ' + myNode.children[i] + ', new pageOrder set to ' + pageOrder);
 		}
 	}
 	//done
@@ -1099,7 +1091,8 @@ var addOrUpdateChildNode = function(description, datatype, node, pageElement, cu
 		keyToNodeMap[pageElement.key] = currentNode;
 		currentNode.value = pageElement;
 	}
-	//currentNode.label = currentNode.index + ',' + currentNode.value.pageOrder + ' ' + currentNode.label;
+	//this next line adds the node page order to the label for debugging purposes
+	currentNode.label = currentNode.value.pageOrder + ' ' + currentNode.label;
 	tree.draw()
 	return currentNode.index;
 }

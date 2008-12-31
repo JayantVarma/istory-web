@@ -22,7 +22,7 @@ indexes:
   - name: date
     direction: desc
 
-# Used 206 times in query history.
+# Unused in query history -- copied from input.
 - kind: Adventure
   properties:
   - name: realAuthor
@@ -42,39 +42,39 @@ indexes:
   - name: date
     direction: desc
 
-# Used 160 times in query history.
+# Used 3 times in query history.
 - kind: Image
   properties:
   - name: realAuthor
   - name: imageName
 
-# Used 214 times in query history.
+# Used 4 times in query history.
 - kind: Page
   properties:
   - name: adventure
   - name: created
 
-# Used 3 times in query history.
+# Used once in query history.
 - kind: PageElement
   properties:
   - name: adventure
   - name: page
   - name: pageOrder
 
-# Used 214 times in query history.
+# Used 4 times in query history.
 - kind: PageElement
   properties:
   - name: adventure
   - name: pageOrder
 
-# Used 36 times in query history.
+# Used 2 times in query history.
 - kind: Share
   properties:
   - name: adventure
   - name: child
   - name: role
 
-# Used once in query history.
+# Unused in query history -- copied from input.
 - kind: Share
   properties:
   - name: adventure
@@ -82,7 +82,7 @@ indexes:
   - name: role
   - name: status
 
-# Used 13 times in query history.
+# Unused in query history -- copied from input.
 - kind: Share
   properties:
   - name: adventure
@@ -90,20 +90,20 @@ indexes:
   - name: role
   - name: status
 
-# Used 13 times in query history.
+# Unused in query history -- copied from input.
 - kind: Share
   properties:
   - name: adventure
   - name: created
 
-# Used 51 times in query history.
+# Unused in query history -- copied from input.
 - kind: Share
   properties:
   - name: adventure
   - name: status
   - name: created
 
-# Used 10 times in query history.
+# Unused in query history -- copied from input.
 - kind: Share
   properties:
   - name: adventure
@@ -112,20 +112,20 @@ indexes:
     direction: desc
   - name: created
 
-# Used 140 times in query history.
+# Unused in query history -- copied from input.
 - kind: Share
   properties:
   - name: child
   - name: owner
     direction: desc
 
-# Used 13 times in query history.
+# Unused in query history -- copied from input.
 - kind: Share
   properties:
   - name: child
   - name: status
 
-# Used once in query history.
+# Unused in query history -- copied from input.
 - kind: Share
   properties:
   - name: child
@@ -134,7 +134,7 @@ indexes:
   - name: created
     direction: desc
 
-# Used 23 times in query history.
+# Used once in query history.
 - kind: Share
   properties:
   - name: child
@@ -145,7 +145,7 @@ indexes:
   - name: created
     direction: desc
 
-# Used 131 times in query history.
+# Used once in query history.
 - kind: Share
   properties:
   - name: childEmail
@@ -153,14 +153,14 @@ indexes:
   - name: created
     direction: desc
 
-# Used 17 times in query history.
+# Unused in query history -- copied from input.
 - kind: ShareInvite
   properties:
   - name: child
   - name: created
     direction: desc
 
-# Used 7 times in query history.
+# Unused in query history -- copied from input.
 - kind: ShareInvite
   properties:
   - name: child
