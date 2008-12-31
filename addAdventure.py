@@ -49,7 +49,8 @@ class AddAdventure(webapp.RequestHandler):
 	adventure.desc = self.request.get('desc') or "[no description]"
 	adventure.version = "1.0"
 	adventure.put()
-	memcache.delete("adventures")
+	#we dont want to delete the cache of ratings because this adventure won't be approved or rated yet
+	#memcache.delete("ratings")
 	memcache.delete("adventures_" + users.get_current_user().email())
 	logging.info("AddAdventure data: " + simplejson.dumps(adventure.toDict()))
 	if newAdventure:
@@ -61,6 +62,15 @@ class AddAdventure(webapp.RequestHandler):
 		share.role = 3
 		share.status = 2
 		share.put()
+		#now create the rating record for this adventure
+		rating = adventureModel.AdventureRating()
+		rating.adventure = adventure
+		rating.voteCount = 0
+		rating.voteSum = 0
+		rating.plays = 0
+		rating.approved = 0
+		rating.rating = 0
+		rating.put()
 	
 	#remove the cache object for all users who have a role for this adventure
 	q = adventureModel.Share.all().filter('adventure =', adventure)

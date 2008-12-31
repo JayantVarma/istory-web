@@ -66,8 +66,10 @@ var MY_ERROR = '';
 {% if error %} MY_ERROR = "{{ error }}"; {% endif %}
 var IS_USER_ADMIN = {{ isUserAdmin|lower }};
 var IS_USER_AUTHOR = {{ isUserAuthor|lower }};
-var MY_VOTE = {{ userVote.vote|lower }};
-var MY_VOTE_COMMENT = '{{ userVote.comment|lower }}';
+var MY_VOTE = null;
+{% if userVote.vote %}MY_VOTE = {{ userVote.vote }};{% endif %}
+var MY_VOTE_COMMENT = null;
+{% if userVote.comment %}MY_VOTE_COMMENT = '{{ userVote.comment }}';{% endif %}
 </script>
 <script src="stylesheets/playStory.js"></script>
 {% endblock %}

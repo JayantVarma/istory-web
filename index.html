@@ -67,14 +67,16 @@
 <td class="layout_mainContent">
 
 {% block main %}
-	<div class="books">
+	<div id="books" class="books">
 		<div class="book3"><h1>Featured Stories</h1></div>
-	{% for adventure in adventures %}
+	{% for rating in ratings %}
 		<div class="book">
-			<center><b><a href="/playStory?myAdventureKey={{ adventure.key }}">{{ adventure.title|escape }}</a></b><br>
-			<i>{{ adventure.author|escape }}</i><br>
-			{{ adventure.created.date }}</center><hr>
-			<code>{{ adventure.desc|escape }}</code>
+			<center><b><a href="/playStory?myAdventureKey={{ rating.adventure.key }}">{{ rating.adventure.title|escape }}</a></b><br>
+			<i>{{ rating.adventure.author|escape }}</i><br>
+			{{ rating.adventure.created.date }}</center><hr>
+			<code>{{ rating.adventure.desc|escape }}</code><hr>
+			<table class="ratings" id="{{ rating.rating }}"></table>
+			<span style="margin-right:20px;">Plays: {{ rating.plays }}</span><span style="margin-left:20px;">Votes: {{ rating.voteCount }}</span>
 		</div>
 	{% endfor %}
 	</div>
@@ -101,6 +103,43 @@
 </td></tr></table>
 
 {% block footer %}
+<script type="text/javascript" src="http://yui.yahooapis.com/2.6.0/build/yahoo-dom-event/yahoo-dom-event.js"></script>
+<script type="text/javascript">
+//Add an onDOMReady handler to build the tree when the document is ready
+YAHOO.util.Event.onDOMReady(treeInit);
+//set shortcuts for common yahoo stuff
+var YUD = YAHOO.util.Dom, YUE = YAHOO.util.Event, YUC = YAHOO.util.Connect;
+
+//if there is no console, set it to null
+try { console.log('init console... done'); } catch(e) { console = { log: function() {} } }
+
+
+function treeInit() {
+	var ratings = YUD.getElementsByClassName('ratings', 'table', 'books');
+	for (var i = 0; i < ratings.length; i++) {
+		rating = parseFloat(ratings[i].id);
+		console.log(ratings[i]);
+		console.log(rating);
+		var myHTML = '<tr><td>Rating:';
+		var totalStars = 0;
+		while (rating >= 1) {
+			myHTML += '<td class="star"><span class="icon-starFull" /></td>';
+			totalStars++;
+			rating--;
+		}
+		if (rating > 0) {
+			myHTML += '<td class="star"><span class="icon-starHalf" /></td>';
+			totalStars++;
+		}
+		while (totalStars < 5) {
+			myHTML += '<td class="star"><span class="icon-starEmpty" /></td>';
+			totalStars++;
+		}
+		myHTML += '</tr>';
+		ratings[i].innerHTML = myHTML;
+	}
+}
+</script>
 {% endblock %}
 
 <script type="text/javascript">

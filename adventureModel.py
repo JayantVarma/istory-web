@@ -19,7 +19,7 @@ class Adventure(db.Model):
 
 class Page(db.Model):
 	adventure = db.ReferenceProperty(Adventure)
-	name = db.StringProperty()
+	name = db.StringProperty(multiline=False)
 	created = db.DateTimeProperty(auto_now_add=True)
 	modified = db.DateTimeProperty(auto_now=True)
 	def toDict(self):
@@ -174,13 +174,17 @@ class AdventureRating(db.Model):
 	adventure = db.ReferenceProperty(Adventure)
 	voteCount = db.IntegerProperty()
 	voteSum = db.IntegerProperty()
+	rating = db.FloatProperty()
 	plays = db.IntegerProperty()
+	approved = db.IntegerProperty()
 	created = db.DateTimeProperty(auto_now_add=True)
 	modified = db.DateTimeProperty(auto_now=True)
 	def toDict(self):
 		return {
 			'adventure': str(self.adventure.key()),
+			'approved': cgi.escape(str(self.approved)),
 			'voteCount': cgi.escape(str(self.voteCount)),
 			'voteSum':   cgi.escape(str(self.voteSum)),
+			'rating':    cgi.escape(str(self.rating)),
 			'plays':     cgi.escape(str(self.plays))
 		}

@@ -10,6 +10,25 @@ from google.appengine.api import memcache
 import adventureModel
 import main
 
+def getRating(adventure):
+	if not adventure:
+		logging.warn("getRating requires adventure")
+	q = None
+	memStr = None
+	rating = None
+	q = adventureModel.AdventureRating.all().filter('adventure =', adventure)
+	memStr = "rating" + str(adventure.key())
+	rating = memcache.get(memStr)
+	if rating:
+		logging.info("getRating: got from cache: " + memStr)
+	else:
+		ratings = q.fetch(1)
+		for myRating in ratings:
+			rating = myRating
+			memcache.add(memStr, rating, 3600)
+			logging.info("getRating: got from db: " + memStr)
+	return rating
+
 def getUserVote(adventure, user, iphone):
 	if not (adventure and (user or iphone)):
 		logging.warn("getUserVote requires adventure and either user or iphone")
@@ -58,13 +77,16 @@ def addAdventureStat(adventureKey, plays, vote, user, iphone, comment):
 	if rating:
 		logging.info("addAdventurePlay: found rating key in the db: " + adventureKey)
 	else:
-		#we need to create the record
+		logging.info("addAdventurePlay: rating key was not found in the db: " + adventureKey)
 		rating = adventureModel.AdventureRating()
 		rating.adventure = adventure
 		rating.voteCount = 0
 		rating.voteSum = 0
 		rating.plays = 0
-		changed = True
+		rating.approved = 0
+		rating.rating = 0.0
+		rating.put()
+		return("Rating Key not found in DB")
 	if plays and plays > 0:
 		rating.plays = rating.plays + plays
 		changed = True
@@ -117,8 +139,10 @@ def addAdventureStat(adventureKey, plays, vote, user, iphone, comment):
 		rating.voteCount = rating.voteCount + voteCount
 		rating.voteSum = rating.voteSum + vote
 	if changed:
+		if rating.voteCount > 0:
+			rating.rating = float(rating.voteSum) / float(rating.voteCount)
 		rating.put()
-		logging.info("addAdventurePlays: adventure(%s): plays(%d) votes(%d) voteSum(%d)" % (rating.adventure.title, rating.plays, rating.voteCount, rating.voteSum))
+		logging.info("addAdventurePlays: adventure(%s): plays(%d) votes(%d) voteSum(%d) rating(%f)" % (rating.adventure.title, rating.plays, rating.voteCount, rating.voteSum, rating.rating))
 	else:
 		logging.info("addAdventurePlays: nothing changed")
 	return(output)

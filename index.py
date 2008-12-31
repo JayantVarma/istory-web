@@ -13,24 +13,25 @@ import main
 
 class Index(webapp.RequestHandler):
 
-  def getAdventures(self):
-	adventures = memcache.get("adventures")
-	if adventures is not None:
-		return adventures
+  #this actually gives you the 20 highest ratings, each one links to an adventure
+  def getRatings(self):
+	ratings = memcache.get("adventures")
+	if ratings is not None:
+		return ratings
 	else:
-		adventures_query = adventureModel.Adventure.all().order('created')
-		adventures = adventures_query.fetch(20)
-		if not memcache.add("adventures", adventures, 300):
+		q = adventureModel.AdventureRating.all().filter('approved =', 0).order('-rating').order('created')
+		ratings = q.fetch(20)
+		if not memcache.add("adventures", ratings, 300):
 			logging.info("memcache set failed.")
-		return adventures
+		return ratings
 
   def get(self):
-	adventures = self.getAdventures()
+	ratings = self.getRatings()
 
 	defaultTemplateValues = main.getDefaultTemplateValues(self)
 	templateValues = {
 		'title': 'Home',
-		'adventures': adventures,
+		'ratings': ratings,
 	}
 	templateValues = dict(defaultTemplateValues, **templateValues)
 

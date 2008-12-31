@@ -115,6 +115,15 @@ body hr {
 .layout_mainContent .book table {
 	font-size:x-small;
 }
+.layout_mainContent .book .ratings {
+	margin-left: auto;
+	margin-right: auto;
+}
+.layout_mainContent .book .ratings td {
+	padding-left: 3px;
+	padding-right: 3px;
+	font-size: small;
+}
 
 /* book3 is for createStory and for featured stories on the main page */
 .layout_mainContent .book3 {
