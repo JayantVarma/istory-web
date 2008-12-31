@@ -12,6 +12,7 @@ from google.appengine.api import memcache
 from django.utils import simplejson
 import adventureModel
 import main
+import ratings
 
 class Play(webapp.RequestHandler):
   def get(self):
@@ -40,15 +41,21 @@ class Play(webapp.RequestHandler):
 	if error:
 		logging.info('Play get: ' + error)
 
+	userVote = ratings.getUserVote(adventure, users.get_current_user(), None)
+
 	defaultTemplateValues = main.getDefaultTemplateValues(self)
 	templateValues = {
 		'adventure': adventure,
 		'error': error,
 		'title': title,
+		'userVote': userVote,
 		'isUserAuthor': main.isUserAuthor(users.get_current_user(), adventure),
 		'isUserAdmin': main.isUserAdmin(users.get_current_user(), adventure),
 	}
 	templateValues = dict(defaultTemplateValues, **templateValues)
+
+	#add to the play stat counter
+	ratings.addAdventurePlay(myAdventureKey)
 
 	if self.request.get('playLite'):
 		path = os.path.join(os.path.dirname(__file__), 'playStoryLite.html')

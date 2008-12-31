@@ -31,7 +31,7 @@
 	{% if shares %}
 	{% for share in shares %}
 		<tr>
-			<td id="sharePerson">{% ifequal share.statusName "Pending" %}{{ share.childName|escape }} ({{ share.childEmail|escape }}){% else %}{{ share.child.nickname|escape }}({{ share.child.email|escape }}){% endifequal %}</td>
+			<td id="sharePerson">{% ifequal share.statusName "Pending" %}{{ share.childName|escape }} ({{ share.childEmail|escape }}){% else %}{{ share.child.nickname|escape }} ({{ share.child.email|escape }}){% endifequal %}</td>
 			<td>{{ share.created.date }}</td>
 			<td>{{ share.roleName|escape }} {% ifequal share.statusName "Pending" %} (invited){% endifequal %}</td>
 			<td class="button"><a href="javascript:removeShare('{{ share.key }}')">Remove</a></td>

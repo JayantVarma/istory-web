@@ -156,16 +156,31 @@ class Share(db.Model):
 class UserVotes(db.Model):
 	adventure = db.ReferenceProperty(Adventure)
 	voter = db.UserProperty()
+	voterIphone = db.StringProperty(multiline=False)
 	comment = db.StringProperty(multiline=False)
 	vote = db.IntegerProperty()
+	created = db.DateTimeProperty(auto_now_add=True)
+	modified = db.DateTimeProperty(auto_now=True)
 	def toDict(self):
-		myComment = None
-		if self.comment:
-			myComment = cgi.escape(self.comment)
 		return {
-			'adventure': str(self.adventure.key()),
-			'voter':     cgi.escape(str(self.owner.email())),
-			'comment':   myComment,
-			'vote':      cgi.escape(str(self.vote))
+			'adventure':   str(self.adventure.key()),
+			'voter':       cgi.escape(str(self.voter.email())),
+			'voterIphone': cgi.escape(str(self.voterIphone)),
+			'comment':     cgi.escape(self.comment),
+			'vote':        cgi.escape(str(self.vote))
 		}
 
+class AdventureRating(db.Model):
+	adventure = db.ReferenceProperty(Adventure)
+	voteCount = db.IntegerProperty()
+	voteSum = db.IntegerProperty()
+	plays = db.IntegerProperty()
+	created = db.DateTimeProperty(auto_now_add=True)
+	modified = db.DateTimeProperty(auto_now=True)
+	def toDict(self):
+		return {
+			'adventure': str(self.adventure.key()),
+			'voteCount': cgi.escape(str(self.voteCount)),
+			'voteSum':   cgi.escape(str(self.voteSum)),
+			'plays':     cgi.escape(str(self.plays))
+		}

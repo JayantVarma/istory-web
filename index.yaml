@@ -42,32 +42,32 @@ indexes:
   - name: date
     direction: desc
 
-# Used 3 times in query history.
+# Used 7 times in query history.
 - kind: Image
   properties:
   - name: realAuthor
   - name: imageName
 
-# Used 4 times in query history.
+# Used 33 times in query history.
 - kind: Page
   properties:
   - name: adventure
   - name: created
 
-# Used once in query history.
+# Used 51 times in query history.
 - kind: PageElement
   properties:
   - name: adventure
   - name: page
   - name: pageOrder
 
-# Used 4 times in query history.
+# Used 33 times in query history.
 - kind: PageElement
   properties:
   - name: adventure
   - name: pageOrder
 
-# Used 2 times in query history.
+# Used 10 times in query history.
 - kind: Share
   properties:
   - name: adventure
@@ -134,7 +134,7 @@ indexes:
   - name: created
     direction: desc
 
-# Used once in query history.
+# Used 3 times in query history.
 - kind: Share
   properties:
   - name: child
@@ -145,7 +145,7 @@ indexes:
   - name: created
     direction: desc
 
-# Used once in query history.
+# Used 2 times in query history.
 - kind: Share
   properties:
   - name: childEmail

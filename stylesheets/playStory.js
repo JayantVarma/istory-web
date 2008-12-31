@@ -16,11 +16,20 @@ if (MY_ERROR) {
 	myError = MY_ERROR;
 }
 
+//get existing vote data from python
+var myVote = null;
+var myVoteComment = null;
+if (MY_VOTE) {
+	myVote = MY_VOTE;
+	myVoteComment = MY_VOTE_COMMENT;
+}
+
 //setup some globals
 var loadingCounter = 0;
 var numPages = 0;
 var keyToPageIdMap = {};
 var pageHistory = [];
+var alreadySelectedStars = false;
 
 function treeInit() {
 	// Make the call to the server for JSON data
@@ -49,9 +58,22 @@ function treeInit() {
 		YAHOO.util.Event.addListener("star" + i, "mouseout", starMOreset, i);
 		YAHOO.util.Event.addListener("star" + i, "click", starClick, i);
 	}
+	YAHOO.util.Event.on('voteForm', 'submit', function(e) {
+		YAHOO.util.Event.stopEvent(e);
+		sendVote();
+	});
+	
+	//see if the user has already voted
+	if (myVote) {
+		starClick(null, myVote);
+		if (myVoteComment) {
+			YUD.get("voteComment").innerHTML = myVoteComment;
+		}
+	}
 }
 
 var starMO = function(e, starNumber) {
+	if (alreadySelectedStars) { return; }
 	for (var i = 1; i <= starNumber; i++) {
 		var td = YUD.get("star" + i);
 		var icon = td.firstChild;
@@ -59,6 +81,7 @@ var starMO = function(e, starNumber) {
 	}
 }
 var starMOreset = function(e, starNumber) {
+	if (alreadySelectedStars) { return; }
 	for (var i = 1; i <= starNumber; i++) {
 		var td = YUD.get("star" + i);
 		var icon = td.firstChild;
@@ -67,6 +90,33 @@ var starMOreset = function(e, starNumber) {
 }
 var starClick = function(e, starNumber) {
 	console.log(starNumber);
+	alreadySelectedStars = false;
+	starMOreset(null, 5);
+	starMO(null, starNumber);
+	alreadySelectedStars = true;
+	YUD.get("voteValue").value = starNumber;
+}
+
+var sendVote = function() {
+	if (loadingCounter > 0) { return; }
+	setLoading();
+	YAHOO.util.Connect.setForm('voteForm', false);
+	YAHOO.util.Connect.asyncRequest('POST', '/vote', voteCallbacks);
+}
+
+// Define the callbacks for getPages
+var voteCallbacks = {
+	success : function (o) {
+		setLoaded();
+		alreadyVoted = true;
+		YUD.get("voteBottom").innerHTML = o.responseText;
+	},
+	failure : function (o) {
+		if (!YUC.isCallInProgress(o)) {
+			alert("voting failed!");
+		}
+	},
+	timeout : 30000
 }
 
 var loadStoryForge = function() {

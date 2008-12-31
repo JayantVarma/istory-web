@@ -13,13 +13,20 @@
 	<div class="sb1">
 	<div class="voting">
 		<table>
-			<tr><td colspan="5" id="voted">Do you like this story?<br>Vote on it!</td>
+			<tr><td colspan="5" id="voted">Do you like this story? Rate it!</td>
 			<tr></tr>
-			<td class="star" id="star1"><span class="icon-starEmpty"></span></td>
-			<td class="star" id="star2"><span class="icon-starEmpty"></span></td>
-			<td class="star" id="star3"><span class="icon-starEmpty"></span></td>
-			<td class="star" id="star4"><span class="icon-starEmpty"></span></td>
-			<td class="star" id="star5"><span class="icon-starEmpty"></span></td>
+				<td class="star" id="star1"><span class="icon-starEmpty"></span></td>
+				<td class="star" id="star2"><span class="icon-starEmpty"></span></td>
+				<td class="star" id="star3"><span class="icon-starEmpty"></span></td>
+				<td class="star" id="star4"><span class="icon-starEmpty"></span></td>
+				<td class="star" id="star5"><span class="icon-starEmpty"></span></td>
+			</tr><tr><td colspan="5">Comment (optional):<br><form id="voteForm" action="/vote" method="POST">
+				<textarea id="voteComment" name="comment" rows="5" cols="25"></textarea><br>
+			</tr><tr><td colspan="5"><input type="submit" value="Vote!">
+				<input type="hidden" name="myAdventureKey" value="{{ adventure.key }}">
+				<input type="hidden" name="vote" id="voteValue" value="-1">
+				</form>
+			</tr><tr><td colspan="5" id="voteBottom">
 		</tr></table>
 	</div></div>
 {% endblock %}
@@ -59,6 +66,8 @@ var MY_ERROR = '';
 {% if error %} MY_ERROR = "{{ error }}"; {% endif %}
 var IS_USER_ADMIN = {{ isUserAdmin|lower }};
 var IS_USER_AUTHOR = {{ isUserAuthor|lower }};
+var MY_VOTE = {{ userVote.vote|lower }};
+var MY_VOTE_COMMENT = '{{ userVote.comment|lower }}';
 </script>
 <script src="stylesheets/playStory.js"></script>
 {% endblock %}

@@ -17,6 +17,7 @@ import images
 import playStory
 import share
 import admin
+import ratings
 
 def getAdventure(key):
 	#this returns an adventure object from the cache (if it exists there) or from the db (and then adds it to the cache)
@@ -124,6 +125,7 @@ application = webapp.WSGIApplication(
 	[
 		('/', index.Index),
 		('/admin', admin.Admin),
+		('/vote', ratings.Vote),
 		('/share', share.ViewSharing),
 		('/removeShare', share.RemoveShare),
 		('/shareInvite', share.ShareInvite),
