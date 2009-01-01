@@ -77,7 +77,8 @@ class AddAdventure(webapp.RequestHandler):
 	shares = q.fetch(9999)
 	logging.info("AddAdventure: removed %d cache objects" % len(shares))
 	for share in shares:
-		memcache.delete("adventures_" + share.child.email())
+		if share.child:
+			memcache.delete("adventures_" + share.child.email())
 	memcache.delete(str(adventure.key))
 	
 	logging.info("AddAdventure done for key: " + myAdventureKey)

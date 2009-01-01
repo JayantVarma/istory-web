@@ -51,6 +51,9 @@ function treeInit() {
 		YAHOO.util.Event.addListener("shareStory", "mouseover", eventIconMO);
 		YAHOO.util.Event.addListener("shareStory", "mouseout", eventIconMOreset);
 		YAHOO.util.Event.addListener("shareStory", "click", loadShareStory);
+		YAHOO.util.Event.addListener("submitStory", "mouseover", eventIconMO);
+		YAHOO.util.Event.addListener("submitStory", "mouseout", eventIconMOreset);
+		YAHOO.util.Event.addListener("submitStory", "click", loadSubmitStory);
 	}
 	//for voting stars
 	for (var i = 1; i <= 5; i++) {
@@ -125,6 +128,9 @@ var loadStoryForge = function() {
 var loadShareStory = function() {
 	window.location.replace('/share?myAdventureKey=' + adventureKey);
 }
+var loadSubmitStory = function() {
+	window.location.replace('/submit?myAdventureKey=' + adventureKey);
+}
 var restartStory = function() {
 	pageHistory = [];
 	playPage(pages[0].key);
@@ -153,7 +159,10 @@ var enableIcons = function()
 	if (loadingCounter > 0) { return; }
 	enableDiv('restartStory');
 	if (IS_USER_AUTHOR) { enableDiv('storyForge'); }
-	if (IS_USER_ADMIN) { enableDiv('shareStory'); }
+	if (IS_USER_ADMIN) {
+		enableDiv('shareStory');
+		enableDiv('submitStory');
+	}
 }
 
 var eventIconMO = function(e, isLight) {

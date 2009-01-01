@@ -43,7 +43,7 @@
 		<td class="iconBG-disabled" id="restartStory"><div id="icon-restart" class="icon-restartD"></div>Restart Story</td>
 		<td class="iconBG-disabled" id="storyForge"><div id="icon-storyEdit" class="icon-storyEditD"></div>StoryForge</td>
 		<td class="iconBG-disabled" id="shareStory"><div id="icon-share" class="icon-shareD"></div>Share Story</td>
-		<td class="iconBG-disabled" id="submitStory"><div id="icon-deletePage" class="icon-deletePageD"></div>Submit Story</td>
+		<td class="iconBG-disabled" id="submitStory"><div id="icon-submit" class="icon-submitD"></div>Submit Story</td>
 	</tr></table>
 	</div>
 	<div style="height:100%;">
@@ -63,13 +63,13 @@
 var MY_ADVENTURE_KEY = '';
 {% if adventure.key %}	MY_ADVENTURE_KEY = "{{ adventure.key }}";{% endif %}
 var MY_ERROR = '';
-{% if error %} MY_ERROR = "{{ error }}"; {% endif %}
+{% if error %} MY_ERROR = "{{ error|escape }}"; {% endif %}
 var IS_USER_ADMIN = {{ isUserAdmin|lower }};
 var IS_USER_AUTHOR = {{ isUserAuthor|lower }};
 var MY_VOTE = null;
 {% if userVote.vote %}MY_VOTE = {{ userVote.vote }};{% endif %}
 var MY_VOTE_COMMENT = null;
-{% if userVote.comment %}MY_VOTE_COMMENT = '{{ userVote.comment }}';{% endif %}
+{% if userVote.comment %}MY_VOTE_COMMENT = '{{ userVote.comment|escape }}';{% endif %}
 </script>
 <script src="stylesheets/playStory.js"></script>
 {% endblock %}

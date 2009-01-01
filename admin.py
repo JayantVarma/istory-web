@@ -12,6 +12,17 @@ from django.utils import simplejson
 import adventureModel
 import main
 
+class Submit(webapp.RequestHandler):
+  def get(self):
+	defaultTemplateValues = main.getDefaultTemplateValues(self)
+	templateValues = {
+		'title': 'Submit Your Story For Approval',
+	}
+	templateValues = dict(defaultTemplateValues, **templateValues)
+
+	path = os.path.join(os.path.dirname(__file__), 'submit.html')
+	self.response.out.write(template.render(path, templateValues))
+
 class Admin(webapp.RequestHandler):
   def get(self):
 	if not users.is_current_user_admin():
@@ -68,7 +79,6 @@ class Admin(webapp.RequestHandler):
 		'output': output,
 	}
 	templateValues = dict(defaultTemplateValues, **templateValues)
-
 
 	path = os.path.join(os.path.dirname(__file__), 'admin.html')
 	self.response.out.write(template.render(path, templateValues))

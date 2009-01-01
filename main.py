@@ -125,6 +125,7 @@ application = webapp.WSGIApplication(
 	[
 		('/', index.Index),
 		('/admin', admin.Admin),
+		('/submit', admin.Submit),
 		('/vote', ratings.Vote),
 		('/share', share.ViewSharing),
 		('/removeShare', share.RemoveShare),

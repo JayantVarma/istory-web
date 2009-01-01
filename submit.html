@@ -1,0 +1,18 @@
+{% extends "index.html" %}
+
+{% block sidebar %}
+<h3>Submit Your Masterpiece</h3>
+<div class="sb1">
+<div>Think your story is ready for public viewing?<br><br>Submit it and let our editors take a peek.<br><br>If it's OK (no dirty stuff!), we'll have it up on the front page in no time.</div>
+{% endblock %}
+
+{% block main %}
+<div class="book3">
+	<p>UNDER CONSTRUCTION</p>
+	<form method="post" action="/submit">
+	<textarea name="var" rows="5" cols="50"></textarea>
+	<p><input type="submit" value="Submit"></p>
+	</form>
+</div>
+
+{% endblock %}

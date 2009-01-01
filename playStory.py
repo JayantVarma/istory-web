@@ -20,6 +20,7 @@ class Play(webapp.RequestHandler):
 	page = None
 	error = None
 	title = None
+	userVote = None
 
 	myAdventureKey = self.request.get('myAdventureKey')
 	if myAdventureKey:
@@ -38,10 +39,9 @@ class Play(webapp.RequestHandler):
 		error = 'Error: You are not a reader of this adventure'
 	else:
 		title = adventure.title
+		userVote = ratings.getUserVote(adventure, users.get_current_user(), None)
 	if error:
 		logging.info('Play get: ' + error)
-
-	userVote = ratings.getUserVote(adventure, users.get_current_user(), None)
 
 	defaultTemplateValues = main.getDefaultTemplateValues(self)
 	templateValues = {

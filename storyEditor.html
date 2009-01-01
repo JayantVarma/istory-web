@@ -47,7 +47,7 @@
 var MY_ADVENTURE_KEY = '';
 {% if adventure.key %} MY_ADVENTURE_KEY = "{{ adventure.key }}"; {% endif %}
 var MY_ERROR = '';
-{% if error %} MY_ERROR = "{{ error }}"; {% endif %}
+{% if error %} MY_ERROR = "{{ error|escape }}"; {% endif %}
 </script>
 <script src="stylesheets/storyEditor.js"></script>
 {% endblock %}
