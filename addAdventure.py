@@ -69,7 +69,7 @@ class AddAdventure(webapp.RequestHandler):
 		rating.voteSum = 0
 		rating.plays = 0
 		rating.approved = 0
-		rating.rating = 0
+		rating.rating = 0.0
 		rating.put()
 	
 	#remove the cache object for all users who have a role for this adventure
