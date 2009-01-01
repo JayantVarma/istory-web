@@ -210,7 +210,7 @@ class ImageManager(webapp.RequestHandler):
 	main.printFooter(self, template_values)
 
 class ImageServer(webapp.RequestHandler):
- def get(self):
+  def get(self):
 	image = None
 	imageKey = self.request.get('imageKey')
 	if imageKey:
@@ -220,30 +220,34 @@ class ImageServer(webapp.RequestHandler):
 		else:
 			hadException = False
 			try:
-				image = db.get(imageKey)
+				image = db.Model.get(imageKey)
 			except Exception, e:
 				hadException = True
-				logging.error('%s: %s' % (e.__class__.__name__, e))
+				logging.error('ImageServer db get exception: %s: %s' % (e.__class__.__name__, e))
 				#need to put an image in here that we can use for missing shit
-				image = memcache.get("img" + "unknown")
-				if image:
-					logging.info("serving unknown image from cache with key " + imageKey)
-				else:
-					imageQuery = adventureModel.Image.all()
-					images = imageQuery.fetch(1);
-					for singleImage in images:
-						image = singleImage
-					memcache.add("img" + "unknown", image, 3600)
-					logging.info("serving unknown image from db with key " + imageKey)
+				image = self.getErrorImage()
 			if not hadException:
-				memcache.add("img" + imageKey, image, 3600)
 				logging.info("serving image from db with key " + imageKey)
+				try:
+					memcache.add("img" + imageKey, image, 3600)
+				except Exception, e:
+					logging.error('ImageServer memcache add exception: %s: %s' % (e.__class__.__name__, e))
 	if image.imageData:
 		self.response.headers['Content-Type'] = 'image/png'
 		self.response.out.write(image.imageData)
 	else:
 		self.error(404)
 		return
+
+  def getErrorImage(self):
+	image = memcache.get("img" + "unknown")
+	if image:
+		logging.info("serving unknown image from cache")
+	else:
+		image = db.Model.get('aglpc3Rvcnl3ZWJyCwsSBUltYWdlGA0M')
+		memcache.add("img" + "unknown", image, 86400)
+		logging.info("serving unknown image from db")
+	return image
 
 class ImagesByUser(webapp.RequestHandler):
   def getOrPost(self):
@@ -384,7 +388,7 @@ class Uploader(webapp.RequestHandler):
 		#keep resizing the image until it is below a megabyte
 		startResize = 900
 		counter = 1
-		while ((counter == 1 and (width > 900 or height > 900)) or len(newImage.imageData) > 1048576) and counter < 10:
+		while ((counter == 1 and (width > 900 or height > 900)) or len(newImage.imageData) > 999999) and counter < 10:
 			resizeW, resizeH, resizeBool = resizeImage(imageOBJ, width, height, startResize, startResize)
 			logging.info("resize try #%d: resizing image to %dx%d" % (counter, resizeW, resizeH))
 			imageOBJ.resize(resizeW, resizeH)
