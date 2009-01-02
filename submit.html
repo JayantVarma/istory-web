@@ -19,8 +19,8 @@
 		{% else %}
 	<table class="submitHeader">
 		<tr><th colspan="2" style="text-align:center;">Story Submission Status</th>
-		</tr><tr><td style="width:100px;">{{ adventureStatus.statusName }}:</td><td>{{ adventureStatus.statusDesc }}</td>
-		</tr><tr><td style="width:100px;">Modified Date:</td><td>{{ adventureStatus.modified.date }}</td>
+		</tr><tr><td style="width:120px;">{{ adventureStatus.statusName }}:</td><td>{{ adventureStatus.statusDesc }}</td>
+		</tr><tr><td style="width:120px;">Modified Date:</td><td>{{ adventureStatus.modified.date }}</td>
 		{% if adventureStatus.editorComment %}</tr><tr><td colspan="2">{{ adventureStatus.editorComment|escape }}</td>{% endif %}
 	</tr></table>
 </div>
@@ -35,7 +35,7 @@
 	</tr></table>
 	<form method="post" action="/submit">
 	<textarea name="comment" rows="5" cols="50">{% if adventureStatus.comment %}{{ adventureStatus.comment }}{% endif %}</textarea>
-	<p><input type="submit" value="Submit Your Story For Approval"></p>
+	<p><input type="submit" value="Submit Your Story For Approval" onclick="this.disabled=true"></p>
 	<input type="hidden" name="myAdventureKey" value="{{ adventureStatus.editableAdventure.key }}">
 	</form>
 </div>

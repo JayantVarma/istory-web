@@ -144,7 +144,7 @@ class Vote(webapp.RequestHandler):
 			self.response.out.write(output)
 			return
 	#we should be good, lets get the adventureStatus object now
-	adventureStatus = admin.getAdventureStatus(adventure)
+	adventureStatus = admin.getAdventureStatus(adventure.adventureStatus)
 	if not adventureStatus:
 		logging.warn("Vote: could not get the adventureStatus record: " + myAdventureKey)
 		return

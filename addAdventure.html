@@ -7,13 +7,13 @@
 {% else %}
 
 	{% ifequal url_linktext "Logout" %}
-		<form action="/createStory" method="post">
+		<form id="addAdventure" action="/createStory" method="post">
 		<table class="table1">
 		<tr><th colspan="2"><h1>{{ title }}</h1></th></tr>
-		<tr><th>Title:</th><td><input tabindex="1" type="text" name="title" value="{{ adventure.title }}" size="30" maxlength="100"></td></tr>
-		<tr><th>Author:</th><td><input tabindex="2" type="text" name="author" value="{{ adventure.author }}" size="30" maxlength="100"></td></tr>
-		<tr><th>Description:</th><td><textarea tabindex="3" name="desc" rows="3" cols="50">{{ adventure.desc }}</textarea></td></tr>
-		<tr><td colspan="2"><center><input tabindex="4" type="submit" value="{{ buttonText }}"></center></td></tr>
+		<tr><th>Title:</th><td><input tabindex="1" type="text" name="title" value="{{ adventure.title|escape }}" size="30" maxlength="100"></td></tr>
+		<tr><th>Author:</th><td><input tabindex="2" type="text" name="author" value="{{ adventure.author|escape }}" size="30" maxlength="100"></td></tr>
+		<tr><th>Description:</th><td><textarea tabindex="3" name="desc" rows="3" cols="50">{{ adventure.desc|escape }}</textarea></td></tr>
+		<tr><td colspan="2"><center><input tabindex="4" type="submit" value="{{ buttonText }}" onclick="this.disabled=true"></center></td></tr>
 		<input type="hidden" name="myAdventureKey" value="{{ adventure.key }}">
 		</table>
 		</form>
@@ -26,4 +26,21 @@
 {% endblock %}
 
 {% block index %}
+<script type="text/javascript" src="http://yui.yahooapis.com/2.6.0/build/yahoo-dom-event/yahoo-dom-event.js"></script>
+<script type="text/javascript">
+//Add an onDOMReady handler to build the tree when the document is ready
+YAHOO.util.Event.onDOMReady(treeInit);
+//set shortcuts for common yahoo stuff
+var YUD = YAHOO.util.Dom, YUE = YAHOO.util.Event, YUC = YAHOO.util.Connect;
+
+//if there is no console, set it to null
+try { console.log('init console... done'); } catch(e) { console = { log: function() {} } }
+
+function treeInit() {
+	YAHOO.util.Event.on('addAdventure', 'submit', function(e) {
+	});
+}
+</script>
 {% endblock %}
+
+

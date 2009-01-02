@@ -13,7 +13,7 @@
 			<option value="delete story">delete story
 	</select></p>
 	<p>var: <input type="text" name="var" size="50"></p>
-	<p><input type="submit"></p>
+	<p><input type="submit" onclick="this.disabled=true"></p>
 	</form>
 </div>
 
@@ -21,6 +21,25 @@
 	<p style="font-size: x-small;">
 	{{ output }}
 	</p>
+</div>
+
+<hr><div class="book3"><h1>Submitted Stories For Approval</h1></div>
+<div class="books">
+	{% for as in adventureStatuses %}
+		<div class="book">
+			<center><b><a href="/playStory?myAdventureKey={{ as.submittedAdventure.key }}">{{ as.submittedAdventure.title|escape }}</a></b><br>
+			<i>{{ as.submittedAdventure.author|escape }}</i><br>
+			{{ as.submittedAdventure.created.date }}</center><hr>
+			<code>{{ as.submittedAdventure.desc|escape }}</code><hr>
+			<table><tr>
+				<td class="myStoryButton"><a href="/createStory?myAdventureKey={{ as.submittedAdventure.key }}"><div class="icon-edit"></div>Edit Title &amp; Description</a></td>
+				<td class="myStoryButton"><a href="/storyEditor?myAdventureKey={{ as.submittedAdventure.key }}"><div class="icon-storyEdit"></div>StoryForge</a></td>
+				<td class="myStoryButton"><a href="/share?myAdventureKey={{ as.submittedAdventure.key }}"><div class="icon-share"></div>Share</a></td>
+				<td><a href="/admin?approved=yes&myAdventureKey={{ as.submittedAdventure.key }}">Approve</a>
+				<br><br><a href="/admin?approved=no&myAdventureKey={{ as.submittedAdventure.key }}">Deny</a></td>
+			</tr></table>
+		</div>
+	{% endfor %}
 </div>
 {% endblock %}
 

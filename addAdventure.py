@@ -68,6 +68,9 @@ class AddAdventure(webapp.RequestHandler):
 		adventureStatus.editableAdventure = adventure
 		adventureStatus.status = 1
 		adventureStatus.put()
+		#save the adventureStatus key back to the adventure record
+		adventure.adventureStatus = str(adventureStatus.key())
+		adventure.put()
 		#now create the rating record for this adventure
 		rating = adventureModel.AdventureRating()
 		rating.adventureStatus = adventureStatus

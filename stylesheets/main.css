@@ -580,13 +580,14 @@ img { vertical-align: bottom; }
 	padding-top: 2px;
 	padding-bottom: 2px;
 }
-
+.submitHeader {
+	width: 100%;
+}
 .submitHeader th {
 	text-align: center;
 	font-size: medium;
 	font-weight: bold;
 }
-
 .submit td {
 	width: 50%;
 	vertical-align: top;

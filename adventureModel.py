@@ -9,6 +9,7 @@ class Adventure(db.Model):
 	version = db.StringProperty(multiline=False)
 	desc = db.TextProperty()
 	approved = db.IntegerProperty()
+	adventureStatus = db.StringProperty(multiline=False)
 	created = db.DateTimeProperty(auto_now_add=True)
 	modified = db.DateTimeProperty(auto_now=True)
 	def toDict(self):
@@ -156,6 +157,7 @@ class Share(db.Model):
 
 class AdventureStatus(db.Model):
 	editableAdventure = db.ReferenceProperty(Adventure, collection_name="AS_editableAdventure_set")
+	submittedAdventure = db.ReferenceProperty(Adventure, collection_name="AS_submittedAdventure_set")
 	publishedAdventure = db.ReferenceProperty(Adventure, collection_name="AS_publishedAdventure_set")
 	status = db.IntegerProperty()
 	comment = db.TextProperty()
@@ -168,7 +170,7 @@ class AdventureStatus(db.Model):
 			statusName = 'Not Submitted'
 		elif self.status == 2:
 			statusName = 'Submitted'
-		elif self.status == 2:
+		elif self.status == 3:
 			statusName = 'Approved'
 		elif self.status == -1:
 			statusName = 'Not Approved'
@@ -177,10 +179,10 @@ class AdventureStatus(db.Model):
 		statusName = 'None'
 		if self.status == 1:
 			statusName = 'This story has not been submitted yet.'
-		elif self.status == 2:
-			statusName = 'This story has been submitted and is currently under review by our editors.'
-		elif self.status == 3 and publishedAdventure:
-			statusName = 'This story is approved. It should be readable by the general public and may be on the front page of the site. Read your published story <a href="/playStory?myAdventureKey=%s">here</a>.' % str(publishedAdventure.key())
+		elif self.status == 2 and self.submittedAdventure:
+			statusName = 'This story has been submitted and is currently under review by our editors.<br>Play your submitted story <a href="/playStory?myAdventureKey=%s">here</a>.' % str(self.submittedAdventure.key())
+		elif self.status == 3 and self.publishedAdventure:
+			statusName = 'This story is approved. It should be readable by the general public and may be on the front page of the site.<br>Play your published story <a href="/playStory?myAdventureKey=%s">here</a>.' % str(self.publishedAdventure.key())
 		elif self.status == -1:
 			statusName = 'This story was not approved. Please read the editor comments and submit again.'
 		return statusName
