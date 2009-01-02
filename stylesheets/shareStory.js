@@ -18,7 +18,7 @@ if (MY_ERROR) {
 
 //setup some globals
 var myDialog;
-
+var myRemoveDialog;
 
 function treeInit() {
 	myDialog = new YAHOO.widget.Dialog("dialogAddNewShare",

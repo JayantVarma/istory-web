@@ -35,8 +35,8 @@
 				<td class="myStoryButton"><a href="/createStory?myAdventureKey={{ as.submittedAdventure.key }}"><div class="icon-edit"></div>Edit Title &amp; Description</a></td>
 				<td class="myStoryButton"><a href="/storyEditor?myAdventureKey={{ as.submittedAdventure.key }}"><div class="icon-storyEdit"></div>StoryForge</a></td>
 				<td class="myStoryButton"><a href="/share?myAdventureKey={{ as.submittedAdventure.key }}"><div class="icon-share"></div>Share</a></td>
-				<td><a href="/admin?approved=yes&myAdventureKey={{ as.submittedAdventure.key }}">Approve</a>
-				<br><br><a href="/admin?approved=no&myAdventureKey={{ as.submittedAdventure.key }}">Deny</a></td>
+				<td><a href="javascript:approve('yes')">Approve</a>
+				<br><br><a href="javascript:approve('no')">Deny</a></td>
 			</tr></table>
 		</div>
 	{% endfor %}
@@ -44,4 +44,60 @@
 {% endblock %}
 
 {% block index %}
+{% endblock %}
+
+{% block footer %}
+<script type="text/javascript" src="http://yui.yahooapis.com/combo?2.6.0/build/utilities/utilities.js&2.6.0/build/container/container-min.js&2.6.0/build/resize/resize-min.js&2.6.0/build/imagecropper/imagecropper-beta-min.js&2.6.0/build/json/json-min.js&2.6.0/build/treeview/treeview-min.js"></script>
+
+<script type="text/javascript">
+//Add an onDOMReady handler to build the tree when the document is ready
+YAHOO.util.Event.onDOMReady(treeInit);
+//set shortcuts for common yahoo stuff
+var YUD = YAHOO.util.Dom, YUE = YAHOO.util.Event, YUC = YAHOO.util.Connect;
+
+//if there is no console, set it to null
+try { console.log('init console... done'); } catch(e) { console = { log: function() {} } }
+var dialog = null;
+
+function treeInit() {
+	var myText = "None";
+	dialog = new YAHOO.widget.SimpleDialog("simpledialog1", 
+	{ width: "300px",
+	  fixedcenter: true,
+	  visible: false,
+	  draggable: false,
+	  close: true,
+	  text: myText,
+	  icon: YAHOO.widget.SimpleDialog.ICON_HELP,
+	  constraintoviewport: true,
+	  buttons: [ { text:"Yes", handler:handleYes, isDefault:true },
+			  { text:"No",  handler:handleNo } ]
+	} );
+	//dialog.setHeader("Are you sure?");
+	console.log(dialog);
+}
+
+// Instantiate the Dialog
+function approve(approved) {
+	var myText = "None";
+	if (approved == 'yes') { myText = "Are you sure you want to APPROVE this story?"; }
+	else if (approved == 'no') { myText = "Are you sure you want to DENY this story?"; }
+	//dialog.setHeader(myText);	
+	console.log(dialog);
+	dialog.render();
+	dialog.show();
+}
+
+// Define various event handlers for Dialog
+var handleYes = function() {
+	//"/admin?approved=yes&myAdventureKey={{ as.submittedAdventure.key }}"
+	this.hide();
+};
+
+var handleNo = function() {
+	//"/admin?approved=no&myAdventureKey={{ as.submittedAdventure.key }}"
+	this.hide();
+};
+
+</script>
 {% endblock %}
