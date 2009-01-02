@@ -9,41 +9,24 @@ from google.appengine.ext import db
 from google.appengine.api import memcache
 import adventureModel
 import main
+import admin
 
-def getRating(adventure):
-	if not adventure:
-		logging.warn("getRating requires adventure")
-	q = None
-	memStr = None
-	rating = None
-	q = adventureModel.AdventureRating.all().filter('adventure =', adventure)
-	memStr = "rating" + str(adventure.key())
-	rating = memcache.get(memStr)
-	if rating:
-		logging.info("getRating: got from cache: " + memStr)
-	else:
-		ratings = q.fetch(1)
-		for myRating in ratings:
-			rating = myRating
-			memcache.add(memStr, rating, 3600)
-			logging.info("getRating: got from db: " + memStr)
-	return rating
-
-def getUserVote(adventure, user, iphone):
-	if not (adventure and (user or iphone)):
-		logging.warn("getUserVote requires adventure and either user or iphone")
+def getUserVote(adventureStatus, user, iphone):
+	if not (adventureStatus and (user or iphone)):
+		logging.warn("getUserVote requires adventureStatus and either user or iphone")
 	userVote = None
 	q = None
+	q2 = None
 	if user:
-		q = adventureModel.UserVotes.all().filter('adventure =', adventure).filter('voter =', user)
+		q = adventureModel.UserVotes.all().filter('adventureStatus =', adventureStatus).filter('voter =', user)
 		voter = user.email()
 	elif iphone:
-		q = adventureModel.UserVotes.all().filter('adventure =', adventure).filter('iphone =', iphone)
+		q = adventureModel.UserVotes.all().filter('adventureStatus =', adventureStatus).filter('iphone =', iphone)
 		voter = iphone
 	else:
 		logging.warn("stats: tried to vote but missing user or iphone")
 		return("You must be logged in to vote.")
-	memStr = "vote" + str(adventure.key()) + str(voter)
+	memStr = "vote" + str(adventureStatus.key()) + str(voter)
 	userVote = memcache.get(memStr)
 	if userVote:
 		logging.info("getUserVote: got from cache: " + memStr)
@@ -51,66 +34,49 @@ def getUserVote(adventure, user, iphone):
 		votes = q.fetch(1)
 		for myVote in votes:
 			userVote = myVote
+		if userVote:
 			memcache.add(memStr, userVote, 3600)
 			logging.info("getUserVote: got from db: " + memStr)
+		else:
+			logging.warn("getUserVote: could not find userVote with adventureStatus(%s) user(%s)" % (str(adventureStatus.key()), str(voter)))
 	return userVote
 
-def addAdventureStat(adventureKey, plays, vote, user, iphone, comment):
+def addAdventureStat(adventureStatus, plays, vote, user, iphone, comment):
 	#try to fetch the adventureRating, then increment the stats
-	#if it doesnt exist, create the record
 	rating = None
 	changed = False
-	adventure = None
 	output = "Nothing Recorded"
 	voteCount = 0
-	if not adventureKey:
-		logging.warn("stats: adventureKey is required")
-		return("Adventure Key not found in DB")
-	adventure = main.getAdventure(adventureKey)
-	if not adventure:
-		logging.warn("stats: adventure key was not found in the DB " + adventureKey)
-		return("Adventure Key not found in DB")
-	q = adventureModel.AdventureRating.all().filter('adventure =', adventure)
+	if not adventureStatus:
+		logging.warn("stats: adventureStatus is required")
+		return("adventureStatus is required")
+	q = adventureModel.AdventureRating.all().filter('adventureStatus =', adventureStatus)
 	ratings = q.fetch(1)
 	for myRating in ratings:
 		rating = myRating
 	if rating:
-		logging.info("addAdventurePlay: found rating key in the db: " + adventureKey)
+		logging.info("stats: found rating key in the db: " + str(adventureStatus.key()))
 	else:
-		logging.info("addAdventurePlay: rating key was not found in the db: " + adventureKey)
-		rating = adventureModel.AdventureRating()
-		rating.adventure = adventure
-		rating.voteCount = 0
-		rating.voteSum = 0
-		rating.plays = 0
-		rating.approved = 0
-		rating.rating = 0.0
-		rating.put()
+		logging.info("stats: rating key was not found in the db: " + str(adventureStatus.key()))
 		return("Rating Key not found in DB")
 	if plays and plays > 0:
 		rating.plays = rating.plays + plays
 		changed = True
 	if vote and vote >= 0:
 		#make sure this person hasn't already voted
-		userVote = None
-		q = None
 		voter = None
 		if user:
-			q = adventureModel.UserVotes.all().filter('adventure =', adventure).filter('voter =', user)
 			voter = user.email()
 		elif iphone:
-			q = adventureModel.UserVotes.all().filter('adventure =', adventure).filter('iphone =', iphone)
 			voter = iphone
 		else:
 			logging.warn("stats: tried to vote but missing user or iphone")
 			return("You must be logged in to vote.")
 		#delete the memcache vote record
-		memStr = "vote" + str(adventure.key()) + str(voter)
+		memStr = "vote" + str(adventureStatus.key()) + str(voter)
 		memcache.delete(memStr)
+		userVote = getUserVote(adventureStatus, user, iphone)
 		#fetch the vote
-		votes = q.fetch(1)
-		for myVote in votes:
-			userVote = myVote
 		if userVote:
 			logging.warn("stats: tried to vote but this user has already voted: " + voter)
 			output = "Vote Updated. Thank You!"
@@ -128,7 +94,7 @@ def addAdventureStat(adventureKey, plays, vote, user, iphone, comment):
 			output = "Vote Recorded. Thank You!"
 			voteCount = 1
 			userVote = adventureModel.UserVotes()
-			userVote.adventure = adventure
+			userVote.adventureStatus = rating.adventureStatus
 			userVote.voter = user
 			userVote.iphone = iphone
 			userVote.comment = comment
@@ -142,20 +108,20 @@ def addAdventureStat(adventureKey, plays, vote, user, iphone, comment):
 		if rating.voteCount > 0:
 			rating.rating = float(rating.voteSum) / float(rating.voteCount)
 		rating.put()
-		logging.info("addAdventurePlays: adventure(%s): plays(%d) votes(%d) voteSum(%d) rating(%f)" % (rating.adventure.title, rating.plays, rating.voteCount, rating.voteSum, rating.rating))
+		logging.info("stats: adventure(%s): plays(%d) votes(%d) voteSum(%d) rating(%f)" % (rating.adventureStatus.editableAdventure.title, rating.plays, rating.voteCount, rating.voteSum, rating.rating))
 	else:
-		logging.info("addAdventurePlays: nothing changed")
+		logging.info("stats: nothing changed")
 	return(output)
 
-def addAdventurePlay(adventureKey):
-	addAdventureStat(adventureKey, 1, 0, 0, None, None)
+def addAdventurePlay(adventureStatus):
+	addAdventureStat(adventureStatus, 1, 0, 0, None, None)
 	
-def addAdventureVote(adventureKey, vote, user, comment):
-	output = addAdventureStat(adventureKey, 0, vote, user, None, comment)
+def addAdventureVote(adventureStatus, vote, user, comment):
+	output = addAdventureStat(adventureStatus, 0, vote, user, None, comment)
 	return output
 
-def addAdventureVoteIphone(adventureKey, vote, iphone, comment):
-	output = addAdventureStat(adventureKey, 0, vote, None, iphone, comment)
+def addAdventureVoteIphone(adventureStatus, vote, iphone, comment):
+	output = addAdventureStat(adventureStatus, 0, vote, None, iphone, comment)
 	return output
 
 class Vote(webapp.RequestHandler):
@@ -166,21 +132,27 @@ class Vote(webapp.RequestHandler):
 	myComment = self.request.get('comment')
 	adventure = main.getAdventure(myAdventureKey)
 	output = None
+	adventureStatus = None
 	if not adventure:
 		logging.warn("Vote: adventure key did not exist in db: " + myAdventureKey)
-	#they either have to be a reader of this adventure, or be on the iPhone
-	if not main.isUserReader(users.get_current_user(), adventure):
-		error = 'Error: You are not a reader of this adventure'
-		output = "You do not have permission to vote on this adventure."
+	#they either have to be logged in, or be on the iPhone
+	if not users.get_current_user():
+		error = 'Error: You must be logged in to vote.'
+		output = "You must be logged in to vote."
 		if not myiphone:
 			logging.warn("Vote: trying to vote but user is not a reader and no iphone was passed in")
 			self.response.out.write(output)
 			return
-	#we should be good, lets send the vote
+	#we should be good, lets get the adventureStatus object now
+	adventureStatus = admin.getAdventureStatus(adventure)
+	if not adventureStatus:
+		logging.warn("Vote: could not get the adventureStatus record: " + myAdventureKey)
+		return
+	
 	if myiphone:
-		output = addAdventureVoteIphone(myAdventureKey, myVote, myiphone, myComment)
+		output = addAdventureVoteIphone(adventureStatus, myVote, myiphone, myComment)
 	else:
-		output = addAdventureVote(myAdventureKey, myVote, users.get_current_user(), myComment)
+		output = addAdventureVote(adventureStatus, myVote, users.get_current_user(), myComment)
 	self.response.out.write(output)
 	return
 

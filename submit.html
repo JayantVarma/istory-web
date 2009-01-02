@@ -8,11 +8,41 @@
 
 {% block main %}
 <div class="book3">
-	<p>UNDER CONSTRUCTION</p>
+	{% if error %}
+	{{ error }}
+	{% else %}
+		{% if comment %}
+			{{ comment }}<br><br>Redirecting your back to the submission form in 5 seconds...
+			<script language="JavaScript" type="text/javascript">
+			setTimeout("window.location.replace('/submit?myAdventureKey={{ adventureStatus.editableAdventure.key }}');", 5000);
+			</script>
+		{% else %}
+	<table class="submitHeader">
+		<tr><th colspan="2" style="text-align:center;">Story Submission Status</th>
+		</tr><tr><td style="width:100px;">{{ adventureStatus.statusName }}:</td><td>{{ adventureStatus.statusDesc }}</td>
+		</tr><tr><td style="width:100px;">Modified Date:</td><td>{{ adventureStatus.modified.date }}</td>
+		{% if adventureStatus.editorComment %}</tr><tr><td colspan="2">{{ adventureStatus.editorComment|escape }}</td>{% endif %}
+	</tr></table>
+</div>
+
+<div class="book3">
+	<table class="submit">
+		<tr><td colspan="2" style="text-align:center;">Once you submit your story, it will be duplicated.</td>
+		</tr><tr>
+			<td>This duplicate will be reviewed by our editors, and if approved, will be made available to all users. You will not be able to edit this version of the story.</td>
+			<td>The original version of your story will still be available to you for further editing. Any changes made will only be made to this version. The published version will remain unchanged. If you want to publish a new version, just submit the story again.</td>
+		</tr><tr><td colspan="2" style="text-align:center;">Story Submission Comments:
+	</tr></table>
 	<form method="post" action="/submit">
-	<textarea name="var" rows="5" cols="50"></textarea>
-	<p><input type="submit" value="Submit"></p>
+	<textarea name="comment" rows="5" cols="50">{% if adventureStatus.comment %}{{ adventureStatus.comment }}{% endif %}</textarea>
+	<p><input type="submit" value="Submit Your Story For Approval"></p>
+	<input type="hidden" name="myAdventureKey" value="{{ adventureStatus.editableAdventure.key }}">
 	</form>
 </div>
 
+		{% endif %}
+	{% endif %}
+{% endblock %}
+
+{% block index %}
 {% endblock %}

@@ -141,6 +141,7 @@ body hr {
 	border-style: dotted;
 	border-color: #000000;
 	text-align: center;
+	padding: 5px;
 }
 .layout_mainContent .book3 td {
 	text-align: left;
@@ -579,5 +580,19 @@ img { vertical-align: bottom; }
 	padding-top: 2px;
 	padding-bottom: 2px;
 }
+
+.submitHeader th {
+	text-align: center;
+	font-size: medium;
+	font-weight: bold;
+}
+
+.submit td {
+	width: 50%;
+	vertical-align: top;
+}
+
+
+
 
 

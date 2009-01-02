@@ -26,9 +26,11 @@ def getAdventure(key):
 		return None
 	adventure = memcache.get(key)
 	if adventure:
+		logging.info("got adventure from cache: " + key)
 		return adventure
 	adventure = db.Model.get(key)
 	if adventure:
+		logging.info("got adventure from db: " + key)
 		memcache.add(key, adventure, 3600)
 		return adventure
 	return None

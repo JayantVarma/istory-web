@@ -65,10 +65,10 @@
 		<div class="book3"><h1>Featured Stories</h1></div>
 	{% for rating in ratings %}
 		<div class="book">
-			<center><b><a href="/playStory?myAdventureKey={{ rating.adventure.key }}">{{ rating.adventure.title|escape }}</a></b><br>
-			<i>{{ rating.adventure.author|escape }}</i><br>
-			{{ rating.adventure.created.date }}</center><hr>
-			<code>{{ rating.adventure.desc|escape }}</code><hr>
+			<center><b><a href="/playStory?myAdventureKey={{ rating.adventure.key }}">{{ rating.adventureStatus.publishedAdventure.title|escape }}</a></b><br>
+			<i>{{ rating.adventureStatus.publishedAdventure.author|escape }}</i><br>
+			{{ rating.adventureStatus.publishedAdventure.created.date }}</center><hr>
+			<code>{{ rating.adventureStatus.publishedAdventure.desc|escape }}</code><hr>
 			<table class="ratings" id="{{ rating.rating }}"></table>
 			<span style="margin-right:20px;">Plays: {{ rating.plays }}</span><span style="margin-left:20px;">Votes: {{ rating.voteCount }}</span>
 		</div>
@@ -97,6 +97,9 @@
 </td></tr></table>
 
 {% block footer %}
+{% endblock %}
+
+{% block index %}
 <script type="text/javascript" src="http://yui.yahooapis.com/2.6.0/build/yahoo-dom-event/yahoo-dom-event.js"></script>
 <script type="text/javascript">
 //Add an onDOMReady handler to build the tree when the document is ready
@@ -106,7 +109,6 @@ var YUD = YAHOO.util.Dom, YUE = YAHOO.util.Event, YUC = YAHOO.util.Connect;
 
 //if there is no console, set it to null
 try { console.log('init console... done'); } catch(e) { console = { log: function() {} } }
-
 
 function treeInit() {
 	var ratings = YUD.getElementsByClassName('ratings', 'table', 'books');

@@ -19,7 +19,7 @@ class Index(webapp.RequestHandler):
 	if ratings is not None:
 		return ratings
 	else:
-		q = adventureModel.AdventureRating.all().filter('approved =', 0).order('-rating').order('created')
+		q = adventureModel.AdventureRating.all().filter('approved =', 1).order('-rating').order('created')
 		ratings = q.fetch(20)
 		if not memcache.add("adventures", ratings, 300):
 			logging.info("memcache set failed.")

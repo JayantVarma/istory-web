@@ -13,6 +13,7 @@ from django.utils import simplejson
 import adventureModel
 import main
 import ratings
+import admin
 
 class Play(webapp.RequestHandler):
   def get(self):
@@ -39,9 +40,17 @@ class Play(webapp.RequestHandler):
 		error = 'Error: You are not a reader of this adventure'
 	else:
 		title = adventure.title
-		userVote = ratings.getUserVote(adventure, users.get_current_user(), None)
 	if error:
 		logging.info('Play get: ' + error)
+
+	#add to the play stat counter and get the userVote if its not a playLite request
+	if not self.request.get('playLite'):
+		userVote = ratings.getUserVote(adventure, users.get_current_user(), None)
+		adventureStatus = admin.getAdventureStatus(adventure)
+		if not adventureStatus:
+			logging.warn("Play: could not get adventureStatus with adventure key: " + str(adventure.key()))
+		else:
+			ratings.addAdventurePlay(adventureStatus)
 
 	defaultTemplateValues = main.getDefaultTemplateValues(self)
 	templateValues = {
@@ -54,8 +63,6 @@ class Play(webapp.RequestHandler):
 	}
 	templateValues = dict(defaultTemplateValues, **templateValues)
 
-	#add to the play stat counter
-	ratings.addAdventurePlay(myAdventureKey)
 
 	if self.request.get('playLite'):
 		path = os.path.join(os.path.dirname(__file__), 'playStoryLite.html')

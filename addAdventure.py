@@ -48,6 +48,7 @@ class AddAdventure(webapp.RequestHandler):
 	adventure.author = self.request.get('author') or "[no author]"
 	adventure.desc = self.request.get('desc') or "[no description]"
 	adventure.version = "1.0"
+	adventure.approved = 0
 	adventure.put()
 	#we dont want to delete the cache of ratings because this adventure won't be approved or rated yet
 	#memcache.delete("ratings")
@@ -62,15 +63,21 @@ class AddAdventure(webapp.RequestHandler):
 		share.role = 3
 		share.status = 2
 		share.put()
+		#now create the adventureStatus record
+		adventureStatus = adventureModel.AdventureStatus()
+		adventureStatus.editableAdventure = adventure
+		adventureStatus.status = 1
+		adventureStatus.put()
 		#now create the rating record for this adventure
 		rating = adventureModel.AdventureRating()
-		rating.adventure = adventure
+		rating.adventureStatus = adventureStatus
 		rating.voteCount = 0
 		rating.voteSum = 0
 		rating.plays = 0
 		rating.approved = 0
 		rating.rating = 0.0
 		rating.put()
+
 	
 	#remove the cache object for all users who have a role for this adventure
 	q = adventureModel.Share.all().filter('adventure =', adventure)
@@ -79,7 +86,8 @@ class AddAdventure(webapp.RequestHandler):
 	for share in shares:
 		if share.child:
 			memcache.delete("adventures_" + share.child.email())
-	memcache.delete(str(adventure.key))
+	logging.info("addAdventure: deleting memcache object: " + str(adventure.key()))
+	memcache.delete(str(adventure.key()))
 	
 	logging.info("AddAdventure done for key: " + myAdventureKey)
 	#self.redirect('/myStories')

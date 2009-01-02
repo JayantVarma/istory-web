@@ -8,6 +8,7 @@ class Adventure(db.Model):
 	author = db.StringProperty(multiline=False)
 	version = db.StringProperty(multiline=False)
 	desc = db.TextProperty()
+	approved = db.IntegerProperty()
 	created = db.DateTimeProperty(auto_now_add=True)
 	modified = db.DateTimeProperty(auto_now=True)
 	def toDict(self):
@@ -131,47 +132,79 @@ class Share(db.Model):
 		elif self.role == 3:
 			roleName = 'an Admin'
 		return roleName
-	def toDict(self):
-		myChild = None
-		myChildNick = None
-		if self.child:
-			myChild = cgi.escape(str(self.child.email()))
-			myChildNick = cgi.escape(str(self.child.nickname()))
-		return {
-			'adventure':      str(self.adventure.key()),
-			'owner':          cgi.escape(str(self.owner.email())),
-			'child':          myChild,
-			'ownerNick':      cgi.escape(str(self.owner.nickname())),
-			'childNick':      myChildNick,
-			'childEmail':     cgi.escape(self.childEmail),
-			'childName':      cgi.escape(self.childName),
-			'role':           cgi.escape(str(self.role)),
-			'roleName':       cgi.escape(self.roleName()),
-			'roleNamePhrase': cgi.escape(self.roleNamePhrase()),
-			'inviteKey':      cgi.escape(self.inviteKey),
-			'status':         cgi.escape(str(self.status)),
-			'statusName':     cgi.escape(self.statusName()),
-		}
+	#def toDict(self):
+	#	myChild = None
+	#	myChildNick = None
+	#	if self.child:
+	#		myChild = cgi.escape(str(self.child.email()))
+	#		myChildNick = cgi.escape(str(self.child.nickname()))
+	#	return {
+	#		'adventure':      str(self.adventure.key()),
+	#		'owner':          cgi.escape(str(self.owner.email())),
+	#		'child':          myChild,
+	#		'ownerNick':      cgi.escape(str(self.owner.nickname())),
+	#		'childNick':      myChildNick,
+	#		'childEmail':     cgi.escape(self.childEmail),
+	#		'childName':      cgi.escape(self.childName),
+	#		'role':           cgi.escape(str(self.role)),
+	#		'roleName':       cgi.escape(self.roleName()),
+	#		'roleNamePhrase': cgi.escape(self.roleNamePhrase()),
+	#		'inviteKey':      cgi.escape(self.inviteKey),
+	#		'status':         cgi.escape(str(self.status)),
+	#		'statusName':     cgi.escape(self.statusName()),
+	#	}
+
+class AdventureStatus(db.Model):
+	editableAdventure = db.ReferenceProperty(Adventure, collection_name="AS_editableAdventure_set")
+	publishedAdventure = db.ReferenceProperty(Adventure, collection_name="AS_publishedAdventure_set")
+	status = db.IntegerProperty()
+	comment = db.TextProperty()
+	editorComment = db.TextProperty()
+	created = db.DateTimeProperty(auto_now_add=True)
+	modified = db.DateTimeProperty(auto_now=True)
+	def statusName(self):
+		statusName = 'None'
+		if self.status == 1:
+			statusName = 'Not Submitted'
+		elif self.status == 2:
+			statusName = 'Submitted'
+		elif self.status == 2:
+			statusName = 'Approved'
+		elif self.status == -1:
+			statusName = 'Not Approved'
+		return statusName
+	def statusDesc(self):
+		statusName = 'None'
+		if self.status == 1:
+			statusName = 'This story has not been submitted yet.'
+		elif self.status == 2:
+			statusName = 'This story has been submitted and is currently under review by our editors.'
+		elif self.status == 3 and publishedAdventure:
+			statusName = 'This story is approved. It should be readable by the general public and may be on the front page of the site. Read your published story <a href="/playStory?myAdventureKey=%s">here</a>.' % str(publishedAdventure.key())
+		elif self.status == -1:
+			statusName = 'This story was not approved. Please read the editor comments and submit again.'
+		return statusName
+
 
 class UserVotes(db.Model):
-	adventure = db.ReferenceProperty(Adventure)
+	adventureStatus = db.ReferenceProperty(AdventureStatus)
 	voter = db.UserProperty()
 	voterIphone = db.StringProperty(multiline=False)
-	comment = db.StringProperty(multiline=False)
+	comment = db.TextProperty()
 	vote = db.IntegerProperty()
 	created = db.DateTimeProperty(auto_now_add=True)
 	modified = db.DateTimeProperty(auto_now=True)
-	def toDict(self):
-		return {
-			'adventure':   str(self.adventure.key()),
-			'voter':       cgi.escape(str(self.voter.email())),
-			'voterIphone': cgi.escape(str(self.voterIphone)),
-			'comment':     cgi.escape(self.comment),
-			'vote':        cgi.escape(str(self.vote))
-		}
+	#def toDict(self):
+	#	return {
+	#		'adventure':   str(self.adventure.key()),
+	#		'voter':       cgi.escape(str(self.voter.email())),
+	#		'voterIphone': cgi.escape(str(self.voterIphone)),
+	#		'comment':     cgi.escape(self.comment),
+	#		'vote':        cgi.escape(str(self.vote))
+	#	}
 
 class AdventureRating(db.Model):
-	adventure = db.ReferenceProperty(Adventure)
+	adventureStatus = db.ReferenceProperty(AdventureStatus)
 	voteCount = db.IntegerProperty()
 	voteSum = db.IntegerProperty()
 	rating = db.FloatProperty()
@@ -179,12 +212,17 @@ class AdventureRating(db.Model):
 	approved = db.IntegerProperty()
 	created = db.DateTimeProperty(auto_now_add=True)
 	modified = db.DateTimeProperty(auto_now=True)
-	def toDict(self):
-		return {
-			'adventure': str(self.adventure.key()),
-			'approved': cgi.escape(str(self.approved)),
-			'voteCount': cgi.escape(str(self.voteCount)),
-			'voteSum':   cgi.escape(str(self.voteSum)),
-			'rating':    cgi.escape(str(self.rating)),
-			'plays':     cgi.escape(str(self.plays))
-		}
+	#def toDict(self):
+	#	return {
+	#		'adventure': str(self.adventureStatus.editableAdventure.key()),
+	#		'approved': cgi.escape(str(self.approved)),
+	#		'voteCount': cgi.escape(str(self.voteCount)),
+	#		'voteSum':   cgi.escape(str(self.voteSum)),
+	#		'rating':    cgi.escape(str(self.rating)),
+	#		'plays':     cgi.escape(str(self.plays))
+	#	}
+
+
+
+
+

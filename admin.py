@@ -12,16 +12,140 @@ from django.utils import simplejson
 import adventureModel
 import main
 
+def duplicateAdventure(adventure):
+	if not adventure:
+		return None
+	#Adventure
+	newAdventure = adventureModel.Adventure()
+	newAdventure.title =       adventure.title
+	newAdventure.realAuthor =  adventure.realAuthor
+	newAdventure.author =      adventure.author
+	newAdventure.version =     adventure.version
+	newAdventure.desc =        adventure.desc
+	newAdventure.created =     adventure.created
+	newAdventure.modified =    adventure.modified
+	newAdventure.put()
+	#Page & PageElement
+	q = adventureModel.Page.all().filter('adventure =', adventure)
+	pages = q.fetch(9999)
+	for page in pages:
+		newPage = adventureModel.Page()
+		newPage.adventure = newAdventure
+		newPage.name = page.name
+		newPage.created = page.created
+		newPage.modified = page.modified
+		newPage.put()
+		#now do the page elements for this page
+		q2 = adventureModel.PageElement.all().filter('adventure =', adventure).filter('page =', page)
+		pageEls = q2.fetch(9999)
+		for pageEl in pageEls:
+			newPageEl = adventureModel.PageElement()
+			newPageEl.adventure = newAdventure
+			newPageEl.page = newPage
+			newPageEl.dataType = pageEl.dataType
+			newPageEl.pageOrder = pageEl.pageOrder
+			newPageEl.dataA = pageEl.dataA
+			newPageEl.dataB = pageEl.dataB
+			newPageEl.imageRef = pageEl.imageRef
+			newPageEl.enabled = pageEl.enabled
+			newPageEl.created = pageEl.created
+			newPageEl.modified = pageEl.modified
+			newPageEl.put()
+	#Image
+	# we don't need to do image, since you cant really edit those
+	return newAdventure
+
+def getAdventureStatus(adventure):
+	adventureStatus = None
+	#first try to get it from the cache
+	adventureStatus = memcache.get('advStat' + str(adventure.key()))
+	if adventureStatus:
+		logging.info('getAdventureStatus: got record from cache')
+	else:
+		#try to get it from the db
+		q = adventureModel.AdventureStatus.all().filter('publishedAdventure =', adventure)
+		statuses = q.fetch(1)
+		for myStatus in statuses:
+			adventureStatus = myStatus
+		if adventureStatus:
+			logging.info('getAdventureStatus: got published adventure')
+		else:
+			#look it up via the editableAdventure now
+			q = adventureModel.AdventureStatus.all().filter('editableAdventure =', adventure)
+			statuses = q.fetch(1)
+			for myStatus in statuses:
+				adventureStatus = myStatus
+			if adventureStatus:
+				logging.info('getAdventureStatus: got editable adventure')
+			else:
+				logging.warn('getAdventureStatus: could not find AdventureStatus with key: ' + str(adventure.key()))
+				return
+		if adventureStatus:
+			#add it to the cache
+			logging.info('getAdventureStatus: got record from db')
+			memcache.add('advStat' + str(adventure.key()), adventureStatus, 86400)
+	return adventureStatus
+
 class Submit(webapp.RequestHandler):
-  def get(self):
+  def get(self, comment_in=None, myAdventureKey_in=None, submitFlag=False):
+	adventure = None
+	adventureStatus = None
+	error = None
+	myAdventureKey = None
+	submitComment = comment_in
+	comment = None
+	if myAdventureKey_in:
+		myAdventureKey = myAdventureKey_in
+	else:
+		myAdventureKey = self.request.get('myAdventureKey')
+	adventure = main.getAdventure(myAdventureKey)
+	if not adventure:
+		logging.warn('Submit: adventure was not found in the DB: ' + myAdventureKey)
+		error = "Adventure key was not found in the DB"
+	else:
+		#make sure the logged in person is an admin
+		if not main.isUserAdmin(users.get_current_user(), adventure):
+			logging.warning('RemoveShare post: you are not an admin of this adventure')
+			error = 'Error: You are not an admin of this adventure'
+		else:
+			#try to get the AdventureStatus record, if it doesn't exist, create it
+			adventureStatus = getAdventureStatus(adventure)
+			if not adventureStatus:
+				logging.warn("Submit: could not found adventureStatus record: " + myAdventureKey)
+			else:
+				logging.info('Submit: got adventureStatus record')
+	
+	#if we have a submitFlag, then we're trying to submit the form
+	if submitFlag and adventure and adventureStatus:
+		logging.info("Submit: submit flag was set. comment(%s)" % comment)
+		#now duplicate the story
+		adventureStatus.publishedAdventure = duplicateAdventure(adventure)
+		if adventureStatus.publishedAdventure:
+			comment = 'Your story has been submitted.'
+			adventureStatus.status = 2
+			adventureStatus.put()
+			#reset the cache
+			memcache.delete('advStat' + str(adventure.key()))
+		else:
+			error = 'Error, something went wrong with the submission.'
+		
+
 	defaultTemplateValues = main.getDefaultTemplateValues(self)
 	templateValues = {
+		'comment': comment,
+		'error': error,
+		'adventureStatus': adventureStatus,
 		'title': 'Submit Your Story For Approval',
 	}
 	templateValues = dict(defaultTemplateValues, **templateValues)
 
 	path = os.path.join(os.path.dirname(__file__), 'submit.html')
 	self.response.out.write(template.render(path, templateValues))
+
+  def post(self):
+	comment = self.request.get('comment')
+	myAdventureKey = self.request.get('myAdventureKey')
+	self.get(comment, myAdventureKey, True)
 
 class Admin(webapp.RequestHandler):
   def get(self):
