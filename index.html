@@ -65,7 +65,7 @@
 		<div class="book3"><h1>Featured Stories</h1></div>
 	{% for rating in ratings %}
 		<div class="book">
-			<center><b><a href="/playStory?myAdventureKey={{ rating.adventure.key }}">{{ rating.adventureStatus.publishedAdventure.title|escape }}</a></b><br>
+			<center><b><a href="/playStory?myAdventureKey={{ rating.adventureStatus.publishedAdventure.key }}">{{ rating.adventureStatus.publishedAdventure.title|escape }}</a></b><br>
 			<i>{{ rating.adventureStatus.publishedAdventure.author|escape }}</i><br>
 			{{ rating.adventureStatus.publishedAdventure.created.date }}</center><hr>
 			<code>{{ rating.adventureStatus.publishedAdventure.desc|escape }}</code><hr>

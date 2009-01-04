@@ -210,9 +210,10 @@ class ImageManager(webapp.RequestHandler):
 	main.printFooter(self, template_values)
 
 class ImageServer(webapp.RequestHandler):
-  def get(self):
+  def get(self, imageKey=None):
 	image = None
-	imageKey = self.request.get('imageKey')
+	if imageKey == None:
+		imageKey = self.request.get('imageKey')
 	if imageKey:
 		image = memcache.get("img" + imageKey)
 		if image:
@@ -375,11 +376,13 @@ class Uploader(webapp.RequestHandler):
 		return
 
 	#now we read the image data from the form and save the image into the DB
+	adventureStatus = main.getAdventure(adventure.adventureStatus)
+	if adventureStatus:
+		newImage.adventureStatus = adventureStatus
 	newImage.adventure = adventure.key()
 	newImage.realAuthor = users.get_current_user()
 	newImage.imageName = myImageName
-	newImage.pageElement = str(pageElement.key())
-	logging.info("imageName(" + newImage.imageName + ") pageElementRef(" + newImage.pageElement + ")")
+	logging.info("imageName(" + newImage.imageName + ")")
 	#last step- if the image is greater than 900 pixels in either dimension, resize it
 	if newImage.imageData:
 		imageOBJ = images.Image(newImage.imageData)

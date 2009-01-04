@@ -12,7 +12,7 @@
 	{{ error }}
 	{% else %}
 		{% if comment %}
-			{{ comment }}<br><br>Redirecting your back to the submission form in 5 seconds...
+			{{ comment }}<br><br>Redirecting you back to the submission form in 5 seconds...
 			<script language="JavaScript" type="text/javascript">
 			setTimeout("window.location.replace('/submit?myAdventureKey={{ adventureStatus.editableAdventure.key }}');", 5000);
 			</script>
@@ -21,8 +21,29 @@
 		<tr><th colspan="2" style="text-align:center;">Story Submission Status</th>
 		</tr><tr><td style="width:120px;">{{ adventureStatus.statusName }}:</td><td>{{ adventureStatus.statusDesc }}</td>
 		</tr><tr><td style="width:120px;">Modified Date:</td><td>{{ adventureStatus.modified.date }}</td>
-		{% if adventureStatus.editorComment %}</tr><tr><td colspan="2">{{ adventureStatus.editorComment|escape }}</td>{% endif %}
+		{% if adventureStatus.editorComment %}</tr><tr><td colspan="2">Editor Comments: {{ adventureStatus.editorComment|escape }}</td>{% endif %}
 	</tr></table>
+</div>
+
+<div class="book3">
+	<table class="submitHeader">
+		<tr>
+			<th style="text-align:center;">Editable Story</th>
+			<th style="text-align:center;">Submitted Story</th>
+			<th style="text-align:center;">Deployed Story</th>
+		</tr>
+		<tr>
+			<td style="text-align:center;">Version: 
+			{% if adventureStatus.editableAdventure %} {{ adventureStatus.editableAdventure.version }}{% else %}-{% endif %}
+			</td>
+			<td style="text-align:center;">Version: 
+			{% if adventureStatus.submittedAdventure %} {{ adventureStatus.submittedAdventure.version }}{% else %}-{% endif %}
+			</td>
+			<td style="text-align:center;">Version: 
+			{% if adventureStatus.publishedAdventure %} {{ adventureStatus.publishedAdventure.version }}{% else %}-{% endif %}
+			</td>
+		</tr>
+	</table>
 </div>
 
 <div class="book3">

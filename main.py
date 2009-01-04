@@ -18,6 +18,23 @@ import playStory
 import share
 import admin
 import ratings
+import xmlWriter
+
+def getPage(key):
+	#this returns an adventure object from the cache (if it exists there) or from the db (and then adds it to the cache)
+	if not key:
+		logging.error("ERROR: getPage called with no key")
+		return None
+	adventure = memcache.get(key)
+	if adventure:
+		logging.info("got page from cache: " + key)
+		return adventure
+	adventure = db.Model.get(key)
+	if adventure:
+		logging.info("got page from db: " + key)
+		memcache.add(key, adventure, 3600)
+		return adventure
+	return None
 
 def getAdventure(key):
 	#this returns an adventure object from the cache (if it exists there) or from the db (and then adds it to the cache)
@@ -126,6 +143,10 @@ def getDefaultTemplateValues(self):
 application = webapp.WSGIApplication(
 	[
 		('/', index.Index),
+		(r'^/xml/.+?/data/(.+?)\.png$', images.ImageServer),
+		(r'^/xml/(.+?)/data/(.+?)\.xml$', xmlWriter.XmlWriter),
+		(r'^/xml/(.+?)/(files\.xml)$', xmlWriter.XmlWriter),
+		(r'^/xml/adventures\.xml?$', xmlWriter.XmlWriter),
 		('/admin', admin.Admin),
 		('/submit', admin.Submit),
 		('/vote', ratings.Vote),
@@ -146,6 +167,7 @@ application = webapp.WSGIApplication(
 		('/movePageElement', pageElement.MovePageElement),
 		('/imageManager', images.ImageManager),
 		('/upload', images.Uploader),
+		(r'^/images/(.+?).png$', images.ImageServer),
 		('/images', images.ImageServer),
 		('/imagesByUser', images.ImagesByUser),
 		('/imageCropper', images.ImageCropper),

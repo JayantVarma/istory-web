@@ -1,7 +1,7 @@
 {% extends "index.html" %}
 
 {% block sidebar %}
-<h3>Admin</h3>
+<h3><a href="/admin">Admin</a></h3>
 <div class="sb1">
 <div>Do admin stuff here.</div>
 {% endblock %}
@@ -11,19 +11,21 @@
 	<form method="get" action="/admin">
 	<p>command: <select name="command">
 			<option value="delete story">delete story
+			<option value="move pages">move pages
 	</select></p>
 	<p>var: <input type="text" name="var" size="50"></p>
+	<p>var2: <input type="text" name="var2" size="50"></p>
 	<p><input type="submit" onclick="this.disabled=true"></p>
 	</form>
 </div>
 
 <div class="book3" style="text-align: left;">
-	<p style="font-size: x-small;">
+	<p id="msgBar" style="font-size: x-small;">
 	{{ output }}
 	</p>
 </div>
 
-<hr><div class="book3"><h1>Submitted Stories For Approval</h1></div>
+<hr><div id="books" class="book3"><h1>Submitted Stories For Approval</h1></div>
 <div class="books">
 	{% for as in adventureStatuses %}
 		<div class="book">
@@ -31,15 +33,28 @@
 			<i>{{ as.submittedAdventure.author|escape }}</i><br>
 			{{ as.submittedAdventure.created.date }}</center><hr>
 			<code>{{ as.submittedAdventure.desc|escape }}</code><hr>
+			<code>{{ as.comment|escape }}</code><hr>
 			<table><tr>
 				<td class="myStoryButton"><a href="/createStory?myAdventureKey={{ as.submittedAdventure.key }}"><div class="icon-edit"></div>Edit Title &amp; Description</a></td>
 				<td class="myStoryButton"><a href="/storyEditor?myAdventureKey={{ as.submittedAdventure.key }}"><div class="icon-storyEdit"></div>StoryForge</a></td>
 				<td class="myStoryButton"><a href="/share?myAdventureKey={{ as.submittedAdventure.key }}"><div class="icon-share"></div>Share</a></td>
-				<td><a href="javascript:approve('yes')">Approve</a>
-				<br><br><a href="javascript:approve('no')">Deny</a></td>
+				<td><a href="javascript:approve('yes', '{{ as.key }}')">Approve</a>
+				<br><br><a href="javascript:approve('no', '{{ as.key }}')">Deny</a></td>
 			</tr></table>
 		</div>
 	{% endfor %}
+</div>
+
+<div class="dialog" id="dialogSubmit" style="visibility:hidden">
+	<div id="dialogHeader" class="hd">Approve This Story</div>
+	<div class="bd">
+		<form name="formSubmit" method="POST" action="/admin">
+			<p id="dialogDesc"></p><hr><p>Your Comments:</p>
+			<textarea style="margin:10px;" cols="50" rows="3" name="adminComment"></textarea>
+			<input id="formStatusKey" type="hidden" name="myStatusKey" value="" />
+			<input id="formApproved" type="hidden" name="approved" value="" />
+		</form>
+	</div>
 </div>
 {% endblock %}
 
@@ -57,45 +72,54 @@ var YUD = YAHOO.util.Dom, YUE = YAHOO.util.Event, YUC = YAHOO.util.Connect;
 
 //if there is no console, set it to null
 try { console.log('init console... done'); } catch(e) { console = { log: function() {} } }
-var dialog = null;
+var myDialog = null;
 
 function treeInit() {
-	var myText = "None";
-	dialog = new YAHOO.widget.SimpleDialog("simpledialog1", 
-	{ width: "300px",
-	  fixedcenter: true,
-	  visible: false,
-	  draggable: false,
-	  close: true,
-	  text: myText,
-	  icon: YAHOO.widget.SimpleDialog.ICON_HELP,
-	  constraintoviewport: true,
-	  buttons: [ { text:"Yes", handler:handleYes, isDefault:true },
-			  { text:"No",  handler:handleNo } ]
+	myDialog = new YAHOO.widget.Dialog("dialogSubmit",
+	{
+		width: "30em",
+		fixedcenter: true,
+		visible: false,
+		constraintoviewport: true,
+		buttons: [
+			{ text:"Yes", handler:handleYes, isDefault:true },
+			{ text:"No", handler:handleNo }
+		]
 	} );
-	//dialog.setHeader("Are you sure?");
-	console.log(dialog);
+	myDialog.callback.success = submitSuccess;
+	myDialog.callback.failure = submitFailure;
+}
+
+var submitSuccess = function(o) {
+	console.log('submit success: ' + o.responseText);
+	YUD.get("msgBar").innerHTML = o.responseText;
+}
+var submitFailure = function(o) {
+	console.log("submit: fail");
 }
 
 // Instantiate the Dialog
-function approve(approved) {
+function approve(approved, statusKey) {
 	var myText = "None";
-	if (approved == 'yes') { myText = "Are you sure you want to APPROVE this story?"; }
-	else if (approved == 'no') { myText = "Are you sure you want to DENY this story?"; }
-	//dialog.setHeader(myText);	
-	console.log(dialog);
-	dialog.render();
-	dialog.show();
+	var myHeader = "None";
+	if (approved == 'yes') { myText = "Are you sure you want to APPROVE this story?"; myHeader = "APPROVE"; }
+	else if (approved == 'no') { myText = "Are you sure you want to DENY this story?"; myHeader = "DENY"; }
+
+	YUD.get("dialogHeader").innerHTML = myHeader;
+	YUD.get("dialogDesc").innerHTML = myText;
+	YUD.get("formStatusKey").value = statusKey;
+	YUD.get("formApproved").value = approved;
+	console.log("showing approve(" + approved + ") form for key: " + statusKey);
+	myDialog.render();
+	myDialog.show();
 }
 
 // Define various event handlers for Dialog
 var handleYes = function() {
-	//"/admin?approved=yes&myAdventureKey={{ as.submittedAdventure.key }}"
-	this.hide();
+	this.submit();
 };
 
 var handleNo = function() {
-	//"/admin?approved=no&myAdventureKey={{ as.submittedAdventure.key }}"
 	this.hide();
 };
 

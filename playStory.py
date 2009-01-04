@@ -44,13 +44,14 @@ class Play(webapp.RequestHandler):
 		logging.info('Play get: ' + error)
 
 	#add to the play stat counter and get the userVote if its not a playLite request
-	if not self.request.get('playLite'):
-		adventureStatus = admin.getAdventureStatus(adventure.adventureStatus)
-		if not adventureStatus:
-			logging.warn("Play: could not get adventureStatus with adventure key: " + str(adventure.key()))
-		else:
-			userVote = ratings.getUserVote(adventureStatus, users.get_current_user(), None)
-			ratings.addAdventurePlay(adventureStatus)
+	if adventure:
+		if not self.request.get('playLite'):
+			adventureStatus = admin.getAdventureStatus(adventure.adventureStatus)
+			if not adventureStatus:
+				logging.warn("Play: could not get adventureStatus with adventure key: " + str(adventure.key()))
+			else:
+				userVote = ratings.getUserVote(adventureStatus, users.get_current_user(), None)
+				ratings.addAdventurePlay(adventureStatus)
 
 	defaultTemplateValues = main.getDefaultTemplateValues(self)
 	templateValues = {

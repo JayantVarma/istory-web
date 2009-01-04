@@ -135,6 +135,9 @@ class Vote(webapp.RequestHandler):
 	adventureStatus = None
 	if not adventure:
 		logging.warn("Vote: adventure key did not exist in db: " + myAdventureKey)
+		output = "Error: Adventure key did not exist in database."
+		self.response.out.write(output)
+		return
 	#they either have to be logged in, or be on the iPhone
 	if not users.get_current_user():
 		error = 'Error: You must be logged in to vote.'

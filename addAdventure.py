@@ -47,8 +47,8 @@ class AddAdventure(webapp.RequestHandler):
 	adventure.title = self.request.get('title') or "[no title]"
 	adventure.author = self.request.get('author') or "[no author]"
 	adventure.desc = self.request.get('desc') or "[no description]"
-	adventure.version = "1.0"
 	adventure.approved = 0
+	adventure.version = 0.0
 	adventure.put()
 	#we dont want to delete the cache of ratings because this adventure won't be approved or rated yet
 	#memcache.delete("ratings")
@@ -67,6 +67,7 @@ class AddAdventure(webapp.RequestHandler):
 		adventureStatus = adventureModel.AdventureStatus()
 		adventureStatus.editableAdventure = adventure
 		adventureStatus.status = 1
+		adventureStatus.version = 0.0
 		adventureStatus.put()
 		#save the adventureStatus key back to the adventure record
 		adventure.adventureStatus = str(adventureStatus.key())

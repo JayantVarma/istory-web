@@ -58,7 +58,8 @@ def deleteAdventure(adventure):
 	memcache.delete(str(adventure.key()))
 	memcache.delete('pages' + str(adventure.key()))
 	memcache.delete("adventures")
-	memcache.delete(adventure.adventureStatus)
+	if adventure.adventureStatus:
+		memcache.delete(adventure.adventureStatus)
 	adventure.delete()
 	logging.info('deleteAdventure: done')
 	logging.info(output)
@@ -72,8 +73,8 @@ def duplicateAdventure(adventure):
 	newAdventure.title =       adventure.title
 	newAdventure.realAuthor =  adventure.realAuthor
 	newAdventure.author =      adventure.author
-	newAdventure.version =     adventure.version
 	newAdventure.desc =        adventure.desc
+	newAdventure.version =     adventure.version
 	newAdventure.approved = -1
 	newAdventure.adventureStatus = adventure.adventureStatus
 	newAdventure.created =     adventure.created
@@ -212,15 +213,65 @@ Check it out at: http://istoryweb.appspot.com/admin
 	self.get(comment, myAdventureKey, True)
 
 class Admin(webapp.RequestHandler):
+  def post(self):
+	if not users.is_current_user_admin():
+		return
+	myAdventureStatusKey = self.request.get('myStatusKey')
+	approved = self.request.get('approved')
+	adminComment = self.request.get('adminComment')
+	logging.info("Admin post: statusKey(%s) approved(%s) adminComment(%s)" % (myAdventureStatusKey, approved, adminComment))
+	#get the AdventureStatus record
+	adventureStatus = getAdventureStatus(myAdventureStatusKey)
+	if not adventureStatus:
+		logging.warn("Admin post: could not find adventure status key: " + myAdventureStatusKey)
+	#if approved
+	if approved == "yes":
+		#apply the editor comment and approve this record
+		adventureStatus.editorComment = adminComment
+		adventureStatus.status = 3
+		#delete the published adventure and change the submitted adventure to the published adventure
+		if adventureStatus.publishedAdventure:
+			deleteAdventure(adventureStatus.publishedAdventure)
+		adventureStatus.publishedAdventure = adventureStatus.submittedAdventure
+		adventureStatus.submittedAdventure = None
+		#increment the version number
+		adventureStatus.version = adventureStatus.version + 1.0
+		adventureStatus.editableAdventure.version = adventureStatus.version
+		adventureStatus.publishedAdventure.version = adventureStatus.version
+		#approve the published adventure
+		adventureStatus.publishedAdventure.approved = 1
+		#save the record
+		adventureStatus.put()
+		adventureStatus.editableAdventure.put()
+		adventureStatus.publishedAdventure.put()
+		#find the adventureRating record and set it to approved as well
+		for rating in adventureStatus.ratings:
+			rating.approved = 1
+			rating.put()
+		#clear out some memcache records
+		memcache.delete("xmlMainRatings")
+		memcache.delete("adventures")
+		memcache.delete(str(adventureStatus.editableAdventure.key()))
+		memcache.delete(str(adventureStatus.publishedAdventure.key()))
+		memcache.delete(str(adventureStatus.key()))
+	#if not approved
+	if approved == "no":
+		#apply the editor comment and deny this record
+		adventureStatus.editorComment = adminComment
+		adventureStatus.status = -1
+		#save the record
+		adventureStatus.put()
+	self.response.out.write("Success: this adventure has been changed to approval status '%s'" % approved)
+
   def get(self):
 	if not users.is_current_user_admin():
 		return
 	myAdventureKey = self.request.get('myAdventureKey')
-	approved = self.request.get('approved')
 	command = self.request.get('command')
 	var = self.request.get('var')
+	var2 = self.request.get('var2')
 	logging.info("Admin get: myAdventureKey(%s)" % (myAdventureKey))
-	output = "Admin get: myAdventureKey(%s) approved(%s) command(%s) var(%s)<br>" % (myAdventureKey, approved, command, var)
+	output = "Admin get: myAdventureKey(%s) command(%s) var(%s) var2(%s)<br>" % (myAdventureKey, command, var, var2)
 
 	if command == 'delete story' and var:
 		#this will delete all story data for a given adventure
@@ -237,6 +288,26 @@ class Admin(webapp.RequestHandler):
 		else:
 			output += deleteAdventure(adventure)
 			memcache.delete(var)
+	elif command == 'move pages' and var and var2:
+		#this will move pages from var to var2
+		adventure = db.Model.get(var)
+		adventure2 = db.Model.get(var2)
+		pageCounter = 0
+		pageElCounter = 0
+		if adventure and adventure2:
+			for page in adventure.pages:
+				page.adventure = adventure2
+				page.put()
+				pageCounter = pageCounter + 1
+				for pageElement in page.pageElements:
+					pageElement.adventure = adventure2
+					pageElement.put()
+					pageElCounter = pageElCounter + 1
+		output += "Admin get: move pages: moved %d pages and %d page elements" % (pageCounter, pageElCounter)
+		memcache.delete(var)
+		memcache.delete(var2)
+		memcache.delete('pages' + var)
+		memcache.delete('pages' + var2)
 			
 	#show any stories waiting to be approved
 	q = adventureModel.AdventureStatus.all().filter('status =', 2)

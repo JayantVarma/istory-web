@@ -357,7 +357,7 @@ var playPage = function(pageKey) {
 			//image element
 			//console.log("page element image: " + pageElement.dataA);
 			if (pageElement.dataA) {
-				newDiv.innerHTML = '<div class="playerSmall"><img src="/images?imageKey=' + pageElement.imageRef + '"></div>';
+				newDiv.innerHTML = '<div class="playerSmall"><center><img src="/images?imageKey=' + pageElement.imageRef + '"></center></div>';
 			}
 		}
 		if (pageElement.dataType == 3) {

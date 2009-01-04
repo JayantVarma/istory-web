@@ -1,14 +1,16 @@
 from google.appengine.ext import db
 import logging
 import cgi
+from xml.sax.saxutils import escape
+from xml.sax.saxutils import quoteattr
 
 class Adventure(db.Model):
 	title = db.StringProperty(multiline=False)
 	realAuthor = db.UserProperty()
 	author = db.StringProperty(multiline=False)
-	version = db.StringProperty(multiline=False)
 	desc = db.TextProperty()
 	approved = db.IntegerProperty()
+	version = db.FloatProperty()
 	adventureStatus = db.StringProperty(multiline=False)
 	created = db.DateTimeProperty(auto_now_add=True)
 	modified = db.DateTimeProperty(auto_now=True)
@@ -20,7 +22,7 @@ class Adventure(db.Model):
 		}
 
 class Page(db.Model):
-	adventure = db.ReferenceProperty(Adventure)
+	adventure = db.ReferenceProperty(Adventure, collection_name='pages')
 	name = db.StringProperty(multiline=False)
 	created = db.DateTimeProperty(auto_now_add=True)
 	modified = db.DateTimeProperty(auto_now=True)
@@ -30,58 +32,15 @@ class Page(db.Model):
 			'key': str(self.key()),
 			'name': cgi.escape(self.name),
 		}
-
-class Image(db.Model):
-	adventure = db.ReferenceProperty(Adventure)
-	pageElement = db.StringProperty(multiline=False)
-	imageName = db.StringProperty(multiline=False)
-	imageData = db.BlobProperty()
-	realAuthor = db.UserProperty()
-	created = db.DateTimeProperty(auto_now_add=True)
-	modified = db.DateTimeProperty(auto_now=True)
-	def toDict(self):
-		return {
-			'adventure': str(self.adventure.key()),
-			'imageName': cgi.escape(self.imageName),
-			'realAuthor': cgi.escape(str(self.realAuthor.nickname())),
-			'key': str(self.key()),
-			'pageElement': self.pageElement,
-		}
-
-class PageElement(db.Model):
-	page = db.ReferenceProperty(Page)
-	adventure = db.ReferenceProperty(Adventure)
-	dataType = db.IntegerProperty()
-	pageOrder = db.IntegerProperty()
-	dataA = db.TextProperty()
-	dataB = db.TextProperty()
-	imageRef = db.ReferenceProperty(Image)
-	enabled = db.IntegerProperty()
-	created = db.DateTimeProperty(auto_now_add=True)
-	modified = db.DateTimeProperty(auto_now=True)
-	def toDict(self):
-		imageRef = None
-		try:
-			if self.imageRef:
-				imageRef = str(self.imageRef.key())
-		except Exception, e:
-			logging.info('%s: %s' % (e.__class__.__name__, e))
-			self.imageRef = None
-			self.put()
-		myDataB = None
-		if self.dataB:
-			myDataB = cgi.escape(self.dataB)
-		return {
-			'page':      str(self.page.key()),
-			'adventure': str(self.adventure.key()),
-			'key':       str(self.key()),
-			'dataType':  self.dataType,
-			'pageOrder': self.pageOrder,
-			'dataA':     cgi.escape(self.dataA),
-			'dataB':     myDataB,
-			'enabled':   self.enabled,
-			'imageRef':  imageRef,
-		}
+	def pageHeaderToXML(self):
+		myName = 'None'
+		if self.name:
+			myName = self.name
+		return '''<file>
+	<name>%s.xml</name>
+	<page>%s</page>
+</file>
+''' % (escape(str(self.key())), escape(myName))
 
 class Share(db.Model):
 	adventure = db.ReferenceProperty(Adventure)
@@ -159,6 +118,7 @@ class AdventureStatus(db.Model):
 	editableAdventure = db.ReferenceProperty(Adventure, collection_name="AS_editableAdventure_set")
 	submittedAdventure = db.ReferenceProperty(Adventure, collection_name="AS_submittedAdventure_set")
 	publishedAdventure = db.ReferenceProperty(Adventure, collection_name="AS_publishedAdventure_set")
+	version = db.FloatProperty()
 	status = db.IntegerProperty()
 	comment = db.TextProperty()
 	editorComment = db.TextProperty()
@@ -182,7 +142,7 @@ class AdventureStatus(db.Model):
 		elif self.status == 2 and self.submittedAdventure:
 			statusName = 'This story has been submitted and is currently under review by our editors.<br>Play your submitted story <a href="/playStory?myAdventureKey=%s">here</a>.' % str(self.submittedAdventure.key())
 		elif self.status == 3 and self.publishedAdventure:
-			statusName = 'This story is approved. It should be readable by the general public and may be on the front page of the site.<br>Play your published story <a href="/playStory?myAdventureKey=%s">here</a>.' % str(self.publishedAdventure.key())
+			statusName = 'This story is approved. It is readable by the general public and may be on the front page of the site.<br>Play your published story <a href="/playStory?myAdventureKey=%s">here</a>.' % str(self.publishedAdventure.key())
 		elif self.status == -1:
 			statusName = 'This story was not approved. Please read the editor comments and submit again.'
 		return statusName
@@ -206,7 +166,7 @@ class UserVotes(db.Model):
 	#	}
 
 class AdventureRating(db.Model):
-	adventureStatus = db.ReferenceProperty(AdventureStatus)
+	adventureStatus = db.ReferenceProperty(AdventureStatus, collection_name='ratings')
 	voteCount = db.IntegerProperty()
 	voteSum = db.IntegerProperty()
 	rating = db.FloatProperty()
@@ -214,6 +174,32 @@ class AdventureRating(db.Model):
 	approved = db.IntegerProperty()
 	created = db.DateTimeProperty(auto_now_add=True)
 	modified = db.DateTimeProperty(auto_now=True)
+	def getPageCount(self):
+		pageCount = 0
+		adventure = None
+		if self.adventureStatus.publishedAdventure:
+			adventure = self.adventureStatus.publishedAdventure
+		else:
+			adventure = self.adventureStatus.editableAdventure
+		for page in adventure.pages:
+			pageCount = pageCount + 1
+		return pageCount
+	def toXML(self):
+		adventure = None
+		if self.adventureStatus.publishedAdventure:
+			adventure = self.adventureStatus.publishedAdventure
+		else:
+			adventure = self.adventureStatus.editableAdventure
+		return '''<adventure>
+	<id>%s</id>
+	<title>%s</title>
+	<desc>%s</desc>
+	<author>%s</author>
+	<pages>%d</pages>
+	<version>%f</version>
+</adventure>
+''' % (escape(str(adventure.key())), escape(adventure.title), escape(adventure.desc), escape(adventure.author), self.getPageCount(), self.adventureStatus.version)
+
 	#def toDict(self):
 	#	return {
 	#		'adventure': str(self.adventureStatus.editableAdventure.key()),
@@ -224,6 +210,84 @@ class AdventureRating(db.Model):
 	#		'plays':     cgi.escape(str(self.plays))
 	#	}
 
+class Image(db.Model):
+	adventure = db.ReferenceProperty(Adventure)
+	adventureStatus = db.ReferenceProperty(AdventureStatus, collection_name='images')
+	imageName = db.StringProperty(multiline=False)
+	imageData = db.BlobProperty()
+	realAuthor = db.UserProperty()
+	created = db.DateTimeProperty(auto_now_add=True)
+	modified = db.DateTimeProperty(auto_now=True)
+	def toXML(self):
+		myName = 'None'
+		if self.imageName:
+			myName = self.imageName
+		return '''<file>
+	<name>%s.png</name>
+	<page>%s</page>
+</file>
+''' % (escape(str(self.key())), escape(myName))
+	def toDict(self):
+		return {
+			'adventure': str(self.adventure.key()),
+			'imageName': cgi.escape(self.imageName),
+			'realAuthor': cgi.escape(str(self.realAuthor.nickname())),
+			'key': str(self.key()),
+		}
+
+class PageElement(db.Model):
+	page = db.ReferenceProperty(Page, collection_name='pageElements')
+	adventure = db.ReferenceProperty(Adventure, collection_name='adventurePageElements')
+	dataType = db.IntegerProperty()
+	pageOrder = db.IntegerProperty()
+	dataA = db.TextProperty()
+	dataB = db.TextProperty()
+	imageRef = db.ReferenceProperty(Image)
+	enabled = db.IntegerProperty()
+	created = db.DateTimeProperty(auto_now_add=True)
+	modified = db.DateTimeProperty(auto_now=True)
+	def toXML(self):
+		myDataA = ''
+		if self.dataA:
+			myDataA = self.dataA
+		myDataB = ''
+		if self.dataB:
+			myDataB = self.dataB
+		myImageRef = ''
+		if self.imageRef:
+			myImageRef = str(self.imageRef.key())
+		if self.dataType == 1:
+			#text
+			return '<text>%s</text>' % escape(myDataA)
+		elif self.dataType == 2:
+			#image
+			return '<image>%s.png</image>' % myImageRef
+		elif self.dataType == 3:
+			#choice
+			return '<choice name=%s goto=%s />' % (quoteattr(myDataA), quoteattr(myDataB))
+	def toDict(self):
+		imageRef = None
+		try:
+			if self.imageRef:
+				imageRef = str(self.imageRef.key())
+		except Exception, e:
+			logging.info('%s: %s' % (e.__class__.__name__, e))
+			self.imageRef = None
+			self.put()
+		myDataB = None
+		if self.dataB:
+			myDataB = cgi.escape(self.dataB)
+		return {
+			'page':      str(self.page.key()),
+			'adventure': str(self.adventure.key()),
+			'key':       str(self.key()),
+			'dataType':  self.dataType,
+			'pageOrder': self.pageOrder,
+			'dataA':     cgi.escape(self.dataA),
+			'dataB':     myDataB,
+			'enabled':   self.enabled,
+			'imageRef':  imageRef,
+		}
 
 
 

@@ -11,10 +11,8 @@ import adventureModel
 import addAdventure
 import main
 
-class Index(webapp.RequestHandler):
-
-  #this actually gives you the 20 highest ratings, each one links to an adventure
-  def getRatings(self):
+#this actually gives you the 20 highest ratings, each one links to an adventure
+def getRatings():
 	ratings = memcache.get("adventures")
 	if ratings is not None:
 		return ratings
@@ -25,8 +23,10 @@ class Index(webapp.RequestHandler):
 			logging.info("memcache set failed.")
 		return ratings
 
+class Index(webapp.RequestHandler):
+
   def get(self):
-	ratings = self.getRatings()
+	ratings = getRatings()
 
 	defaultTemplateValues = main.getDefaultTemplateValues(self)
 	templateValues = {
