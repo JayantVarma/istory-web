@@ -245,7 +245,7 @@ class ImageServer(webapp.RequestHandler):
 	if image:
 		logging.info("serving unknown image from cache")
 	else:
-		image = db.Model.get('aglpc3Rvcnl3ZWJyCwsSBUltYWdlGA0M')
+		image = db.Model.get('aglpc3Rvcnl3ZWJyDAsSBUltYWdlGNYUDA')
 		memcache.add("img" + "unknown", image, 86400)
 		logging.info("serving unknown image from db")
 	return image
@@ -375,6 +375,8 @@ class Uploader(webapp.RequestHandler):
 		self.error(404)
 		return
 
+	#assign the pageElement reference
+	newImage.pageElement = str(pageElement.key())
 	#now we read the image data from the form and save the image into the DB
 	adventureStatus = main.getAdventure(adventure.adventureStatus)
 	if adventureStatus:

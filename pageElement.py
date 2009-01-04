@@ -155,25 +155,33 @@ class SavePageElement(webapp.RequestHandler):
 		#existing page element
 		logging.info("SavePageElement: key(" + myPageElKey + ") passed in did exist in DB, must be existing")
 		pageElement = db.Model.get(myPageElKey)
-		page = pageElement.page
-		adventure = pageElement.adventure
+		if pageElement:
+			page = pageElement.page
+			adventure = pageElement.adventure
+		else:
+			logging.warn("SavePageElement: key(%s) passed in did not exist in DB" % myPageElKey)
+			return
 	else:
 		#new page element
-		logging.info("SavePageElement: key passed in did not exist in DB, must be new")
+		logging.info("SavePageElement: no page element key given, must be new")
 		myPageKey = self.request.get('myPageKey')
 		if (not myPageKey):
 			logging.info("SavePageELement: expected myPageKey but it is null")
 			return
 		page = db.Model.get(myPageKey)
-		adventure = page.adventure
-		pageElement = adventureModel.PageElement()
-		#we dont want to change these things so we only set them when the page element is new
-		pageElement.adventure = adventure.key()
-		dataType = self.request.get('elementType')
-		try:
-			pageElement.dataType = int(dataType)
-		except:
-			logging.info("SavePageElement: expected elementType because new pageElement, but did not get it")
+		if page:
+			adventure = page.adventure
+			pageElement = adventureModel.PageElement()
+			#we dont want to change these things so we only set them when the page element is new
+			pageElement.adventure = adventure.key()
+			dataType = self.request.get('elementType')
+			try:
+				pageElement.dataType = int(dataType)
+			except:
+				logging.info("SavePageElement: expected elementType because new pageElement, but did not get it")
+				return
+		else:
+			logging.warn("SavePageElement: new page element bu pageKey did not exist in DB: " + myPageKey)
 			return
 
 	if users.get_current_user():

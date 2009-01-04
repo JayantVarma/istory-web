@@ -213,6 +213,8 @@ class AdventureRating(db.Model):
 class Image(db.Model):
 	adventure = db.ReferenceProperty(Adventure)
 	adventureStatus = db.ReferenceProperty(AdventureStatus, collection_name='images')
+	#we need pageElement for uploading new images. we have to store the page element here so we can send it back to the client via json
+	pageElement = db.StringProperty(multiline=False)
 	imageName = db.StringProperty(multiline=False)
 	imageData = db.BlobProperty()
 	realAuthor = db.UserProperty()
@@ -230,6 +232,7 @@ class Image(db.Model):
 	def toDict(self):
 		return {
 			'adventure': str(self.adventure.key()),
+			'pageElement': cgi.escape(self.pageElement),
 			'imageName': cgi.escape(self.imageName),
 			'realAuthor': cgi.escape(str(self.realAuthor.nickname())),
 			'key': str(self.key()),

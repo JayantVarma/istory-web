@@ -299,7 +299,7 @@ var addPageElementToWorkArea = function(pageElement, idx) {
 			//also put the page key and page element order into the form
 			myHTML += '<input id="myPageElKey' + idx + '" type="hidden" name="myPageElKey" value="' + pageElKey + '">';
 			myHTML += '<input id="myPageKey' + idx + '" type="hidden" name="myPageKey" value="' + nodeToKeyMap[currentNodeIndex] + '">';
-			myHTML += '<input id="myPageOrder' + idx + '" type="hidden" name="myPageOrder" value="' + idx + '">';
+			myHTML += '<input id="myPageOrder' + idx + '" type="hidden" name="myPageOrder" value="' + pageElement.pageOrder + '">';
 			myHTML += '<input id="imageRef' + idx + '" type="hidden" name="imageRef" value="' + imageRef + '">';
 			myHTML += '</form>';
 		}
@@ -572,6 +572,9 @@ var processImageCallback = function(o) {
 
 	//add the new pageElement key to the value of the myPageElKey hidden form input
 	YUD.get('myPageElKey' + idx).value = m.pageElement;
+	console.log(m.pageElement)
+	console.log("processImageCallback: set myPageElKey to " + YUD.get('myPageElKey' + idx).value + " for element: ")
+	console.log(YUD.get('myPageElKey' + idx))
 
 	//fire off a page element save, pass in the dom ID of the save button
 	pageElSave('save' + idx);
@@ -609,6 +612,7 @@ var pageElUp = function(e) {
 	console.log("obj: " + obj + ", parent: " + parent);
 	//loop through the parent div's children (the page elements)
 	for (var i = pageElements.childNodes.length-1; i >= 0;  i--) {
+		console.log("MOVE PAGE EL UP: " + i);
 		pageEl = pageElements.childNodes[i];
 		console.log(pageEl);
 		//is this the node we're moving?
@@ -618,12 +622,14 @@ var pageElUp = function(e) {
 			//get the next DIV, remove this DIV from the parent DIV, then insert it before the previous DIV
 			myPreviousDiv = YUD.getPreviousSibling(myMovingDiv);
 			if (myPreviousDiv) {
+				console.log("got previous div:");
+				console.log(myPreviousDiv);
 				myPreviousDivNode = tree.getNodeByIndex(domIdToNodeIndexMap[myPreviousDiv.id]);
 				myPreviousDivNode.value.pageOrder = i;
 				removedDiv = pageElements.removeChild(myMovingDiv);
 				removedDivNode = tree.getNodeByIndex(domIdToNodeIndexMap[removedDiv.id]);
-				removedDivNode.value.pageOrder = i+1;
-				pageElements.insertBefore(removedDiv, myPreviousDiv.previousSibling);
+				removedDivNode.value.pageOrder = i-1;
+				YUD.insertBefore(removedDiv, myPreviousDiv);
 				console.log("   moved div to pageOrder: " + removedDivNode.value.pageOrder);
 				console.log("   moved next sibling div to pageOrder: " + myPreviousDivNode.value.pageOrder);
 				if (removedDivNode.value.key) {
@@ -720,7 +726,7 @@ var pageElDown = function(e) {
 				removedDiv = pageElements.removeChild(myMovingDiv);
 				removedDivNode = tree.getNodeByIndex(domIdToNodeIndexMap[removedDiv.id]);
 				removedDivNode.value.pageOrder = i+1;
-				pageElements.insertBefore(removedDiv, myNextDiv.nextSibling);
+				YUD.insertAfter(removedDiv, myNextDiv);
 				console.log("   moved div to pageOrder: " + removedDivNode.value.pageOrder);
 				console.log("   moved next sibling div to pageOrder: " + myNextDivNode.value.pageOrder);
 				if (removedDivNode.value.key) {
