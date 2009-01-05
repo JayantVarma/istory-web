@@ -18,9 +18,12 @@
 	</div>
 {% for share in shares %}
 	<div class="book">
-		<center><b><a href="/playStory?myAdventureKey={{ share.adventure.key }}">{{ share.adventure.title|escape }}</a></b><br>
-		<i>{{ share.adventure.author|escape }}</i><br>
-		{{ share.adventure.created.date }} ({{ share.roleName }})</center><hr>
+		<center>
+			<b><a href="/playStory?myAdventureKey={{ share.adventure.key }}">{{ share.adventure.title|escape }}</a></b><br>
+			<i>{{ share.adventure.author|escape }}</i><br>
+			{{ share.adventure.created.date }} ({{ share.roleName }})<hr>
+			{% if share.adventure.coverImage %}<img src="/images/{{ share.adventure.coverImage }}.png"><hr>{% endif %}
+		</center>
 		<code>{{ share.adventure.desc|truncatewords:"30"|escape }}</code><hr>
 		<table><tr>
 

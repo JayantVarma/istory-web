@@ -143,6 +143,7 @@ def getDefaultTemplateValues(self):
 application = webapp.WSGIApplication(
 	[
 		('/', index.Index),
+		('/xml/signup', admin.Signup),
 		(r'^/xml/.+?/data/(.+?)\.png$', images.ImageServer),
 		(r'^/xml/(.+?)/data/(.+?)\.xml$', xmlWriter.XmlWriter),
 		(r'^/xml/(.+?)/(files\.xml)$', xmlWriter.XmlWriter),

@@ -325,3 +325,19 @@ class Admin(webapp.RequestHandler):
 
 	path = os.path.join(os.path.dirname(__file__), 'admin.html')
 	self.response.out.write(template.render(path, templateValues))
+
+
+class Signup(webapp.RequestHandler):
+  def get(self):
+	myEmail = self.request.get('email')
+	myDeviceID = self.request.get('deviceID')
+	logging.info("Signup: email(%s) deviceID(%s)" % (myEmail, myDeviceID))
+	self.response.out.write("%s has been sent an invitation." % myEmail)
+
+
+
+
+
+
+
+

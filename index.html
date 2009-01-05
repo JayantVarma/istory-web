@@ -65,9 +65,12 @@
 		<div class="book3"><h1>Featured Stories</h1></div>
 	{% for rating in ratings %}
 		<div class="book">
-			<center><b><a href="/playStory?myAdventureKey={{ rating.adventureStatus.publishedAdventure.key }}">{{ rating.adventureStatus.publishedAdventure.title|escape }}</a></b><br>
-			<i>{{ rating.adventureStatus.publishedAdventure.author|escape }}</i><br>
-			{{ rating.adventureStatus.publishedAdventure.created.date }}</center><hr>
+			<center>
+				<b><a href="/playStory?myAdventureKey={{ rating.adventureStatus.publishedAdventure.key }}">{{ rating.adventureStatus.publishedAdventure.title|escape }}</a></b><br>
+				<i>{{ rating.adventureStatus.publishedAdventure.author|escape }}</i><br>
+				{{ rating.adventureStatus.publishedAdventure.created.date }}<hr>
+				{% if rating.adventureStatus.publishedAdventure.coverImage %}<img src="/images/{{ rating.adventureStatus.publishedAdventure.coverImage }}.png"><hr>{% endif %}
+			</center>
 			<code>{{ rating.adventureStatus.publishedAdventure.desc|escape }}</code><hr>
 			<table class="ratings" id="{{ rating.rating }}"></table>
 			<span style="margin-right:20px;">Plays: {{ rating.plays }}</span><span style="margin-left:20px;">Votes: {{ rating.voteCount }}</span>
