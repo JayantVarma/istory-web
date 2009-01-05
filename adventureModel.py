@@ -9,6 +9,7 @@ class Adventure(db.Model):
 	realAuthor = db.UserProperty()
 	author = db.StringProperty(multiline=False)
 	desc = db.TextProperty()
+	coverImage = db.StringProperty(multiline=False)
 	approved = db.IntegerProperty()
 	version = db.FloatProperty()
 	adventureStatus = db.StringProperty(multiline=False)
@@ -190,6 +191,9 @@ class AdventureRating(db.Model):
 			adventure = self.adventureStatus.publishedAdventure
 		else:
 			adventure = self.adventureStatus.editableAdventure
+		myCoverImage = ''
+		if adventure.coverImage:
+			myCoverImage = escape(adventure.coverImage + '.png')
 		return '''<adventure>
 	<id>%s</id>
 	<title>%s</title>
@@ -197,8 +201,9 @@ class AdventureRating(db.Model):
 	<author>%s</author>
 	<pages>%d</pages>
 	<version>%f</version>
+	<coverImage>%s</coverImage>
 </adventure>
-''' % (escape(str(adventure.key())), escape(adventure.title), escape(adventure.desc), escape(adventure.author), self.getPageCount(), self.adventureStatus.version)
+''' % (escape(str(adventure.key())), escape(adventure.title), escape(adventure.desc), escape(adventure.author), self.getPageCount(), self.adventureStatus.version, myCoverImage)
 
 	#def toDict(self):
 	#	return {
@@ -230,9 +235,12 @@ class Image(db.Model):
 </file>
 ''' % (escape(str(self.key())), escape(myName))
 	def toDict(self):
+		myPageElement = None
+		if self.pageElement:
+			myPageElement = cgi.escape(self.pageElement)
 		return {
 			'adventure': str(self.adventure.key()),
-			'pageElement': cgi.escape(self.pageElement),
+			'pageElement': myPageElement,
 			'imageName': cgi.escape(self.imageName),
 			'realAuthor': cgi.escape(str(self.realAuthor.nickname())),
 			'key': str(self.key()),
@@ -245,7 +253,7 @@ class PageElement(db.Model):
 	pageOrder = db.IntegerProperty()
 	dataA = db.TextProperty()
 	dataB = db.TextProperty()
-	imageRef = db.ReferenceProperty(Image)
+	imageRef = db.ReferenceProperty(Image, collection_name='pageElements')
 	enabled = db.IntegerProperty()
 	created = db.DateTimeProperty(auto_now_add=True)
 	modified = db.DateTimeProperty(auto_now=True)
@@ -255,7 +263,7 @@ class PageElement(db.Model):
 			myDataA = self.dataA
 		myDataB = ''
 		if self.dataB:
-			myDataB = self.dataB
+			myDataB = self.dataB + '.xml'
 		myImageRef = ''
 		if self.imageRef:
 			myImageRef = str(self.imageRef.key())

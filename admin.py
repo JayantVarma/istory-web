@@ -79,6 +79,7 @@ def duplicateAdventure(adventure):
 	newAdventure.adventureStatus = adventure.adventureStatus
 	newAdventure.created =     adventure.created
 	newAdventure.modified =    adventure.modified
+	newAdventure.coverImage =  adventure.coverImage
 	newAdventure.put()
 	#Page & PageElement
 	oldPageToNewPageMap = {}
@@ -250,6 +251,7 @@ class Admin(webapp.RequestHandler):
 			rating.put()
 		#clear out some memcache records
 		memcache.delete("xmlMainRatings")
+		memcache.delete('XmlPages' + str(adventureStatus.publishedAdventure.key()))
 		memcache.delete("adventures")
 		memcache.delete(str(adventureStatus.editableAdventure.key()))
 		memcache.delete(str(adventureStatus.publishedAdventure.key()))

@@ -8,6 +8,7 @@ from google.appengine.ext import webapp
 from google.appengine.ext.webapp.util import run_wsgi_app
 from google.appengine.ext import db
 from google.appengine.api import memcache
+from google.appengine.api import images
 from django.utils import simplejson
 import adventureModel
 import main
@@ -81,7 +82,49 @@ class AddAdventure(webapp.RequestHandler):
 		rating.approved = 0
 		rating.rating = 0.0
 		rating.put()
-
+	#handle the coverImage
+	newCoverImage = self.request.get('coverImage')
+	oldCoverImage = adventure.coverImage
+	if newCoverImage:
+		myImageSizeBytes = len(newCoverImage)
+		logging.info("GOT IMAGE DATA!! " + str(myImageSizeBytes) + ' bytes.')
+		if myImageSizeBytes > 1048576:
+			logging.info("ERROR: Image was too large(%d bytes). 1 megabyte is the max size." % (myImageSizeBytes))
+			self.response.out.write("ERROR: Image was too large. 1 megabyte is the max size.")
+			return
+		if len(newCoverImage) > 100:
+			logging.info("AddAdventure: got new cover image")
+			imageOBJ = images.Image(newCoverImage)
+			#resize to 320x150
+			imageOBJ.resize(320, 150)
+			newImage = adventureModel.Image()
+			newImage.imageData = imageOBJ.execute_transforms()
+			#setup the rest of the image metadata
+			newImage.adventure = adventure
+			if adventure.adventureStatus:
+				adventureStatus = main.getAdventure(adventure.adventureStatus)
+				if adventureStatus:
+					newImage.adventureStatus = adventureStatus
+			if not newImage.adventureStatus:
+				logging.warn("AddAdventure: trying to use new coverImage and adventureStatus could not be found")
+			newImage.pageElement = "coverImage"
+			newImage.imageName = "Cover Image"
+			newImage.realAuthor = users.get_current_user()
+			newImage.put()
+			adventure.coverImage = str(newImage.key())
+			adventure.put()
+			#delete the old cover image if it exists and no page elements are using it
+			if oldCoverImage:
+				oldCoverImage = db.Model.get(oldCoverImage)
+				if oldCoverImage:
+					deleteFlag = True
+					for pageElement in oldCoverImage.pageElements:
+						deleteFlag = False
+						logging.info("AddAdventure: not deleting old cover image because it is in use by a page element")
+						break
+					if deleteFlag:
+						logging.info("AddAdventure: deleting old cover image")
+						oldCoverImage.delete()
 	
 	#remove the cache object for all users who have a role for this adventure
 	q = adventureModel.Share.all().filter('adventure =', adventure)
