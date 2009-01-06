@@ -12,12 +12,12 @@
 <td><form method="GET" action="/shareInvite">
 	<input type="hidden" name="shareInviteKey" value="{{ share.key }}" />
 	<input type="hidden" name="response" value="1" />
-	<input type="submit" value="Accept" onclick="this.disabled=true"/>
+	<input type="submit" value="Accept" onclick="this.form.submit();this.disabled=true"/>
 </form></td>
 <td><form method="GET" action="/shareInvite">
 	<input type="hidden" name="shareInviteKey" value="{{ share.key }}" />
 	<input type="hidden" name="response" value="0" />
-	<input type="submit" value="Ignore" onclick="this.disabled=true"/>
+	<input type="submit" value="Ignore" onclick="this.form.submit();this.disabled=true"/>
 </form></td>
 </tr></table>
 </div>

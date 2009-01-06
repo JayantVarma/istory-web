@@ -56,7 +56,7 @@
 	</tr></table>
 	<form method="post" action="/submit">
 	<textarea name="comment" rows="5" cols="50">{% if adventureStatus.comment %}{{ adventureStatus.comment }}{% endif %}</textarea>
-	<p><input type="submit" value="Submit Your Story For Approval" onclick="this.disabled=true"></p>
+	<p><input type="submit" value="Submit Your Story For Approval" onclick="this.form.submit();this.disabled=true"></p>
 	<input type="hidden" name="myAdventureKey" value="{{ adventureStatus.editableAdventure.key }}">
 	</form>
 </div>

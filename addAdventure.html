@@ -17,9 +17,9 @@
 			<tr><th>Cover Image:</th><td><img src="/images/{{ adventure.coverImage }}.png"></td></tr>
 		{% endif %}
 		<tr><th>New Cover Image (320x150):</th><td><input tabindex="2" type="file" name="coverImage"></td></tr>
-		<tr><td colspan="2"><center><input tabindex="4" type="submit" value="{{ buttonText }}" onclick="this.disabled=true"></center></td></tr>
-		<input type="hidden" name="myAdventureKey" value="{{ adventure.key }}">
+		<tr><td colspan="2"><center><input id="submitButton" tabindex="4" type="submit" value="{{ buttonText }}" onclick="this.form.submit();this.disabled=true"></center></td></tr>
 		</table>
+		<input type="hidden" name="myAdventureKey" value="{{ adventure.key }}">
 		</form>
 	{% else %}
 	<a href="{{ url }}">{{ url_linktext }}</a>
@@ -30,21 +30,6 @@
 {% endblock %}
 
 {% block index %}
-<script type="text/javascript" src="http://yui.yahooapis.com/2.6.0/build/yahoo-dom-event/yahoo-dom-event.js"></script>
-<script type="text/javascript">
-//Add an onDOMReady handler to build the tree when the document is ready
-YAHOO.util.Event.onDOMReady(treeInit);
-//set shortcuts for common yahoo stuff
-var YUD = YAHOO.util.Dom, YUE = YAHOO.util.Event, YUC = YAHOO.util.Connect;
-
-//if there is no console, set it to null
-try { console.log('init console... done'); } catch(e) { console = { log: function() {} } }
-
-function treeInit() {
-	YAHOO.util.Event.on('addAdventure', 'submit', function(e) {
-	});
-}
-</script>
 {% endblock %}
 
 

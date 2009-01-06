@@ -295,7 +295,7 @@ var addPageElementToWorkArea = function(pageElement, idx) {
 			myHTML += '<tr><th>' + orVariable + 'Upload A New Image</th></tr>';
 			myHTML += '<tr><td><input id="imageData' + idx + '" type="file" name="imageData" /></td></tr>';
 			myHTML += '<tr><td>Image name: <input id="imageName' + idx + '" type="text" name="imageName" value="' + imageName + '"/></td></tr>';
-			myHTML += '<tr><td><input id="submit' + idx + '" type="submit" value="Use / Upload / Rename Image" onclick="this.disabled=true"></td></tr></table>';
+			myHTML += '<tr><td><input id="submit' + idx + '" type="submit" value="Use / Upload / Rename Image" onclick="this.form.submit();this.disabled=true"></td></tr></table>';
 			//also put the page key and page element order into the form
 			myHTML += '<input id="myPageElKey' + idx + '" type="hidden" name="myPageElKey" value="' + pageElKey + '">';
 			myHTML += '<input id="myPageKey' + idx + '" type="hidden" name="myPageKey" value="' + nodeToKeyMap[currentNodeIndex] + '">';
