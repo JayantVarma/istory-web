@@ -102,27 +102,27 @@ class Share(db.Model):
 		elif self.role == 3:
 			roleName = 'an Admin'
 		return roleName
-	#def toDict(self):
-	#	myChild = None
-	#	myChildNick = None
-	#	if self.child:
-	#		myChild = cgi.escape(str(self.child.email()))
-	#		myChildNick = cgi.escape(str(self.child.nickname()))
-	#	return {
-	#		'adventure':      str(self.adventure.key()),
-	#		'owner':          cgi.escape(str(self.owner.email())),
-	#		'child':          myChild,
-	#		'ownerNick':      cgi.escape(str(self.owner.nickname())),
-	#		'childNick':      myChildNick,
-	#		'childEmail':     cgi.escape(self.childEmail),
-	#		'childName':      cgi.escape(self.childName),
-	#		'role':           cgi.escape(str(self.role)),
-	#		'roleName':       cgi.escape(self.roleName()),
-	#		'roleNamePhrase': cgi.escape(self.roleNamePhrase()),
-	#		'inviteKey':      cgi.escape(self.inviteKey),
-	#		'status':         cgi.escape(str(self.status)),
-	#		'statusName':     cgi.escape(self.statusName()),
-	#	}
+	def toDict(self):
+		myChild = None
+		myChildNick = None
+		if self.child:
+			myChild = cgi.escape(str(self.child.email()))
+			myChildNick = cgi.escape(str(self.child.nickname()))
+		return {
+			'adventure':      str(self.adventure.key()),
+			'owner':          cgi.escape(str(self.owner.email())),
+			'child':          myChild,
+			'ownerNick':      cgi.escape(str(self.owner.nickname())),
+			'childNick':      myChildNick,
+			'childEmail':     cgi.escape(self.childEmail),
+			'childName':      cgi.escape(self.childName),
+			'role':           cgi.escape(str(self.role)),
+			'roleName':       cgi.escape(self.roleName()),
+			'roleNamePhrase': cgi.escape(self.roleNamePhrase()),
+			'inviteKey':      cgi.escape(self.inviteKey),
+			'status':         cgi.escape(str(self.status)),
+			'statusName':     cgi.escape(self.statusName()),
+		}
 
 class AdventureStatus(db.Model):
 	editableAdventure = db.ReferenceProperty(Adventure, collection_name="AS_editableAdventure_set")

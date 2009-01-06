@@ -22,7 +22,7 @@
 				<td class="star" id="star5"><span class="icon-starEmpty"></span></td>
 			</tr><tr><td colspan="5">Comment (optional):<br><form id="voteForm" action="/vote" method="POST">
 				<textarea id="voteComment" name="comment" rows="5" cols="25"></textarea><br>
-			</tr><tr><td colspan="5"><input type="submit" value="Vote!" onclick="this.form.submit();this.disabled=true">
+			</tr><tr><td colspan="5"><input type="submit" value="Vote!" onclick="this.disabled=true">
 				<input type="hidden" name="myAdventureKey" value="{{ adventure.key }}">
 				<input type="hidden" name="vote" id="voteValue" value="-1">
 				</form>
