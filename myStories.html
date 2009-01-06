@@ -4,16 +4,12 @@
 <div class="infoBar"><a href="/shareInvite?key={{ shareInvite.inviteKey }}">You have been invited to be {{ shareInvite.roleNamePhrase }} on '{{ shareInvite.adventure.title }}' by {{ shareInvite.owner.nickname }}</a></div>
 {% endfor %}
 
-		<!--[if !IE]><!-->
-	<div class="books">
-		<div class="book">
-		<!--<![endif]-->
-		<!--[if IE]>
-	<table class="books">
-		<tr><th><span>
-		<![endif]-->
-		<center><b><a href="/createStory">Create A New Story</a></b><br>
-		<hr>
+<div class="books">
+	<span class="book"><div>
+		<center>
+			<b><a href="/createStory">Create A New Story</a></b><br>
+			<hr><img src="/stylesheets/bookCover{{ coverImages|random }}.png"><hr>
+		</center>
 		<code>The StoryForge awaits =)</code><hr>
 		<table><tr>
 		<td class="myStoryButtonDisabled"><div class="icon-editD"></div>Edit Title &amp; Description</td>
@@ -21,19 +17,9 @@
 		<td class="myStoryButtonDisabled"><div class="icon-shareD"></div>Share</td>
 		<td class="myStoryButtonDisabled"><div class="icon-submitD"></div>Submit For Approval</td>
 		</tr></table>
-			<!--[if !IE]><!-->
-	</div>
-			<!--<![endif]-->
-			<!--[if IE]>
-	</span></th>
-			<![endif]-->
+	</div></span>
 {% for share in shares %}
-		<!--[if !IE]><!-->
-	<div class="book">
-		<!--<![endif]-->
-		<!--[if IE]>
-	{% cycle <th><span>,<tr><th><span> %}
-		<![endif]-->
+	<span class="book"><div>
 		<center>
 			<b><a href="/playStory?myAdventureKey={{ share.adventure.key }}">{{ share.adventure.title|escape }}</a></b><br>
 			<i>{{ share.adventure.author|escape }}</i><br>
@@ -68,19 +54,9 @@
 		{% endif %}
 
 		</tr></table>
-			<!--[if !IE]><!-->
-	</div>
-			<!--<![endif]-->
-			<!--[if IE]>
-	{% cycle </span></td></tr>,</span></td> %}
-			<![endif]-->
+	</div></span>
 {% endfor %}
-		<!--[if !IE]><!-->
 </div>
-		<!--<![endif]-->
-		<!--[if IE]>
-</table>
-		<![endif]-->
 {% endblock %}
 
 

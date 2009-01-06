@@ -122,6 +122,16 @@ class AddAdventure(webapp.RequestHandler):
 						deleteFlag = False
 						logging.info("AddAdventure: not deleting old cover image because it is in use by a page element")
 						break
+					#also check the editable, submitted, and published adventure on this adventureStatus
+					if adventureStatus.editableAdventure:
+						if adventureStatus.editableAdventure.coverImage == str(oldCoverImage.key()):
+							deleteFlag = False
+					if adventureStatus.submittedAdventure:
+						if adventureStatus.submittedAdventure.coverImage == str(oldCoverImage.key()):
+							deleteFlag = False
+					if adventureStatus.publishedAdventure:
+						if adventureStatus.publishedAdventure.coverImage == str(oldCoverImage.key()):
+							deleteFlag = False
 					if deleteFlag:
 						logging.info("AddAdventure: deleting old cover image")
 						oldCoverImage.delete()

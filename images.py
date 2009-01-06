@@ -233,6 +233,8 @@ class ImageServer(webapp.RequestHandler):
 					memcache.add("img" + imageKey, image, 3600)
 				except Exception, e:
 					logging.error('ImageServer memcache add exception: %s: %s' % (e.__class__.__name__, e))
+	if not image:
+		image = self.getErrorImage()
 	if image.imageData:
 		self.response.headers['Content-Type'] = 'image/png'
 		self.response.out.write(image.imageData)

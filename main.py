@@ -126,6 +126,7 @@ def getDefaultTemplateValues(self):
 
 	stats = memcache.get_stats()
 	templateValues = {
+		'coverImages': [1, 2, 3, 4],
 		'currentUser': currentUser,
 		'loggedIn': loggedIn,
 		'loginURL': loginURL,

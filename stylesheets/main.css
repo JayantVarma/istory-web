@@ -85,19 +85,22 @@ body hr {
 	margin: 2px;
 }
 .layout_mainContent .books {
-	width: 100%;
-	margin: 0px;
+	width: 540;
 	padding: 0px;
-	text-align:left;
+	margin-left: auto;
+	margin-right: auto;
+	vertical-align: top;
+	text-align: left;
+	zoom: 1;
 }
 .layout_mainContent .book {
 	display: inline-block;
 	text-align:center;
 	vertical-align:top;
-	width: 239px;
-	margin-right:5px;
-	margin-left:9px;
-	padding:5px;
+	width: 240px;
+	margin-right:4px;
+	margin-left:12px;
+	padding:3px;
 	margin-top:5px;
 	margin-bottom:5px;
 	font-size:small;
@@ -106,40 +109,19 @@ body hr {
 	border-width: 1px;
 	border-style: dotted;
 	border-color: #000000;
+	zoom: 1;
 }
 .layout_mainContent .book div {
-	margin-left: auto;
-	margin-right: auto;
 	text-align: center;
-}
-.layout_mainContent .books {
 	margin-left: auto;
 	margin-right: auto;
-	vertical-align: top;
-	zoom: 1;
-}
-.layout_mainContent .books th {
-	vertical-align: top;
-}
-.layout_mainContent .books span {
-	zoom: 1;
-	width: 250px;
-	padding: 3px;
-	margin: 10px;
-	text-align:center;
-	vertical-align:top;
-	font-size:small;
-	background:#CCCCCC;
-	color:#000000;
-	border-width: 1px;
-	border-style: dotted;
-	border-color: #000000;
-}
-.layout_mainContent .books td {
-	font-size:x-small;
 }
 .layout_mainContent .book table {
+	width:100%;
 	font-size:x-small;
+}
+.layout_mainContent .book td {
+	text-align: center;
 }
 .layout_mainContent .book .ratings {
 	margin-left: auto;
