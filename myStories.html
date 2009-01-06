@@ -57,6 +57,16 @@
 	</div></span>
 {% endfor %}
 </div>
+
+{% if iphoneLinks %}
+<div class="book3">
+	iPhones linked to your account:<ul>
+	{% for iphoneLink in iphoneLinks %}
+		<li>{{ iphoneLink.iphoneId|escape }}
+	{% endfor %}
+	</ul>
+</div>
+{% endif %}
 {% endblock %}
 
 

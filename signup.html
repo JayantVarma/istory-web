@@ -1,0 +1,32 @@
+{% extends "index.html" %}
+
+{% block main %}
+
+{% if error %}
+<div class="infoBar">{{ error }}</div>
+{% else %}
+
+<div class="infoBar" style="text-align:left;">
+{% if currentUser %}
+Your iphone is now linked with your account.<br>
+<br>
+Next steps:<br>
+Go To <a href="/myStories">My Stories</a> and create a new iStory.<br>
+<br>
+When you are ready to test it out, just fire up iStory on your iPhone and you should see it in the main list of stories.<br>
+<br>
+Thanks again for registering,<br>
+Taylor Steil and the iStory Team
+{% else %}
+To finish the registration process, you need to <a href="{{ loginURLMain }}">login with your Google account</a>.
+{% endif %}
+</div>
+
+{% endif %}
+{% endblock %}
+
+{% block footer %}
+{% endblock %}
+
+{% block index %}
+{% endblock %}

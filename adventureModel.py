@@ -43,6 +43,15 @@ class Page(db.Model):
 </file>
 ''' % (escape(str(self.key())), escape(myName))
 
+class iphoneLink(db.Model):
+	regEmail = db.StringProperty(multiline=False)
+	regKey = db.StringProperty(multiline=False)
+	iphoneId = db.StringProperty(multiline=False)
+	verified = db.IntegerProperty()
+	user = db.UserProperty()
+	created = db.DateTimeProperty(auto_now_add=True)
+	modified = db.DateTimeProperty(auto_now=True)
+
 class Share(db.Model):
 	adventure = db.ReferenceProperty(Adventure)
 	owner = db.UserProperty()

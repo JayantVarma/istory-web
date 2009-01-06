@@ -19,6 +19,7 @@ import share
 import admin
 import ratings
 import xmlWriter
+import signup
 
 def getPage(key):
 	#this returns an adventure object from the cache (if it exists there) or from the db (and then adds it to the cache)
@@ -111,6 +112,10 @@ def isUserSomething(user, adventure, role):
 def getDefaultTemplateValues(self):
 	myStoriesURL = '/myStories'
 	myStories = 'My Stories'
+	loginURL = None
+	login = None
+	loggedIn = None
+	loginURLMain = None
 	
 	loggedIn = None
 	currentUser = users.get_current_user()
@@ -121,8 +126,7 @@ def getDefaultTemplateValues(self):
 	else:
 		loginURL = '/myStories'
 		login = 'Login to access the <b>StoryForge</b> and begin creating your adventure!'
-#		loginURL = users.create_login_url(self.request.uri)
-#		login = 'Login'
+		loginURLMain = users.create_login_url(self.request.uri)
 
 	stats = memcache.get_stats()
 	templateValues = {
@@ -130,6 +134,7 @@ def getDefaultTemplateValues(self):
 		'currentUser': currentUser,
 		'loggedIn': loggedIn,
 		'loginURL': loginURL,
+		'loginURLMain': loginURLMain,
 		'login': login,
 		'myStoriesURL': myStoriesURL,
 		'myStories': myStories,
@@ -144,7 +149,8 @@ def getDefaultTemplateValues(self):
 application = webapp.WSGIApplication(
 	[
 		('/', index.Index),
-		('/xml/signup', admin.Signup),
+		('/signup', signup.SignupDone),
+		('/xml/signup', signup.Signup),
 		(r'^/xml/.+?/data/(.+?)\.png$', images.ImageServer),
 		(r'^/xml/(.+?)/data/(.+?)\.xml$', xmlWriter.XmlWriter),
 		(r'^/xml/(.+?)/(files\.xml)$', xmlWriter.XmlWriter),

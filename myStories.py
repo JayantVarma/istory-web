@@ -13,6 +13,25 @@ import addAdventure
 import main
 import storyEditor
 
+def getIphoneLinks():
+	iphoneLinks = None
+	if not users.get_current_user():
+		logging.warn("getIphoneLinks: you must be signed in")
+		return
+	memStr = 'iphoneLinks' + users.get_current_user().email()
+	#try to get it from the cache first
+	iphoneLinks = memcache.get(memStr)
+	if iphoneLinks:
+		logging.info("getIphoneLinks: got from cache: " + memStr)
+	if not iphoneLinks:
+		q = adventureModel.iphoneLink.all().filter('user =', users.get_current_user())
+		iphoneLinks = q.fetch(9999)
+		if iphoneLinks:
+			#add it to the cache
+			memcache.add(memStr, iphoneLinks, 86400)
+			logging.info("getIphoneLinks: got from db: " + memStr)
+	return iphoneLinks
+
 class MyStories(webapp.RequestHandler):
   def getMyShares(self, myUser):
 	shares = memcache.get("adventures_" + myUser.email())
@@ -73,12 +92,16 @@ class MyStories(webapp.RequestHandler):
 			if not memcache.add(shareInviteCacheString, "None", 3600):
 				logging.info("myStories shareInvites false memcache set failed.")
 		logging.info("got %d invites from db for user %s" % (len(shareInvites), users.get_current_user().email()))
+	
+	#get iphone links
+	iphoneLinks = getIphoneLinks()
 
 	defaultTemplateValues = main.getDefaultTemplateValues(self)
 	templateValues = {
 		'title': 'My Stories',
 		'shares': shares,
-		'shareInvites': shareInvites
+		'shareInvites': shareInvites,
+		'iphoneLinks': iphoneLinks,
 	}
 	templateValues = dict(defaultTemplateValues, **templateValues)
 
