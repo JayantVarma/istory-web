@@ -148,7 +148,7 @@ indexes:
   - name: created
     direction: desc
 
-# Used 83 times in query history.
+# Used 84 times in query history.
 - kind: Share
   properties:
   - name: child
@@ -159,7 +159,7 @@ indexes:
   - name: created
     direction: desc
 
-# Used 44 times in query history.
+# Used 45 times in query history.
 - kind: Share
   properties:
   - name: childEmail
