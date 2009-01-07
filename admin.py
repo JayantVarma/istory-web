@@ -249,13 +249,6 @@ class Admin(webapp.RequestHandler):
 		for rating in adventureStatus.ratings:
 			rating.approved = 1
 			rating.put()
-		#clear out some memcache records
-		memcache.delete("xmlMainRatings")
-		memcache.delete('XmlPages' + str(adventureStatus.publishedAdventure.key()))
-		memcache.delete("adventures")
-		memcache.delete(str(adventureStatus.editableAdventure.key()))
-		memcache.delete(str(adventureStatus.publishedAdventure.key()))
-		memcache.delete(str(adventureStatus.key()))
 	#if not approved
 	if approved == "no":
 		#apply the editor comment and deny this record
@@ -264,6 +257,13 @@ class Admin(webapp.RequestHandler):
 		#save the record
 		adventureStatus.put()
 	self.response.out.write("Success: this adventure has been changed to approval status '%s'" % approved)
+	#clear out some memcache records
+	memcache.delete("xmlMainRatings")
+	memcache.delete('XmlPages' + str(adventureStatus.publishedAdventure.key()))
+	memcache.delete("adventures")
+	memcache.delete(str(adventureStatus.editableAdventure.key()))
+	memcache.delete(str(adventureStatus.publishedAdventure.key()))
+	memcache.delete(str(adventureStatus.key()))
 
   def get(self):
 	if not users.is_current_user_admin():

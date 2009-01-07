@@ -245,20 +245,25 @@ class RemoveShare(webapp.RequestHandler):
 		return
 	else:
 		jsonText = simplejson.dumps(share.toDict())
-		#remove the oadventure object from cache
-		memcache.delete("adventures_" + share.child.email())
-		#remove the user share object from cache
-		removeUserShareCache(share.child, str(share.adventure.key()))
+		if share.child:
+			#remove the oadventure object from cache
+			memcache.delete("adventures_" + share.child.email())
+			#just for good measure, remove the share invite cache
+			memcache.delete("invites_" + share.child.email())
+		if share.adventure and share.child:
+			#remove the user share object from cache
+			removeUserShareCache(share.child, str(share.adventure.key()))
 		#delete the db record
 		share.delete()
-		#just for good measure, remove the share invite cache
-		memcache.delete("invites_" + share.child.email())
 		#done
 		logging.info('RemoveShare: share deleted: ' + jsonText)
 		self.response.out.write(jsonText)
 
 
 def removeUserShareCache(user, adventureKey):
+	if not user or not adventureKey:
+		logging.warn("removeUserShareCache: requires user and adventureKey")
+		return;
 	q = adventureModel.Share.all().filter('status =', 2).filter('child =', user)
 	counter = 0
 	shares = q.fetch(9999)
@@ -268,6 +273,7 @@ def removeUserShareCache(user, adventureKey):
 			logging.info("RemoveShare: removing cache record: " + cacheString)
 			counter += 1
 			memcache.delete(cacheString)
+	
 	logging.info("RemoveShare: removed %d shares from cache for user %s" % (counter, user.email()))
 
 

@@ -10,33 +10,7 @@ indexes:
 # automatically uploaded to the admin console when you next deploy
 # your application using appcfg.py.
 
-# Unused in query history -- copied from input.
-- kind: Adventure
-  properties:
-  - name: created
-    direction: desc
-
-# Unused in query history -- copied from input.
-- kind: Adventure
-  properties:
-  - name: date
-    direction: desc
-
-# Unused in query history -- copied from input.
-- kind: Adventure
-  properties:
-  - name: realAuthor
-  - name: created
-    direction: desc
-
-# Unused in query history -- copied from input.
-- kind: Adventure
-  properties:
-  - name: realAuthor
-  - name: date
-    direction: desc
-
-# Used 60 times in query history.
+# Used 62 times in query history.
 - kind: AdventureRating
   properties:
   - name: approved
@@ -44,32 +18,26 @@ indexes:
     direction: desc
   - name: created
 
-# Unused in query history -- copied from input.
-- kind: Greeting
-  properties:
-  - name: date
-    direction: desc
-
-# Used 47 times in query history.
+# Used 49 times in query history.
 - kind: Image
   properties:
   - name: realAuthor
   - name: imageName
 
-# Used 133 times in query history.
+# Used 146 times in query history.
 - kind: Page
   properties:
   - name: adventure
   - name: created
 
-# Used 109 times in query history.
+# Used 124 times in query history.
 - kind: PageElement
   properties:
   - name: adventure
   - name: page
   - name: pageOrder
 
-# Used 98 times in query history.
+# Used 106 times in query history.
 - kind: PageElement
   properties:
   - name: adventure
@@ -81,103 +49,45 @@ indexes:
   - name: page
   - name: pageOrder
 
-# Used 33 times in query history.
-- kind: Share
-  properties:
-  - name: adventure
-  - name: child
-  - name: role
-
-# Unused in query history -- copied from input.
-- kind: Share
-  properties:
-  - name: adventure
-  - name: child
-  - name: role
-  - name: status
-
-# Used 9 times in query history.
-- kind: Share
-  properties:
-  - name: adventure
-  - name: childEmail
-  - name: role
-  - name: status
-
-# Unused in query history -- copied from input.
-- kind: Share
-  properties:
-  - name: adventure
-  - name: created
-
-# Unused in query history -- copied from input.
-- kind: Share
-  properties:
-  - name: adventure
-  - name: status
-  - name: created
-
-# Used 5 times in query history.
-- kind: Share
-  properties:
-  - name: adventure
-  - name: status
-  - name: role
-    direction: desc
-  - name: created
-
-# Unused in query history -- copied from input.
-- kind: Share
-  properties:
-  - name: child
-  - name: owner
-    direction: desc
-
-# Unused in query history -- copied from input.
-- kind: Share
-  properties:
-  - name: child
-  - name: status
-
-# Unused in query history -- copied from input.
-- kind: Share
-  properties:
-  - name: child
-  - name: status
-    direction: desc
-  - name: created
-    direction: desc
-
-# Used 84 times in query history.
-- kind: Share
-  properties:
-  - name: child
-  - name: status
-    direction: desc
-  - name: role
-    direction: desc
-  - name: created
-    direction: desc
-
 # Used 45 times in query history.
 - kind: Share
   properties:
+  - name: adventure
+  - name: child
+  - name: role
+
+# Used 13 times in query history.
+- kind: Share
+  properties:
+  - name: adventure
   - name: childEmail
+  - name: role
   - name: status
+
+# Used 19 times in query history.
+- kind: Share
+  properties:
+  - name: adventure
+  - name: status
+  - name: role
+    direction: desc
+  - name: created
+
+# Used 92 times in query history.
+- kind: Share
+  properties:
+  - name: child
+  - name: status
+    direction: desc
+  - name: role
+    direction: desc
   - name: created
     direction: desc
 
-# Unused in query history -- copied from input.
-- kind: ShareInvite
+# Used 51 times in query history.
+- kind: Share
   properties:
-  - name: child
-  - name: created
-    direction: desc
-
-# Unused in query history -- copied from input.
-- kind: ShareInvite
-  properties:
-  - name: child
+  - name: childEmail
   - name: status
   - name: created
     direction: desc
