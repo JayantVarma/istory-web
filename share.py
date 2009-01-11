@@ -162,7 +162,7 @@ We hope you enjoy iStory!
 Thanks,
 The iStory team
 """ % (myName, users.get_current_user().nickname(), users.get_current_user().email(), adventure.title, share.inviteKey)
-	mail.send_mail(users.get_current_user().email(), myEmail, subject, body)
+	mail.send_mail('istoryadmin@gmail.com', myEmail, subject, body)
 	
 	#send the json response back to the web
 	logging.info('ViewSharing post: here is the invite: ' + simplejson.dumps(share.toDict()) )

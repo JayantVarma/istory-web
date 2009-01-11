@@ -14,6 +14,29 @@ import random
 import adventureModel
 import main
 
+def getUserFromDeviceID(deviceID):
+	if not deviceID:
+		logging.warn("getUserFromDeviceID requires deviceID")
+		return
+	memcacheStr = "link" + deviceID
+	user = memcache.get(memcacheStr)
+	if user:
+		logging.info("getUserFromDeviceID: got user from memcache: %s, %s" % (deviceID, user))
+		return user
+	#lookup deviceID in database
+	iphoneLink = None
+	q = adventureModel.iphoneLink.all().filter('iphoneId =', deviceID)
+	iphoneLinks = q.fetch(1)
+	for myIphoneLink in iphoneLinks:
+		iphoneLink = myIphoneLink
+	if not iphoneLink:
+		logging.info("getUserFromDeviceID: could not find iphone in db: %s" % deviceID)
+		memcache.add(memcacheStr, None, 300)
+		return
+	logging.info("getUserFromDeviceID: got user from memcache: %s, %s" % (deviceID, user))
+	memcache.add(memcacheStr, iphoneLink.user, 300)
+	return iphoneLink.user
+
 class Signup(webapp.RequestHandler):
   def get(self):
 	myEmail = self.request.get('email')

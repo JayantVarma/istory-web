@@ -11,6 +11,44 @@ import adventureModel
 import main
 import admin
 import index
+import myStories
+import signup
+
+class MyStoriesXML(webapp.RequestHandler):
+  def get(self, deviceID=None):
+	#this is to handle myStories for the iPhone
+	#it takes the persons iPhone ID instead of a user,
+	#so we have to look up the user from the iphoneLink table
+	shares = None
+	output = None
+	if not deviceID:
+		deviceID = self.request.get("deviceID")
+	if not deviceID:
+		logging.info("MyStoriesXML requires deviceID")
+	else:
+		user = signup.getUserFromDeviceID(deviceID)
+		logging.info("MyStoriesXML: getting stories for %s %s" % (deviceID, user))
+	if user:
+		cacheString = 'myStoriesXML' + user.email()
+		output = memcache.get(cacheString)
+		if output:
+			logging.info("MyStoriesXML: got stories from cache for %s %s" % (deviceID, user))
+		else:
+			#build the xml string
+			shares = myStories.getMyShares(user)
+			output = ''
+			cnt = 0
+			for share in shares:
+				cnt = cnt + 1
+				output += share.toXML()
+			output = '<xml>\n%s</xml>' % output
+			memcache.add(cacheString, output, 300)
+			logging.info("MyStoriesXML: got %d stories from db for %s %s" % (cnt, deviceID, user))
+	if not output:
+		logging.info("MyStoriesXML: user did not have any stories: %s %s" % (deviceID, user))
+		output = '<xml>\n</xml>'
+	self.response.headers['Content-Type'] = 'text/plain'
+	self.response.out.write(output)
 
 class XmlWriter(webapp.RequestHandler):
   def get(self, myAdventureKey=None, myPageKey=None):

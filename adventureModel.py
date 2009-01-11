@@ -15,6 +15,11 @@ class Adventure(db.Model):
 	adventureStatus = db.StringProperty(multiline=False)
 	created = db.DateTimeProperty(auto_now_add=True)
 	modified = db.DateTimeProperty(auto_now=True)
+	def getPageCount(self):
+		pageCount = 0
+		for page in self.pages:
+			pageCount = pageCount + 1
+		return pageCount
 	def toDict(self):
 		return {
 			'title': cgi.escape(self.title),
@@ -102,6 +107,31 @@ class Share(db.Model):
 		elif self.role == 3:
 			roleName = 'an Admin'
 		return roleName
+	def toXML(self):
+		myCoverImage = ''
+		if self.adventure.coverImage:
+			myCoverImage = escape(self.adventure.coverImage + '.png')
+		myAdventureStatus = None
+		myRating = 0.0
+		myPlays = 0
+		for adventureStatus in self.adventure.AS_editableAdventure_set:
+			myAdventureStatus = adventureStatus
+		if adventureStatus:
+			for adventureRating in myAdventureStatus.ratings:
+				myRating = adventureRating.rating
+				myPlays = adventureRating.plays
+		return '''<adventure>
+	<id>%s</id>
+	<title>%s</title>
+	<desc>%s</desc>
+	<author>%s</author>
+	<pages>%d</pages>
+	<version>%f</version>
+	<coverImage>%s</coverImage>
+	<rating>%f</rating>
+	<plays>%d</plays>
+</adventure>
+''' % (escape(str(self.adventure.key())), escape(self.adventure.title), escape(self.adventure.desc), escape(self.adventure.author), self.adventure.getPageCount(), self.adventure.version, myCoverImage, myRating, myPlays)
 	def toDict(self):
 		myChild = None
 		myChildNick = None
@@ -184,16 +214,6 @@ class AdventureRating(db.Model):
 	approved = db.IntegerProperty()
 	created = db.DateTimeProperty(auto_now_add=True)
 	modified = db.DateTimeProperty(auto_now=True)
-	def getPageCount(self):
-		pageCount = 0
-		adventure = None
-		if self.adventureStatus.publishedAdventure:
-			adventure = self.adventureStatus.publishedAdventure
-		else:
-			adventure = self.adventureStatus.editableAdventure
-		for page in adventure.pages:
-			pageCount = pageCount + 1
-		return pageCount
 	def toXML(self):
 		adventure = None
 		if self.adventureStatus.publishedAdventure:
@@ -211,8 +231,10 @@ class AdventureRating(db.Model):
 	<pages>%d</pages>
 	<version>%f</version>
 	<coverImage>%s</coverImage>
+	<rating>%f</rating>
+	<plays>%d</plays>
 </adventure>
-''' % (escape(str(adventure.key())), escape(adventure.title), escape(adventure.desc), escape(adventure.author), self.getPageCount(), self.adventureStatus.version, myCoverImage)
+''' % (escape(str(adventure.key())), escape(adventure.title), escape(adventure.desc), escape(adventure.author), adventure.getPageCount(), self.adventureStatus.version, myCoverImage, self.rating, self.plays)
 
 	#def toDict(self):
 	#	return {

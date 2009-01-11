@@ -12,6 +12,7 @@ import adventureModel
 import addAdventure
 import main
 import storyEditor
+import signup
 
 def getIphoneLinks():
 	iphoneLinks = None
@@ -32,8 +33,7 @@ def getIphoneLinks():
 			logging.info("getIphoneLinks: got from db: " + memStr)
 	return iphoneLinks
 
-class MyStories(webapp.RequestHandler):
-  def getMyShares(self, myUser):
+def getMyShares(myUser):
 	shares = memcache.get("adventures_" + myUser.email())
 	if shares is not None:
 		logging.info("getMyShares: cache was used to return %d shares" % len(shares))
@@ -62,6 +62,8 @@ class MyStories(webapp.RequestHandler):
 		logging.info("getMyShares: db was used to return %d shares" % len(myShares))
 		return myShares
 
+class MyStories(webapp.RequestHandler):
+
   def get(self):
 	myUser = users.get_current_user()
 	if myUser:
@@ -71,7 +73,7 @@ class MyStories(webapp.RequestHandler):
 		self.redirect(url)
 		return
 
-	shares = self.getMyShares(myUser)
+	shares = getMyShares(myUser)
 	
 	#get any pending share invites
 	shareInvites = None
