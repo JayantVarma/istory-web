@@ -195,20 +195,26 @@ class SavePageElement(webapp.RequestHandler):
 	if not adventure or not page:
 		logging.info("SavePageElement: could not find page or adventure. myPageKey(" + myPageKey + ")")
 
+	logging.info("SavePageElement: getting page from key")
 	pageElement.page = page.key()
 	myPageOrder = self.request.get('pageOrder')
 	pageElement.pageOrder = int(myPageOrder or 0)
+	logging.info("SavePageElement: getting dataA")
 	pageElement.dataA = self.request.get('dataA')
 	if pageElement.dataA:
+		logging.info("SavePageElement: replacing funky chars")
 		#this replaces the funky quotes and stuff from MS Word / Google Docs with normal characters
 		pageElement.dataA = pageElement.dataA.replace('%u2019', "'")
 		pageElement.dataA = pageElement.dataA.replace('%u201C', '"')
 		pageElement.dataA = pageElement.dataA.replace('%u201D', '"')
 		pageElement.dataA = pageElement.dataA.replace('%u2026', '...')
 		pageElement.dataA = pageElement.dataA.replace('%u2013', '-')
+	logging.info("SavePageElement: getting dataB")
 	pageElement.dataB = self.request.get('dataB')
 	pageElement.enabled = 1;
+	logging.info("SavePageElement: saving page element to DB")
 	pageElement.put()
+	logging.info("SavePageElement: getting imageRef")
 	myImgRef = self.request.get('imageRef')
 	if myImgRef:
 		logging.info("imageRef passed in: " + myImgRef)
@@ -221,10 +227,12 @@ class SavePageElement(webapp.RequestHandler):
 		pageElement.dataA = img.imageName
 		pageElement.imageRef = img.key()
 		pageElement.put()
-	logging.info("dataA: " + pageElement.dataA)
-	logging.info("dataB: " + pageElement.dataB)
+	#logging.info("dataA: " + pageElement.dataA)
+	#logging.info("dataB: " + pageElement.dataB)
+	logging.info("SavePageElement: clearning memcache")
 	memcache.delete("pages" + str(adventure.key()))
-	logging.info("SavePageElement: returning json: " + simplejson.dumps(pageElement.toDict()))
+	#logging.info("SavePageElement: returning json: " + simplejson.dumps(pageElement.toDict()))
+	logging.info("SavePageElement: returning json")
 	self.response.out.write(simplejson.dumps(pageElement.toDict()))
 
 class AddPageElement(webapp.RequestHandler):
