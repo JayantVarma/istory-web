@@ -57,6 +57,7 @@ def deleteAdventure(adventure):
 	output += "Admin get: delete story: deleted %d records from Adventure<br>" % 1
 	memcache.delete(str(adventure.key()))
 	memcache.delete('pages' + str(adventure.key()))
+	memcache.delete('XmlPages' + str(adventure.key()))
 	memcache.delete("adventures")
 	if adventure.adventureStatus:
 		memcache.delete(adventure.adventureStatus)
@@ -310,6 +311,8 @@ class Admin(webapp.RequestHandler):
 		memcache.delete(var2)
 		memcache.delete('pages' + var)
 		memcache.delete('pages' + var2)
+		memcache.delete('XmlPages' + var)
+		memcache.delete('XmlPages' + var2)
 			
 	#show any stories waiting to be approved
 	q = adventureModel.AdventureStatus.all().filter('status =', 2)

@@ -191,7 +191,7 @@ class AdventureStatus(db.Model):
 class UserVotes(db.Model):
 	adventureStatus = db.ReferenceProperty(AdventureStatus)
 	voter = db.UserProperty()
-	voterIphone = db.StringProperty(multiline=False)
+	iphoneId = db.StringProperty(multiline=False)
 	comment = db.TextProperty()
 	vote = db.IntegerProperty()
 	created = db.DateTimeProperty(auto_now_add=True)

@@ -143,8 +143,10 @@ class AddAdventure(webapp.RequestHandler):
 	for share in shares:
 		if share.child:
 			memcache.delete("adventures_" + share.child.email())
+			memcache.delete("myStoriesXML" + share.child.email())
 	logging.info("addAdventure: deleting memcache object: " + str(adventure.key()))
 	memcache.delete(str(adventure.key()))
+	memcache.delete('XmlPages' + str(adventure.key()))
 	
 	logging.info("AddAdventure done for key: " + myAdventureKey)
 	#self.redirect('/myStories')

@@ -215,7 +215,10 @@ class ImageServer(webapp.RequestHandler):
 	if imageKey == None:
 		imageKey = self.request.get('imageKey')
 	if imageKey:
-		image = memcache.get("img" + imageKey)
+		if imageKey == 'aglpc3Rvcnl3ZWJyDAsSBUltYWdlGJATDA':
+			pass
+		else:
+			image = memcache.get("img" + imageKey)
 		if image:
 			logging.info("serving image from cache with key " + imageKey)
 		else:

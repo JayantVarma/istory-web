@@ -60,6 +60,7 @@ class ShareInvite(webapp.RequestHandler):
 					share.put()
 					#delete the current adventure cache object
 					memcache.delete("adventures_" + share.child.email())
+					memcache.delete('myStoriesXML' + share.child.email())
 					#remove the share invite cache object
 					memcache.delete("invites_" + share.childEmail)
 					memcache.delete("invites_" + users.get_current_user().email())
@@ -248,6 +249,7 @@ class RemoveShare(webapp.RequestHandler):
 		if share.child:
 			#remove the oadventure object from cache
 			memcache.delete("adventures_" + share.child.email())
+			memcache.delete('myStoriesXML' + share.child.email())
 			#just for good measure, remove the share invite cache
 			memcache.delete("invites_" + share.child.email())
 		if share.adventure and share.child:

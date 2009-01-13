@@ -2,6 +2,7 @@ import os
 from google.appengine.ext.webapp import template
 import cgi
 import logging
+import time
 from google.appengine.api import users
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp.util import run_wsgi_app
@@ -10,6 +11,7 @@ from google.appengine.api import memcache
 import adventureModel
 import main
 import admin
+import signup
 
 def getUserVote(adventureStatus, user, iphone):
 	if not (adventureStatus and (user or iphone)):
@@ -21,7 +23,7 @@ def getUserVote(adventureStatus, user, iphone):
 		q = adventureModel.UserVotes.all().filter('adventureStatus =', adventureStatus).filter('voter =', user)
 		voter = user.email()
 	elif iphone:
-		q = adventureModel.UserVotes.all().filter('adventureStatus =', adventureStatus).filter('iphone =', iphone)
+		q = adventureModel.UserVotes.all().filter('adventureStatus =', adventureStatus).filter('iphoneId =', iphone)
 		voter = iphone
 	else:
 		logging.warn("stats: tried to vote but missing user or iphone")
@@ -45,6 +47,7 @@ def addAdventureStat(adventureStatus, plays, vote, user, iphone, comment):
 	#try to fetch the adventureRating, then increment the stats
 	rating = None
 	changed = False
+	userVote = None
 	output = "Nothing Recorded"
 	voteCount = 0
 	if not adventureStatus:
@@ -75,7 +78,27 @@ def addAdventureStat(adventureStatus, plays, vote, user, iphone, comment):
 		#delete the memcache vote record
 		memStr = "vote" + str(adventureStatus.key()) + str(voter)
 		memcache.delete(memStr)
-		userVote = getUserVote(adventureStatus, user, iphone)
+		if user:
+			userVote = getUserVote(adventureStatus, user, None)
+			if not userVote:
+				#see if this user has voted before as an iphone
+				iphoneUser = signup.getDeviceFromUser(user)
+				if iphoneUser:
+					logging.info("stats: checking for vote with: " + iphoneUser)
+					userVote = getUserVote(adventureStatus, None, iphoneUser)
+					if userVote:
+						logging.info("stats: got vote from user -> iphone")
+						voter = iphoneUser;
+		if iphone:
+			userVote = getUserVote(adventureStatus, None, iphone)
+			if not userVote:
+				#see if this iphone has voted before as a user
+				iphoneUser = signup.getUserFromDeviceID(iphone)
+				if iphoneUser:
+					userVote = getUserVote(adventureStatus, iphoneUser, None)
+					if userVote:
+						logging.info("stats: got vote from iphone -> user")
+						voter = iphoneUser.email()
 		#fetch the vote
 		if userVote:
 			logging.warn("stats: tried to vote but this user has already voted: " + voter)
@@ -96,7 +119,7 @@ def addAdventureStat(adventureStatus, plays, vote, user, iphone, comment):
 			userVote = adventureModel.UserVotes()
 			userVote.adventureStatus = rating.adventureStatus
 			userVote.voter = user
-			userVote.iphone = iphone
+			userVote.iphoneId = iphone
 			userVote.comment = comment
 			userVote.vote = vote
 			userVote.put()
@@ -159,6 +182,9 @@ class Vote(webapp.RequestHandler):
 	self.response.out.write(output)
 	return
 
+  def get(self):
+	self.response.out.write("get vote")
+	return
 
 
 

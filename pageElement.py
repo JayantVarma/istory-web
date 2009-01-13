@@ -15,7 +15,6 @@ import main
 
 class MovePageElement(webapp.RequestHandler):
   def post(self):
-	time.sleep(.1)
 	logging.info("MovePageElement: begin")
 	myElKey = self.request.get('myElKey')
 	myNewOrderString = self.request.get('myNewOrder')
@@ -77,6 +76,7 @@ class MovePageElement(webapp.RequestHandler):
 		jsonArray.append(element.toDict())
 
 	memcache.delete("pages" + str(adventure.key()))
+	memcache.delete('XmlPages' + str(adventure.key()))
 	self.response.out.write(simplejson.dumps(jsonArray))
 	logging.info(simplejson.dumps(jsonArray))
 
@@ -107,6 +107,7 @@ class DeletePageElement(webapp.RequestHandler):
 		return
 	pageEl.delete()
 	memcache.delete("pages" + str(adventure.key()))
+	memcache.delete('XmlPages' + str(adventure.key()))
 	logging.info("DeletePageElement: returning json: " + simplejson.dumps("success"))
 	self.response.out.write(simplejson.dumps("success"))
 
@@ -135,6 +136,7 @@ class DisablePageElement(webapp.RequestHandler):
 	pageEl.enabled = 0
 	pageEl.put()
 	memcache.delete("pages" + str(adventure.key()))
+	memcache.delete('XmlPages' + str(adventure.key()))
 	logging.info("DisablePageElement: returning json: " + simplejson.dumps("success"))
 	self.response.out.write(simplejson.dumps("success"))
 
@@ -214,6 +216,8 @@ class SavePageElement(webapp.RequestHandler):
 	pageElement.enabled = 1;
 	logging.info("SavePageElement: saving page element to DB")
 	pageElement.put()
+	adventure.version = adventure.version + .000001
+	adventure.put()
 	logging.info("SavePageElement: getting imageRef")
 	myImgRef = self.request.get('imageRef')
 	if myImgRef:
@@ -231,6 +235,8 @@ class SavePageElement(webapp.RequestHandler):
 	#logging.info("dataB: " + pageElement.dataB)
 	logging.info("SavePageElement: clearning memcache")
 	memcache.delete("pages" + str(adventure.key()))
+	memcache.delete('XmlPages' + str(adventure.key()))
+	memcache.delete('myStoriesXML' + users.get_current_user().email())
 	#logging.info("SavePageElement: returning json: " + simplejson.dumps(pageElement.toDict()))
 	logging.info("SavePageElement: returning json")
 	self.response.out.write(simplejson.dumps(pageElement.toDict()))
@@ -277,6 +283,10 @@ class AddPageElement(webapp.RequestHandler):
 	pageElement.dataB = self.request.get('dataB')
 	pageElement.enabled = 1;
 	pageElement.put()
+	adventure.version = adventure.version + .000001
+	adventure.put()
 	memcache.delete("pages" + str(adventure.key()))
+	memcache.delete('XmlPages' + str(adventure.key()))
+	memcache.delete('myStoriesXML' + users.get_current_user().email())
 	logging.info("AddPageElement: returning json: " + simplejson.dumps(pageElement.toDict()))
 	self.response.out.write(simplejson.dumps(pageElement.toDict()))

@@ -37,6 +37,29 @@ def getUserFromDeviceID(deviceID):
 	memcache.add(memcacheStr, iphoneLink.user, 300)
 	return iphoneLink.user
 
+def getDeviceFromUser(user):
+	if not user:
+		logging.warn("getDeviceFromUser requires user")
+		return
+	memcacheStr = "link" + str(user.email())
+	deviceID = memcache.get(memcacheStr)
+	if deviceID:
+		logging.info("getDeviceFromUser: got user from memcache: %s, %s" % (deviceID, user))
+		return deviceID
+	#lookup deviceID in database
+	iphoneLink = None
+	q = adventureModel.iphoneLink.all().filter('user =', user)
+	iphoneLinks = q.fetch(1)
+	for myIphoneLink in iphoneLinks:
+		iphoneLink = myIphoneLink
+	if not iphoneLink:
+		logging.info("getDeviceFromUser: could not find user in db: %s" % user)
+		memcache.add(memcacheStr, None, 300)
+		return
+	logging.info("getDeviceFromUser: got user from memcache: %s, %s" % (deviceID, user))
+	memcache.add(memcacheStr, iphoneLink.iphoneId, 300)
+	return iphoneLink.iphoneId
+
 class Signup(webapp.RequestHandler):
   def get(self):
 	myEmail = self.request.get('email')
@@ -94,6 +117,7 @@ class SignupDone(webapp.RequestHandler):
 		iphoneLink.put()
 		#remove the cache record
 		memcache.delete('iphoneLinks' + users.get_current_user().email())
+		memcache.delete('myStoriesXML' + users.get_current_user().email())
 	
 	defaultTemplateValues = main.getDefaultTemplateValues(self)
 	templateValues = {

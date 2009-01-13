@@ -151,6 +151,7 @@ application = webapp.WSGIApplication(
 		('/', index.Index),
 		('/signup', signup.SignupDone),
 		('/xml/signup', signup.Signup),
+		('/xml/vote', ratings.Vote),
 		(r'^/xml/myStories/(.+?)/myStories.xml', xmlWriter.MyStoriesXML),
 		(r'^/xml/.+?/data/(.+?)\.png$', images.ImageServer),
 		(r'^/xml/(.+?)/data/(.+?)\.xml$', xmlWriter.XmlWriter),
