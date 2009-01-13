@@ -296,8 +296,13 @@ class PageElement(db.Model):
 		if self.dataB:
 			myDataB = self.dataB + '.xml'
 		myImageRef = ''
-		if self.imageRef:
-			myImageRef = str(self.imageRef.key())
+		try:
+			if self.imageRef:
+				myImageRef = str(self.imageRef.key())
+		except Exception, e:
+			logging.warn("PageElement toXML: imageRef could not be resolved. deleting")
+			self.imageRef = None;
+			self.put()
 		if self.dataType == 1:
 			#text
 			return '<text>%s</text>' % escape(myDataA)
