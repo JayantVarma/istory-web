@@ -278,7 +278,7 @@ class ImagesByUser(webapp.RequestHandler):
 		logging.info("ImagesByUser: serving %d images from db" % len(jsonArray))
 		memcache.add("images" + users.get_current_user().email(), jsonArray, 3600)
 	self.response.out.write(simplejson.dumps(jsonArray))
-	logging.info(simplejson.dumps(jsonArray))
+	#logging.info(simplejson.dumps(jsonArray))
 
   def get(self):
 	self.getOrPost()
@@ -420,4 +420,4 @@ class Uploader(webapp.RequestHandler):
 
 	#send the json response, it includes the page element key
 	self.response.out.write(simplejson.dumps(newImage.toDict()))
-	logging.info(simplejson.dumps(newImage.toDict()))
+	#logging.info(simplejson.dumps(newImage.toDict()))

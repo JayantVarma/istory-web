@@ -955,26 +955,27 @@ var pageElSave = function(e, newPageKey) {
 	pageElSaveCallbacks.argument.pageNodeIndex = currentNodeIndex;
 	var pageOrder = myNode.value.pageOrder;
 	if (pageOrder) {
-		myHTML += "&pageOrder=" + escape(pageOrder);
+		myHTML += "&pageOrder=" + encodeURIComponent(pageOrder);
 	}	
 	if (dataA) {
-		myHTML += "&dataA=" + escape(dataA.value);
+		console.log(encodeURIComponent(dataA.value));
+		myHTML += "&dataA=" + encodeURIComponent(dataA.value);
 	}
 	if (myDataB) {
-		myHTML += "&dataB=" + escape(myDataB);
+		myHTML += "&dataB=" + encodeURIComponent(myDataB);
 	}
 	var imageRef = YAHOO.util.Dom.get('imageRef' + myPageElNodeIndex);
 	if (imageRef) {
-		myHTML += "&imageRef=" + escape(imageRef.value);
+		myHTML += "&imageRef=" + encodeURIComponent(imageRef.value);
 	}
 	var imageName = YAHOO.util.Dom.get('imageName' + myPageElNodeIndex);
 	if (imageName) {
-		myHTML += "&imageName=" + escape(imageName.value);
+		myHTML += "&imageName=" + encodeURIComponent(imageName.value);
 		imgCache[imageRef.value] = imageName.value;
 		imgCache['length'] = (imgCache['length']||0) + 1
 	}
 	setLoading();
-	console.log("saving page el: " + myHTML);
+	//console.log("saving page el: " + myHTML);
 	YAHOO.util.Connect.asyncRequest('POST', '/savePageElement', pageElSaveCallbacks, myHTML);
 }
 var pageElSaveCallbacks = {
@@ -1162,9 +1163,9 @@ var addPageSubmit = function(e, pageElForm) {
 	var pageKeyHTML = '';
 	var newPageName = YAHOO.util.Dom.get('newPageName');
 	if (newPageName) {
-		newPageName = newPageName.value
+		newPageName = newPageName.value;
 		if (currentPage.key) {
-			pageKeyHTML = "&myPageKey=" + currentPage.key;
+			pageKeyHTML = "&myPageKey=" + encodeURIComponent(currentPage.key);
 		}
 	}
 	//else we use the passed in object, for the choice+page path
@@ -1204,7 +1205,7 @@ var addPageCallbacks = {
 			}
 			else {
 				console.log("adding new page to tree");
-				myNode = new YAHOO.widget.TextNode(m.name, tree.getRoot(), false);
+				myNode = new YAHOO.widget.TextNode((tree.getRoot().children.length + 1) + ': ' + m.name, tree.getRoot(), false);
 				myNode.insertBefore(tree.getRoot().children[0]);
 				myNode.value = m.key;
 			}
@@ -1296,7 +1297,7 @@ var callbacks = {
 		for (var i = 0, len = messages.length; i < len; ++i) {
 			var m = messages[i];
 			//m.name m.key
-			var tmpNode = new YAHOO.widget.TextNode(m.name, tree.getRoot(), true);
+			var tmpNode = new YAHOO.widget.TextNode((i+1) + ': ' + m.name, tree.getRoot(), true);
 			tmpNode.insertBefore(tree.getRoot().children[0]);
 			tmpNode.value = m.key;
 			numPages++;
@@ -1440,6 +1441,15 @@ var setLoaded = function() {
 var isPageElMenuTitle = function(td) {
 	if (td && td.title == 'pageElMenu') { return true; }
 	return false;
+}
+
+var escapeSigns = function(str) {
+	str = str.replace(/\+/gm, '&#43;');
+	str = str.replace(/\-/gm, '&#45;');
+	str = str.replace(/\*/gm, '&#42;');
+	str = str.replace(/\//gm, '&#47;');
+	str = str.replace(/%/gm, '&#37;');
+	return str;
 }
 
 //function to initialize the tree:

@@ -30,6 +30,8 @@ var numPages = 0;
 var keyToPageIdMap = {};
 var pageHistory = [];
 var alreadySelectedStars = false;
+var SS = {};
+var backDisabled = false;
 
 function treeInit() {
 	// Make the call to the server for JSON data
@@ -132,6 +134,7 @@ var loadSubmitStory = function() {
 	window.location.replace('/submit?myAdventureKey=' + adventureKey);
 }
 var restartStory = function() {
+	resetSS();
 	pageHistory = [];
 	playPage(pages[0].key);
 }
@@ -211,8 +214,8 @@ var iconMOreset = function(td, isLight) {
 		}
 	}
 }
-var iconDisable = function(td) {
-	td.className = 'iconBG-disabled';
+var iconDisable = function(td, lightFlag) {
+	if (!lightFlag) { td.className = 'iconBG-disabled'; }
 	var icon = td.firstChild;
 	if (icon.className.substr((icon.className.length-2), 2) == 'MO') {
 		icon.className = icon.className.substr(0, (icon.className.length-2) );
@@ -223,20 +226,9 @@ var iconDisable = function(td) {
 	icon.className = icon.id + 'D';
 }
 
-var disableDivPageEl = function(div) {
-	div.className = 'iconBG-disabled2';
-	var icon = div.firstChild;
-	if (icon.className.substr((icon.className.length-2), 2) == 'MO') {
-		icon.className = icon.className.substr(0, (icon.className.length-2) );
-	}
-	if (icon.className.substr((icon.className.length-1), 1) == 'D') {
-		icon.className = icon.className.substr(0, (icon.className.length-1) );
-	}
-	icon.className = icon.className + 'D';
-}
-var disableDiv = function(name) {
+var disableDiv = function(name, lightFlag) {
 	var td = YAHOO.util.Dom.get(name);
-	iconDisable(td);
+	iconDisable(td, lightFlag);
 }
 var enableDiv = function(name) {
 	var td = YAHOO.util.Dom.get(name);
@@ -325,7 +317,7 @@ var playPage = function(pageKey) {
 	//create the back button and title, and tooltip for the back button
 	workArea.innerHTML = '<div><table width="100%"><tr><td id="back" class="iconBG-disabled2" width="48px"><div id="icon-back" class="icon-back"></td><td><h1>' + page.name + '</h1></td><td width="48px"></td></tr></table></div>';
 	//if the pagehistory only has 1 element in it, change the icon class to disabled
-	if (pageHistory.length == 1) {
+	if (pageHistory.length == 1 || backDisabled) {
 		YUD.get('icon-back').className = 'icon-backD';
 	}
 	else {
@@ -349,8 +341,10 @@ var playPage = function(pageKey) {
 			//text element
 			//console.log("page element text: " + pageElement.dataA.substr(0, 20));
 			if (pageElement.dataA) {
-				pageElement.dataA = pageElement.dataA.replace(/\n/g, '<br>');
-				newDiv.innerHTML = '<div class="playerSmall">' + pageElement.dataA + '</div>';
+				console.log(pageElement.dataA);
+				var myPageText = storyScript(pageElement.dataA);
+				myPageText = myPageText.replace(/\n/g, '<br>');
+				newDiv.innerHTML = '<div class="playerSmall">' + myPageText + '</div>';
 			}
 		}
 		if (pageElement.dataType == 2) {
@@ -371,6 +365,175 @@ var playPage = function(pageKey) {
 	}
 }
 
+var storyScript = function(inputText) {
+	//disable going back, we can't really handle it when we have variables too
+	backDisabled = true;
+	var outputText = '';
+	var bracketMatcher = /{{.*?}}/gm;
+	//go through line by line
+	var lines = inputText.split(/\n/);
+	for (var lineNumber = 0; lineNumber < lines.length; lineNumber++) {
+		line = lines[lineNumber];
+		console.log("line: " + line);
+		//first loop through and get everything inside of double curly brackets {{ }}
+		var brackets = line.match(bracketMatcher);
+		if (brackets == null) {
+			outputText += line + "\n";
+			continue;
+		}
+		//now loop through each curly bracket
+		for (var n = 0; n < brackets.length; n++) {
+			bracket = brackets[n];
+			//parse what is inside the brackets
+			var result = parseScript(bracket);
+			if (result != null) {
+				//replace the curly bracket expression with the result
+				outputText += line.replace(/{{.*?}}/m, result) + "\n";
+			}
+		}
+	}
+	console.log(outputText);
+	return outputText;
+}
+
+var parseScript = function(bracket) {
+	//this function evaluates the scripted text. it supports a few things but not many
+	//first get rid of the brackets
+	bracket = bracket.replace(/{|}/g, '');
+	//remove leading and trailing spaces
+	bracket = bracket.replace(/^\s+/, '');
+	bracket = bracket.replace(/\s+$/, '');
+
+	//split the string up based on spaces
+	tokens = bracket.split(/\s+/);
+	
+	console.log('ParseScript: ' + bracket);
+	console.log(tokens);
+	if (tokens.length == 0) { return 'NO TOKEN'; }
+	
+	primaryToken = tokens.shift();
+	
+	//just return the value of the variable
+	if (tokens.length == 0) {
+		return getValueForToken(primaryToken);
+	}
+
+	primaryOperator = tokens.shift();
+	
+	//see if we're doing a simple variable set
+	if (primaryOperator == '=') {
+		//combine all the rest of the tokens and set it equal to the primaryToken
+		SS[primaryToken] = combineArrayOfTokens(tokens);
+	}
+	else {
+		//add the primary token and primary operator back on, we need to add everything up
+		tokens.unshift(primaryOperator);
+		tokens.unshift(primaryToken);
+		return(combineArrayOfTokens(tokens));
+	}
+	
+	return null;
+}
 
 
+var combineArrayOfTokens = function(tokens) {
+	//keep looping until we run out of tokens
+	//this is kind of a reverse polish notation processor
+	var iterations = 0;
+	while (tokens.length > 0 && iterations < 50) {
+		iterations++;
+		console.log("TOKENS: ");
+		console.log(tokens);
+		//shift off the first token, we will add to this if there are any more
+		firstToken = tokens.shift();
+		//we need to have at least 2 tokens left
+		if (tokens.length < 2) {
+			return firstToken;
+		}
 
+		//this means we have atleast 2 tokens left, so we must be trying to do something like 3 + 4 or random 3 4
+		secondToken = tokens.shift();
+		thirdToken = tokens.shift();
+		//check primary token for reserved keywords
+		if (firstToken == 'random') {
+			var runningValue = randomTokens(secondToken, thirdToken);
+			tokens.unshift(runningValue);
+		}
+		else if (secondToken == 'random') {
+			if (tokens.length >= 1) {
+				fourthToken = tokens.shift();
+				var runningValue = randomTokens(thirdToken, fourthToken);
+				tokens.unshift(secondToken);
+				tokens.unshift(firstToken);
+			}
+			else {
+				alert("ERROR: invalid number of tokens with random");
+				return "ERROR: invalid number of tokens with random";
+			}
+		}
+		else if (thirdToken == 'random') {
+			if (tokens.length >= 2) {
+				fourthToken = tokens.shift();
+				fifthToken = tokens.shift();
+				var runningValue = randomTokens(fourthToken, fifthToken);
+				tokens.unshift(runningValue);
+				tokens.unshift(secondToken);
+				tokens.unshift(firstToken);
+			}
+			else {
+				alert("ERROR: invalid number of tokens with random");
+				return "ERROR: invalid number of tokens with random";
+			}
+		}
+		else {
+			//this must be a basic math operation
+			var runningValue = combineTokens(firstToken, secondToken, thirdToken);
+			tokens.unshift(runningValue);
+		}
+	}
+	return null;
+}
+
+var randomTokens = function(low, high) {
+	low = getValueForToken(low);
+	high = getValueForToken(high);
+	var diff = high - low;
+	var randomValue = Math.floor(Math.random() * (diff+1)) + low;
+	console.log("randomTokens: " + randomValue);
+	return randomValue;
+}
+
+var combineTokens = function(numA, myOperator, numB) {
+	numA = getValueForToken(numA);
+	numB = getValueForToken(numB);
+	if      (myOperator == '+') { numA += numB; }
+	else if (myOperator == '-') { numA -= numB; }
+	else if (myOperator == '*') { numA = numA * numB; }
+	else if (myOperator == '/') { numA = numA / numB; }
+	else {
+		alert("Invalid operator: " + bracket);
+		return "(ERROR invalid operator)";
+	}
+	console.log("combineTokens: " + numA);
+	return numA;
+}
+
+var getValueForToken = function(token) {
+	//first see if its a number
+	numberResult = parseInt(token);
+	if (numberResult) {
+		return numberResult;
+	}
+	//else return its stored value
+	if (SS[token]) {
+		return SS[token];
+	}
+	else { return 0; }
+}
+
+var resetSS = function() {
+	for (var key in SS) {
+		console.log("reset %s,%s", key, SS[key]);
+		SS[key] = null;
+	}
+}

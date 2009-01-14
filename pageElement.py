@@ -78,7 +78,7 @@ class MovePageElement(webapp.RequestHandler):
 	memcache.delete("pages" + str(adventure.key()))
 	memcache.delete('XmlPages' + str(adventure.key()))
 	self.response.out.write(simplejson.dumps(jsonArray))
-	logging.info(simplejson.dumps(jsonArray))
+	#logging.info(simplejson.dumps(jsonArray))
 
 class DeletePageElement(webapp.RequestHandler):
   def post(self):
