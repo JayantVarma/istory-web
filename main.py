@@ -42,11 +42,18 @@ def getAdventure(key):
 	if not key:
 		logging.error("ERROR: getAdventure called with no key")
 		return None
-	adventure = memcache.get(key)
+	adventure = None
+	try:
+		adventure = memcache.get(key)
+	except Exception, e:
+		logging.error("getAdventure: memcache get exception: " + str(e))
 	if adventure:
 		logging.info("got adventure from cache: " + key)
 		return adventure
-	adventure = db.Model.get(key)
+	try:
+		adventure = db.Model.get(key)
+	except Exception, e:
+		logging.error("getAdventure: db get exception: " + str(e))
 	if adventure:
 		logging.info("got adventure from db: " + key)
 		memcache.add(key, adventure, 3600)

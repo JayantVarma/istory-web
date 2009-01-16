@@ -30,7 +30,11 @@ var numPages = 0;
 var keyToPageIdMap = {};
 var pageHistory = [];
 var alreadySelectedStars = false;
+var page;
 var SS = {};
+var ifBlocked = false;
+var ifBlockResult = [];
+
 var backDisabled = false;
 
 function treeInit() {
@@ -94,7 +98,7 @@ var starMOreset = function(e, starNumber) {
 	}
 }
 var starClick = function(e, starNumber) {
-	console.log(starNumber);
+	//console.log(starNumber);
 	alreadySelectedStars = false;
 	starMOreset(null, 5);
 	starMO(null, starNumber);
@@ -284,7 +288,7 @@ var getPagesCallbacks = {
 }
 
 var playPageEvent = function(e, pageKey) {
-	console.log("playing page: " + e + ', ' + pageKey);
+	//console.log("playing page: " + e + ', ' + pageKey);
 	//this sets the focus to the #top href tag
 	window.location.hash = 'top';
 	playPage(pageKey);
@@ -296,13 +300,13 @@ var back = function() {
 	//get the last item from the history and play it
 	var previousKey = pageHistory.pop();
 	if (previousKey) {
-		console.log("going back.. previous key: " + previousKey);
+		//console.log("going back.. previous key: " + previousKey);
 		playPage(previousKey);
 	}
 	else {
 		//if we are here that means we emptied out the history, which is bad
 		//we should re-add the discarded element
-		console.log("going back.. added discarded key: " + discarded);
+		//console.log("going back.. added discarded key: " + discarded);
 		pageHistory.push(discarded);
 	}
 }
@@ -310,10 +314,10 @@ var back = function() {
 var playPage = function(pageKey) {
 	//console.log('playPage: ' + pageKey);
 	workArea = YUD.get('player');
-	var page = pages[keyToPageIdMap[pageKey]];
+	page = pages[keyToPageIdMap[pageKey]];
 	//add the last page to the history
 	pageHistory.push(pageKey);
-	console.log("adding key to history: " + pageKey);
+	//console.log("adding key to history: " + pageKey);
 	//create the back button and title, and tooltip for the back button
 	workArea.innerHTML = '<div><table width="100%"><tr><td id="back" class="iconBG-disabled2" width="48px"><div id="icon-back" class="icon-back"></td><td><h1>' + page.name + '</h1></td><td width="48px"></td></tr></table></div>';
 	//if the pagehistory only has 1 element in it, change the icon class to disabled
@@ -331,6 +335,7 @@ var playPage = function(pageKey) {
 	//go through each page element for this page and add it to the HTML
 	for (var i = 0; i < page.elements.length; i++) {
 		var pageElement = page.elements[i];
+		if (pageElement.hidden) { continue; }
 		//create a new div that we can append to workArea
 		var newDiv = document.createElement('div');
 		newDiv.id = "pageElement" + i;
@@ -341,7 +346,7 @@ var playPage = function(pageKey) {
 			//text element
 			//console.log("page element text: " + pageElement.dataA.substr(0, 20));
 			if (pageElement.dataA) {
-				console.log(pageElement.dataA);
+				//console.log(pageElement.dataA);
 				var myPageText = storyScript(pageElement.dataA);
 				myPageText = myPageText.replace(/\n/g, '<br>');
 				newDiv.innerHTML = '<div class="playerSmall">' + myPageText + '</div>';
@@ -370,34 +375,45 @@ var storyScript = function(inputText) {
 	backDisabled = true;
 	var outputText = '';
 	var bracketMatcher = /{{.*?}}/gm;
+
 	//go through line by line
 	var lines = inputText.split(/\n/);
 	for (var lineNumber = 0; lineNumber < lines.length; lineNumber++) {
 		line = lines[lineNumber];
-		console.log("line: " + line);
+		//console.log("line: " + line);
+		//console.log("ifBlocked(%s)", ifBlocked);
+		//console.log(ifBlockResult);
 		//first loop through and get everything inside of double curly brackets {{ }}
 		var brackets = line.match(bracketMatcher);
 		if (brackets == null) {
-			outputText += line + "\n";
+			if (ifBlocked == false) {
+				outputText += line + "\n";
+			}
 			continue;
 		}
 		//now loop through each curly bracket
 		for (var n = 0; n < brackets.length; n++) {
 			bracket = brackets[n];
-			//parse what is inside the brackets
-			var result = parseScript(bracket);
-			if (result != null) {
-				//replace the curly bracket expression with the result
-				outputText += line.replace(/{{.*?}}/m, result) + "\n";
+			//get the new ifstatus
+			var ifResult = parseScriptForIfs(bracket);
+			//if we didnt get an NA back, then we parsed an if statement, so we can go onto the next bracket
+			if (ifResult != 'NA') { continue; }
+			if (ifBlocked == false) {
+				//parse what is inside the brackets
+				var result = parseScriptForData(bracket);
+				if (result != null) {
+					//replace the curly bracket expression with the result
+					outputText += line.replace(/{{.*?}}/m, result) + "\n";
+				}
 			}
 		}
 	}
-	console.log(outputText);
+	//console.log(outputText);
 	return outputText;
 }
 
 var parseScript = function(bracket) {
-	//this function evaluates the scripted text. it supports a few things but not many
+	//this function just turns the script command that is in brackets into tokens for processing
 	//first get rid of the brackets
 	bracket = bracket.replace(/{|}/g, '');
 	//remove leading and trailing spaces
@@ -407,10 +423,14 @@ var parseScript = function(bracket) {
 	//split the string up based on spaces
 	tokens = bracket.split(/\s+/);
 	
-	console.log('ParseScript: ' + bracket);
-	console.log(tokens);
+	//console.log('ParseScript: ' + bracket);
+	//console.log(tokens);
+	return tokens;
+}
+
+var parseScriptForData = function(bracket) {
+	var tokens = parseScript(bracket);
 	if (tokens.length == 0) { return 'NO TOKEN'; }
-	
 	primaryToken = tokens.shift();
 	
 	//just return the value of the variable
@@ -435,17 +455,103 @@ var parseScript = function(bracket) {
 	return null;
 }
 
+var parseScriptForIfs = function(tokens) {
+	var tokens = parseScript(bracket);
+	if (tokens.length == 0) { return 'NO TOKEN'; }
+	primaryToken = tokens.shift();
+	if (primaryToken == 'ifequal' || primaryToken == 'ifgt' || primaryToken == 'iflt' || primaryToken == 'ifge' || primaryToken == 'ifle') {
+		if (processIf(primaryToken, tokens)) {
+			ifBlockResult.unshift(true);
+			ifBlocked = false;
+		}
+		else {
+			ifBlockResult.unshift(false);
+			ifBlocked = true;
+		}
+	}
+	else if (primaryToken == 'else') {
+		if (ifBlockResult.length == 0) {
+			alert("ERROR: else block with no matching if");
+			return null;
+		}
+		ifBlocked = ifBlockResult[0];
+	}
+	else if (primaryToken == 'endif') {
+		ifBlockResult.shift();
+		ifBlocked = true;
+		if (ifBlockResult.length == 0 || ifBlockResult[0] == true) {
+			ifBlocked = false;
+		}
+	}
+	else {
+		return 'NA';
+	}
+}
+
+var processIf = function(ifType, tokens) {
+	//make sure we have 2 more tokens
+	if (tokens.length != 2) {
+		alert("ERROR: if statements take 2 arguments");
+		return null;
+	}
+	var retval = false;
+	var firstToken = getValueForToken(tokens.shift());
+	var secondToken = getValueForToken(tokens.shift());
+	if (primaryToken == 'ifequal') {
+		if (firstToken == secondToken) { retval = true; }
+	}
+	else if (primaryToken == 'ifgt') {
+		if (firstToken > secondToken) { retval = true; }
+	}
+	else if (primaryToken == 'ifge') {
+		if (firstToken >= secondToken) { retval = true; }
+	}
+	else if (primaryToken == 'iflt') {
+		if (firstToken < secondToken) { retval = true; }
+	}
+	else if (primaryToken == 'ifle') {
+		if (firstToken <= secondToken) { retval = true; }
+	}
+	else {
+		alert("ERROR: unknown if operator: " + primaryToken);
+		return null;
+	}
+	//console.log("IFRESULT: %s %s %s : %s", ifType, firstToken, secondToken, retval);
+	return retval;
+}
 
 var combineArrayOfTokens = function(tokens) {
 	//keep looping until we run out of tokens
 	//this is kind of a reverse polish notation processor
 	var iterations = 0;
+	
 	while (tokens.length > 0 && iterations < 50) {
 		iterations++;
 		console.log("TOKENS: ");
 		console.log(tokens);
 		//shift off the first token, we will add to this if there are any more
 		firstToken = tokens.shift();
+
+		//process the simple hide / show stuff first
+		if (firstToken == 'hide') {
+			if (tokens.length < 1) {
+				alert("ERROR: hide requires 1 argument, the page element to hide");
+				return("ERROR: hide requires 1 argument, the page element to hide");
+			}
+			secondToken = tokens.shift();
+			page.elements[secondToken].hidden = true;
+			return;
+		}
+		else if (firstToken == 'show') {
+			if (tokens.length < 1) {
+				alert("ERROR: show requires 1 argument, the page element to hide");
+				return("ERROR: show requires 1 argument, the page element to hide");
+			}
+			secondToken = tokens.shift();
+			page.elements[secondToken].hidden = false;
+			return;
+		}
+
 		//we need to have at least 2 tokens left
 		if (tokens.length < 2) {
 			return firstToken;
@@ -499,41 +605,42 @@ var randomTokens = function(low, high) {
 	high = getValueForToken(high);
 	var diff = high - low;
 	var randomValue = Math.floor(Math.random() * (diff+1)) + low;
-	console.log("randomTokens: " + randomValue);
+	//console.log("randomTokens: " + randomValue);
 	return randomValue;
 }
 
-var combineTokens = function(numA, myOperator, numB) {
-	numA = getValueForToken(numA);
-	numB = getValueForToken(numB);
-	if      (myOperator == '+') { numA += numB; }
-	else if (myOperator == '-') { numA -= numB; }
+var combineTokens = function(_numA, myOperator, _numB) {
+	//console.log("combineTokens: " + _numA + "," + _numB);
+	var numA = getValueForToken(_numA);
+	var numB = getValueForToken(_numB);
+	if      (myOperator == '+') { numA = numA + numB; }
+	else if (myOperator == '-') { numA = numA - numB; }
 	else if (myOperator == '*') { numA = numA * numB; }
 	else if (myOperator == '/') { numA = numA / numB; }
 	else {
 		alert("Invalid operator: " + bracket);
 		return "(ERROR invalid operator)";
 	}
-	console.log("combineTokens: " + numA);
+	//console.log("combineTokens: " + numA);
 	return numA;
 }
 
 var getValueForToken = function(token) {
 	//first see if its a number
 	numberResult = parseInt(token);
-	if (numberResult) {
+	if (numberResult || numberResult == 0) {
 		return numberResult;
 	}
 	//else return its stored value
 	if (SS[token]) {
-		return SS[token];
+		return parseInt(SS[token]);
 	}
 	else { return 0; }
 }
 
 var resetSS = function() {
 	for (var key in SS) {
-		console.log("reset %s,%s", key, SS[key]);
+		//console.log("reset %s,%s", key, SS[key]);
 		SS[key] = null;
 	}
 }

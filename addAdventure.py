@@ -150,12 +150,12 @@ class AddAdventure(webapp.RequestHandler):
 	
 	logging.info("AddAdventure done for key: " + myAdventureKey)
 	#self.redirect('/myStories')
-	if not myAdventureKey:
-		#redirect you right to the story editor if its a new story
-		self.redirect('/storyEditor?myAdventureKey=' + str(adventure.key()))
-	else:
-		#redirect you back to myStories
-		self.redirect('/myStories')
+	#if not myAdventureKey:
+	#	#redirect you right to the story editor if its a new story
+	#	self.redirect('/storyEditor?myAdventureKey=' + str(adventure.key()))
+	#else:
+	#redirect you back to myStories
+	self.redirect('/myStories')
 
   def get(self):
 	adventure = None

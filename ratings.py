@@ -153,22 +153,23 @@ class Vote(webapp.RequestHandler):
 	myVote = int(self.request.get('vote'))
 	myiphone = self.request.get('iphone')
 	myComment = self.request.get('comment')
-	adventure = main.getAdventure(myAdventureKey)
 	output = None
 	adventureStatus = None
-	if not adventure:
-		logging.warn("Vote: adventure key did not exist in db: " + myAdventureKey)
-		output = "Error: Adventure key did not exist in database."
-		self.response.out.write(output)
-		return
+
 	#they either have to be logged in, or be on the iPhone
 	if not users.get_current_user():
 		error = 'Error: You must be logged in to vote.'
 		output = "You must be logged in to vote."
 		if not myiphone:
-			logging.warn("Vote: trying to vote but user is not a reader and no iphone was passed in")
+			logging.info("Vote: trying to vote but user is not a reader and no iphone was passed in")
 			self.response.out.write(output)
 			return
+	adventure = main.getAdventure(myAdventureKey)
+	if not adventure:
+		logging.warn("Vote: adventure key did not exist in db: " + myAdventureKey)
+		output = "Error: Adventure key did not exist in database."
+		self.response.out.write(output)
+		return
 	#we should be good, lets get the adventureStatus object now
 	adventureStatus = admin.getAdventureStatus(adventure.adventureStatus)
 	if not adventureStatus:
