@@ -398,16 +398,17 @@ var storyScript = function(inputText) {
 			var ifResult = parseScriptForIfs(bracket);
 			//see if we got ifs back, if we did then we parsed an if statement, so we can go onto the next bracket
 			if (ifResult == "GOT IFS") {
-				line = line.replace(/{{.*?}}/m, '');
+				line = line.replace(/{{.*?}}/, '');
 				continue;
 			}
-			if (ifBlocked == false) {
-				//parse what is inside the brackets
-				var result = parseScriptForData(bracket);
-				if (result != null) {
-					//replace the curly bracket expression with the result
-					line = line.replace(/{{.*?}}/m, result);
-				}
+			if (ifBlocked == true) {
+				line = '';
+			}
+			//parse what is inside the brackets
+			var result = parseScriptForData(bracket);
+			if (result != null) {
+				//replace the curly bracket expression with the result
+				line = line.replace(/{{.*?}}/, result);
 			}
 		}
 		if (line.length > 0) { line += "\n"; }
@@ -465,6 +466,7 @@ var parseScriptForIfs = function(tokens) {
 	if (tokens.length == 0) { return 'NO TOKEN'; }
 	primaryToken = tokens.shift();
 	if (primaryToken == 'ifequal' || primaryToken == 'ifgt' || primaryToken == 'iflt' || primaryToken == 'ifge' || primaryToken == 'ifle') {
+		if (ifBlocked) { return "GOT IFS"; }
 		if (processIf(primaryToken, tokens)) {
 			ifBlockResult.unshift(true);
 			ifBlocked = false;
@@ -479,7 +481,7 @@ var parseScriptForIfs = function(tokens) {
 			alert("ERROR: else block with no matching if");
 			return null;
 		}
-		ifBlocked = ifBlockResult[0];
+		ifBlocked = ifBlockResult[(ifBlockResult.length-1)];
 	}
 	else if (primaryToken == 'endif') {
 		ifBlockResult.shift();
@@ -522,7 +524,7 @@ var processIf = function(ifType, tokens) {
 		alert("ERROR: unknown if operator: " + primaryToken);
 		return null;
 	}
-	//console.log("IFRESULT: %s %s %s : %s", ifType, firstToken, secondToken, retval);
+	console.log("IFRESULT: %s %s %s : %s", ifType, firstToken, secondToken, retval);
 	return retval;
 }
 
