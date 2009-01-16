@@ -374,6 +374,7 @@ var storyScript = function(inputText) {
 	//disable going back, we can't really handle it when we have variables too
 	backDisabled = true;
 	var bracketMatcher = /{{.*?}}/g;
+	var outputText = '';
 
 	//go through line by line
 	var lines = inputText.split(/\n/);
@@ -386,32 +387,30 @@ var storyScript = function(inputText) {
 		var brackets = line.match(bracketMatcher);
 		if (brackets == null) {
 			if (ifBlocked == false) {
-				line = line + "\n";
+				outputText += line + "\n";
 			}
 			continue;
 		}
 		//now loop through each curly bracket
-		var gotText = false;
 		for (var n = 0; n < brackets.length; n++) {
 			bracket = brackets[n];
 			//get the new ifstatus
 			var ifResult = parseScriptForIfs(bracket);
-			//if we didnt get an NA back, then we parsed an if statement, so we can go onto the next bracket
-			if (ifResult != 'NA') { continue; }
+			//if we didnt get an emptry string back, then we parsed an if statement, so we can go onto the next bracket
+			if (ifResult != '') { continue; }
 			if (ifBlocked == false) {
 				//parse what is inside the brackets
 				var result = parseScriptForData(bracket);
 				if (result != null) {
 					//replace the curly bracket expression with the result
 					line = line.replace(/{{.*?}}/m, result);
-					gotText = true;
 				}
 			}
 		}
-		if (gotText) { line += "\n"; }
+		if (line.length > 0) { line += "\n"; }
+		outputText += line;
 	}
-	//console.log(outputText);
-	return line;
+	return outputText;
 }
 
 var parseScript = function(bracket) {
@@ -446,6 +445,7 @@ var parseScriptForData = function(bracket) {
 	if (primaryOperator == '=') {
 		//combine all the rest of the tokens and set it equal to the primaryToken
 		SS[primaryToken] = combineArrayOfTokens(tokens);
+		return '';
 	}
 	else {
 		//add the primary token and primary operator back on, we need to add everything up
@@ -486,8 +486,9 @@ var parseScriptForIfs = function(tokens) {
 		}
 	}
 	else {
-		return 'NA';
+		return '';
 	}
+	return '';
 }
 
 var processIf = function(ifType, tokens) {
