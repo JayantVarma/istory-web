@@ -24,7 +24,7 @@ indexes:
   - name: realAuthor
   - name: imageName
 
-# Used 244 times in query history.
+# Used 246 times in query history.
 - kind: Page
   properties:
   - name: adventure
@@ -37,7 +37,7 @@ indexes:
   - name: page
   - name: pageOrder
 
-# Used 188 times in query history.
+# Used 190 times in query history.
 - kind: PageElement
   properties:
   - name: adventure
@@ -49,7 +49,7 @@ indexes:
   - name: page
   - name: pageOrder
 
-# Used 87 times in query history.
+# Used 89 times in query history.
 - kind: Share
   properties:
   - name: adventure

@@ -396,8 +396,11 @@ var storyScript = function(inputText) {
 			bracket = brackets[n];
 			//get the new ifstatus
 			var ifResult = parseScriptForIfs(bracket);
-			//if we didnt get an emptry string back, then we parsed an if statement, so we can go onto the next bracket
-			if (ifResult != '') { continue; }
+			//see if we got ifs back, if we did then we parsed an if statement, so we can go onto the next bracket
+			if (ifResult == "GOT IFS") {
+				line = line.replace(/{{.*?}}/m, '');
+				continue;
+			}
 			if (ifBlocked == false) {
 				//parse what is inside the brackets
 				var result = parseScriptForData(bracket);
@@ -486,9 +489,9 @@ var parseScriptForIfs = function(tokens) {
 		}
 	}
 	else {
-		return '';
+		return "NO IFS";
 	}
-	return '';
+	return "GOT IFS";
 }
 
 var processIf = function(ifType, tokens) {
@@ -543,7 +546,7 @@ var combineArrayOfTokens = function(tokens) {
 			}
 			secondToken = tokens.shift();
 			page.elements[secondToken].hidden = true;
-			return;
+			return '';
 		}
 		else if (firstToken == 'show') {
 			if (tokens.length < 1) {
@@ -552,7 +555,7 @@ var combineArrayOfTokens = function(tokens) {
 			}
 			secondToken = tokens.shift();
 			page.elements[secondToken].hidden = false;
-			return;
+			return '';
 		}
 
 		//we need to have at least 2 tokens left
