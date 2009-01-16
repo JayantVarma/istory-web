@@ -481,7 +481,7 @@ var parseScriptForIfs = function(tokens) {
 			alert("ERROR: else block with no matching if");
 			return null;
 		}
-		ifBlocked = ifBlockResult[(ifBlockResult.length-1)];
+		ifBlocked = ifBlockResult[0];
 	}
 	else if (primaryToken == 'endif') {
 		ifBlockResult.shift();
@@ -524,7 +524,7 @@ var processIf = function(ifType, tokens) {
 		alert("ERROR: unknown if operator: " + primaryToken);
 		return null;
 	}
-	console.log("IFRESULT: %s %s %s : %s", ifType, firstToken, secondToken, retval);
+	//console.log("IFRESULT: %s %s %s : %s", ifType, firstToken, secondToken, retval);
 	return retval;
 }
 
