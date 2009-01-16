@@ -373,8 +373,7 @@ var playPage = function(pageKey) {
 var storyScript = function(inputText) {
 	//disable going back, we can't really handle it when we have variables too
 	backDisabled = true;
-	var outputText = '';
-	var bracketMatcher = /{{.*?}}/gm;
+	var bracketMatcher = /{{.*?}}/g;
 
 	//go through line by line
 	var lines = inputText.split(/\n/);
@@ -387,11 +386,12 @@ var storyScript = function(inputText) {
 		var brackets = line.match(bracketMatcher);
 		if (brackets == null) {
 			if (ifBlocked == false) {
-				outputText += line + "\n";
+				line = line + "\n";
 			}
 			continue;
 		}
 		//now loop through each curly bracket
+		var gotText = false;
 		for (var n = 0; n < brackets.length; n++) {
 			bracket = brackets[n];
 			//get the new ifstatus
@@ -403,13 +403,15 @@ var storyScript = function(inputText) {
 				var result = parseScriptForData(bracket);
 				if (result != null) {
 					//replace the curly bracket expression with the result
-					outputText += line.replace(/{{.*?}}/m, result) + "\n";
+					line = line.replace(/{{.*?}}/m, result);
+					gotText = true;
 				}
 			}
 		}
+		if (gotText) { line += "\n"; }
 	}
 	//console.log(outputText);
-	return outputText;
+	return line;
 }
 
 var parseScript = function(bracket) {
@@ -527,8 +529,8 @@ var combineArrayOfTokens = function(tokens) {
 	
 	while (tokens.length > 0 && iterations < 50) {
 		iterations++;
-		console.log("TOKENS: ");
-		console.log(tokens);
+		//console.log("TOKENS: ");
+		//console.log(tokens);
 		//shift off the first token, we will add to this if there are any more
 		firstToken = tokens.shift();
 
