@@ -189,7 +189,7 @@ class AdventureStatus(db.Model):
 
 
 class UserVotes(db.Model):
-	adventureStatus = db.ReferenceProperty(AdventureStatus)
+	adventureStatus = db.ReferenceProperty(AdventureStatus, collection_name='votes')
 	voter = db.UserProperty()
 	iphoneId = db.StringProperty(multiline=False)
 	comment = db.TextProperty()

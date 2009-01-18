@@ -1205,7 +1205,7 @@ var addPageCallbacks = {
 			}
 			else {
 				console.log("adding new page to tree");
-				myNode = new YAHOO.widget.TextNode((tree.getRoot().children.length + 1) + ': ' + m.name, tree.getRoot(), false);
+				myNode = new YAHOO.widget.TextNode(m.name, tree.getRoot(), false);
 				myNode.insertBefore(tree.getRoot().children[0]);
 				myNode.value = m.key;
 			}
@@ -1297,7 +1297,7 @@ var callbacks = {
 		for (var i = 0, len = messages.length; i < len; ++i) {
 			var m = messages[i];
 			//m.name m.key
-			var tmpNode = new YAHOO.widget.TextNode((i+1) + ': ' + m.name, tree.getRoot(), true);
+			var tmpNode = new YAHOO.widget.TextNode(m.name, tree.getRoot(), true);
 			tmpNode.insertBefore(tree.getRoot().children[0]);
 			tmpNode.value = m.key;
 			numPages++;

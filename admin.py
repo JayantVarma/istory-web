@@ -13,15 +13,65 @@ from django.utils import simplejson
 import adventureModel
 import main
 
-def deleteAdventure(adventure):
-	logging.info("deleteAdventure: start " + str(adventure.key()))
+def deleteAdventureStatus(adventureStatus):
+	if not adventureStatus:
+		logging.warn("deleteAdventureStatus: adventureStatus is required")
+		return
+	logging.info("deleteAdventureStatus: start " + str(adventureStatus.key()))
+	output = "deleteAdventureStatus: start " + str(adventureStatus.key())
+	#loop through all the adventures and delete them
+	adventure = adventureStatus.submittedAdventure
+	if adventure:
+		logging.info("deleteAdventureStatus: deleting submittedAdventure")
+		adventureStatus.submittedAdventure = None
+		output += deleteAdventure(adventure, False)
+	adventure = adventureStatus.editableAdventure
+	if adventure:
+		logging.info("deleteAdventureStatus: deleting editableAdventure")
+		adventureStatus.editableAdventure = None
+		output += deleteAdventure(adventure, False)
+	adventure = adventureStatus.publishedAdventure
+	if adventure:
+		logging.info("deleteAdventureStatus: deleting publishedAdventure")
+		adventureStatus.publishedAdventure = None
+		output += deleteAdventure(adventure, False)
+	#delete the ratings
+	cnt = 0
+	for rating in adventureStatus.ratings:
+		cnt = cnt + 1
+		rating.delete()
+	output += "   deleted %d records from ratings<br>" % cnt
+	#delete the images
+	cnt = 0
+	for image in adventureStatus.images:
+		cnt = cnt + 1
+		image.delete()
+	output += "   deleted %d records from images<br>" % cnt
+	#delete the votes
+	cnt = 0
+	for vote in adventureStatus.votes:
+		cnt = cnt + 1
+		vote.delete()
+	output += "   deleted %d records from votes<br>" % cnt
+	#finish up
+	memcache.delete("adventures")
+	adventureStatus.delete()
+	output += "   done"
+	logging.info("deleteAdventureStatus: done")
+	return output
+
+def deleteAdventure(adventure, deleteAdventureStatusKey = True):
 	output = None
 	if not adventure:
 		logging.warn("deleteAdventure: adventure is required")
 		return
+	logging.info("deleteAdventure: start " + str(adventure.key()))
 	#share
 	q = adventureModel.Share.all().filter('adventure =', adventure)
 	a = q.fetch(9999)
+	#delete the adventure shares cache
+	for share in a:
+		memcache.delete('adventures_' + share.child.email())
 	output = "Admin get: delete story: deleted %d records from Share<br>" % len(a)
 	db.delete(a)
 	#page element
@@ -29,16 +79,41 @@ def deleteAdventure(adventure):
 	a = q.fetch(9999)
 	output += "Admin get: delete story: deleted %d records from PageElement<br>" % len(a)
 	db.delete(a)
-	#image
-	q = adventureModel.Image.all().filter('adventure =', adventure)
-	a = q.fetch(9999)
-	output += "Admin get: delete story: deleted %d records from Image<br>" % len(a)
-	db.delete(a)
+	##image
+	#q = adventureModel.Image.all().filter('adventure =', adventure)
+	#a = q.fetch(9999)
+	#output += "Admin get: delete story: deleted %d records from Image<br>" % len(a)
+	#db.delete(a)
 	#page
 	q = adventureModel.Page.all().filter('adventure =', adventure)
 	a = q.fetch(9999)
 	output += "Admin get: delete story: deleted %d records from Page<br>" % len(a)
 	db.delete(a)
+	#adventure status
+	#we need to go through the adventure status record and set this adventure to null
+	adventureStatus = db.Model.get(adventure.adventureStatus)
+	thisAdventure = adventureStatus.submittedAdventure
+	if adventure:
+		adventureStatus.submittedAdventure = None
+	thisAdventure = adventureStatus.editableAdventure
+	if adventure:
+		adventureStatus.editableAdventure = None
+	thisAdventure = adventureStatus.publishedAdventure
+	if adventure:
+		adventureStatus.publishedAdventure = None
+	adventureStatus.put()
+	#now figure out how many adventures this adventureStatus has left
+	foundAdventures = 0
+	if adventureStatus.editableAdventure:
+		foundAdventures = foundAdventures + 1
+	if adventureStatus.submittedAdventure:
+		foundAdventures = foundAdventures + 1
+	if adventureStatus.publishedAdventure:
+		foundAdventures = foundAdventures + 1
+	output += "Admin get: delete story: this adventureStatus has %d adventures left<br>" % foundAdventures
+	#if we only have 0 adventures left in this adventureStatus, we need to delete it
+	#we'll do that at the end
+
 	##votes
 	#q = adventureModel.UserVotes.all().filter('adventureStatus =', adventureStatus)
 	#a = q.fetch(9999)
@@ -62,6 +137,11 @@ def deleteAdventure(adventure):
 	if adventure.adventureStatus:
 		memcache.delete(adventure.adventureStatus)
 	adventure.delete()
+	if foundAdventures == 0 and deleteAdventureStatusKey:
+		#delete the adventureStatus record
+		logging.info("deleteAdventure: deleting adventureStatus record as well")
+		output += "DELETING ADVENTURE STATUS NOW"
+		output += deleteAdventureStatus(adventureStatus)
 	logging.info('deleteAdventure: done')
 	logging.info(output)
 	return output
@@ -276,7 +356,24 @@ class Admin(webapp.RequestHandler):
 	logging.info("Admin get: myAdventureKey(%s)" % (myAdventureKey))
 	output = "Admin get: myAdventureKey(%s) command(%s) var(%s) var2(%s)<br>" % (myAdventureKey, command, var, var2)
 
-	if command == 'delete story' and var:
+	if command == 'delete story collection' and var:
+		#this will delete all story data for a given adventureStatus
+		adventure = None
+		logging.info("Admin get: delete adventureStatus: " + var)
+		output += "Admin get: delete adventureStatus: " + var + "<br>"
+		try:
+			adventure = db.Model.get(var)
+		except Exception, e:
+			output += "Admin get: delete adventureStatus: exception: " + str(e) + "<br>"
+		if not adventure:
+			logging.info("Admin get: delete adventureStatus: adventure key not found in DB")
+			output += "Admin get: delete adventureStatus: adventure key not found in DB<br>"
+		else:
+			#get the adventureStatus and delete it
+			adventureStatus = db.Model.get(adventure.adventureStatus)
+			output += deleteAdventureStatus(adventureStatus)
+			memcache.delete(var)
+	elif command == 'delete story' and var:
 		#this will delete all story data for a given adventure
 		adventure = None
 		logging.info("Admin get: delete story: " + var)

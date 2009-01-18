@@ -332,6 +332,11 @@ var playPage = function(pageKey) {
 		YAHOO.util.Event.addListener("back", "mouseout", eventIconMOreset, true);
 		YAHOO.util.Event.addListener("back", "click", back);
 	}
+	//go through each page element and reset the view status to shown for each page element
+	for (var i = 0; i < page.elements.length; i++) {
+		var pageElement = page.elements[i];
+		pageElement.hidden = false;
+	}
 	//go through each page element for this page and add it to the HTML
 	for (var i = 0; i < page.elements.length; i++) {
 		var pageElement = page.elements[i];
@@ -368,11 +373,11 @@ var playPage = function(pageKey) {
 			}
 		}
 	}
+	console.log(SS);
 }
 
 var storyScript = function(inputText) {
 	//disable going back, we can't really handle it when we have variables too
-	backDisabled = true;
 	var bracketMatcher = /{{.*?}}/g;
 	var outputText = '';
 
@@ -391,6 +396,7 @@ var storyScript = function(inputText) {
 			}
 			continue;
 		}
+		backDisabled = true;
 		//now loop through each curly bracket
 		for (var n = 0; n < brackets.length; n++) {
 			bracket = brackets[n];
@@ -404,11 +410,13 @@ var storyScript = function(inputText) {
 			if (ifBlocked == true) {
 				line = '';
 			}
-			//parse what is inside the brackets
-			var result = parseScriptForData(bracket);
-			if (result != null) {
-				//replace the curly bracket expression with the result
-				line = line.replace(/{{.*?}}/, result);
+			else {
+				//parse what is inside the brackets
+				var result = parseScriptForData(bracket);
+				if (result != null) {
+					//replace the curly bracket expression with the result
+					line = line.replace(/{{.*?}}/, result);
+				}
 			}
 		}
 		if (line.length > 0) { line += "\n"; }
@@ -466,13 +474,16 @@ var parseScriptForIfs = function(tokens) {
 	if (tokens.length == 0) { return 'NO TOKEN'; }
 	primaryToken = tokens.shift();
 	if (primaryToken == 'ifequal' || primaryToken == 'ifgt' || primaryToken == 'iflt' || primaryToken == 'ifge' || primaryToken == 'ifle') {
-		if (ifBlocked) { return "GOT IFS"; }
+		if (ifBlocked) {
+			ifBlockResult.unshift(-1);
+			return "GOT IFS";
+		}
 		if (processIf(primaryToken, tokens)) {
-			ifBlockResult.unshift(true);
+			ifBlockResult.unshift(1);
 			ifBlocked = false;
 		}
 		else {
-			ifBlockResult.unshift(false);
+			ifBlockResult.unshift(0);
 			ifBlocked = true;
 		}
 	}
@@ -481,18 +492,29 @@ var parseScriptForIfs = function(tokens) {
 			alert("ERROR: else block with no matching if");
 			return null;
 		}
-		ifBlocked = ifBlockResult[0];
+		if (ifBlocked && ifBlockResult[0] == -1) {
+			return "GOT IFS";
+		}
+		if (ifBlockResult[0] == 1) {
+			ifBlocked = true;
+			ifBlockResult[0] = 0;
+		}
+		else {
+			ifBlocked = false;
+			ifBlockResult[0] = 1;
+		}
 	}
 	else if (primaryToken == 'endif') {
 		ifBlockResult.shift();
 		ifBlocked = true;
-		if (ifBlockResult.length == 0 || ifBlockResult[0] == true) {
+		if (ifBlockResult.length == 0 || ifBlockResult[0] == 1) {
 			ifBlocked = false;
 		}
 	}
 	else {
 		return "NO IFS";
 	}
+	tokens.shift();
 	return "GOT IFS";
 }
 
@@ -540,6 +562,11 @@ var combineArrayOfTokens = function(tokens) {
 		//shift off the first token, we will add to this if there are any more
 		firstToken = tokens.shift();
 
+		//we need to have at least 1 tokens left
+		if (tokens.length < 1) {
+			return getValueForToken(firstToken);
+		}
+
 		//process the simple hide / show stuff first
 		if (firstToken == 'hide') {
 			if (tokens.length < 1) {
@@ -562,7 +589,7 @@ var combineArrayOfTokens = function(tokens) {
 
 		//we need to have at least 2 tokens left
 		if (tokens.length < 2) {
-			return firstToken;
+			return getValueForToken(firstToken);
 		}
 
 		//this means we have atleast 2 tokens left, so we must be trying to do something like 3 + 4 or random 3 4
@@ -641,7 +668,7 @@ var getValueForToken = function(token) {
 	}
 	//else return its stored value
 	if (SS[token]) {
-		return parseInt(SS[token]);
+		return SS[token];
 	}
 	else { return 0; }
 }

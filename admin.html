@@ -11,6 +11,7 @@
 	<form method="get" action="/admin">
 	<p>command: <select name="command">
 			<option value="delete story">delete story
+			<option value="delete story collection">delete story collection
 			<option value="move pages">move pages
 	</select></p>
 	<p>var: <input type="text" name="var" size="50"></p>
@@ -34,6 +35,7 @@
 			{{ as.submittedAdventure.created.date }}</center><hr>
 			<code>{{ as.submittedAdventure.desc|escape }}</code><hr>
 			<code>{{ as.comment|escape }}</code><hr>
+			{% if as.submittedAdventure.coverImage %}<img src="/images/{{ as.submittedAdventure.coverImage }}.png"><hr>{% endif %}
 			<table><tr>
 				<td class="myStoryButton"><a href="/createStory?myAdventureKey={{ as.submittedAdventure.key }}"><div class="icon-edit"></div>Edit Title &amp; Description</a></td>
 				<td class="myStoryButton"><a href="/storyEditor?myAdventureKey={{ as.submittedAdventure.key }}"><div class="icon-storyEdit"></div>StoryForge</a></td>
