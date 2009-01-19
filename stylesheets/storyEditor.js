@@ -691,15 +691,20 @@ var pageElUp = function(e) {
 var moveCallbacks = {
 	success : function (o) {
 		// Process the JSON data returned from the server
-		var pageElement = [];
+		/*var pageElement = [];
 		try {
 			pageElement = YAHOO.lang.JSON.parse(o.responseText);
 		}
 		catch (x) {
 			alert("JSON Parse failed! " + x);
 			return;
+		}*/
+		if (o.responseText == 'SUCCESS') {
+			setLoaded();
 		}
-		setLoaded();
+		else {
+			alert("Move Page Element Failed");
+		}
 	},
 	failure : function (o) {
 		alert("MovePageElement was not successful.");

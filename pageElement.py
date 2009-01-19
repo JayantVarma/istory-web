@@ -34,50 +34,54 @@ class MovePageElement(webapp.RequestHandler):
 			error = 'Error: You are not an author of this adventure'
 			return
 	myNewOrder = int(myNewOrderString)
-	elQuery = adventureModel.PageElement.all()
-	elQuery.filter('adventure = ', changingPageEl.adventure.key())
-	elQuery.filter('page = ', changingPageEl.page.key())
-	elQuery.order('pageOrder')
-	elements = elQuery.fetch(9999)
-	# now re-arrange the elements to be in the right order
-	elementsArray = []
-	counter = 0
-	stagingElement = None
-	for element in elements:
-		element.pageOrder = counter
-		if (changingPageEl.key() == element.key()):
-			if (counter > 0 and myNewOrder < counter):
-				oldElement = elementsArray.pop()
-				element.pageOrder = counter - 1
-				elementsArray.append(element)
-				if (oldElement):
-					oldElement.pageOrder = counter
-					elementsArray.append(oldElement)
-			elif (myNewOrder > counter):
-				element.pageOrder = element.pageOrder + 1
-				stagingElement = element
-		elif stagingElement:
-			stagingElement.pageOrder = counter
-			elementsArray.append(stagingElement)
-			stagingElement = None
-			element.pageOrder = element.pageOrder - 1
-			elementsArray.append(element)
-		else:
-			elementsArray.append(element)
-		counter = counter + 1
-
-	# print the new element order out
-	counter = 0
-	jsonArray = []
-	for element in elementsArray:
-		logging.info("MovePageElement: elementsArray[" + str(counter) + "] order(" + str(element.pageOrder) + ") : " + element.dataA)
-		counter = counter + 1
-		element.put()
-		jsonArray.append(element.toDict())
+	changingPageEl.pageOrder = myNewOrder
+	changingPageEl.put()
+	
+#	elQuery = adventureModel.PageElement.all()
+#	elQuery.filter('adventure = ', changingPageEl.adventure.key())
+#	elQuery.filter('page = ', changingPageEl.page.key())
+#	elQuery.order('pageOrder')
+#	elements = elQuery.fetch(9999)
+#	# now re-arrange the elements to be in the right order
+#	elementsArray = []
+#	counter = 0
+#	stagingElement = None
+#	for element in elements:
+#		element.pageOrder = counter
+#		if (changingPageEl.key() == element.key()):
+#			if (counter > 0 and myNewOrder < counter):
+#				oldElement = elementsArray.pop()
+#				element.pageOrder = counter - 1
+#				elementsArray.append(element)
+#				if (oldElement):
+#					oldElement.pageOrder = counter
+#					elementsArray.append(oldElement)
+#			elif (myNewOrder > counter):
+#				element.pageOrder = element.pageOrder + 1
+#				stagingElement = element
+#		elif stagingElement:
+#			stagingElement.pageOrder = counter
+#			elementsArray.append(stagingElement)
+#			stagingElement = None
+#			element.pageOrder = element.pageOrder - 1
+#			elementsArray.append(element)
+#		else:
+#			elementsArray.append(element)
+#		counter = counter + 1
+#
+#	# print the new element order out
+#	counter = 0
+#	jsonArray = []
+#	for element in elementsArray:
+#		logging.info("MovePageElement: elementsArray[" + str(counter) + "] order(" + str(element.pageOrder) + ") : " + element.dataA)
+#		counter = counter + 1
+#		element.put()
+#		jsonArray.append(element.toDict())
 
 	memcache.delete("pages" + str(adventure.key()))
 	memcache.delete('XmlPages' + str(adventure.key()))
-	self.response.out.write(simplejson.dumps(jsonArray))
+	self.response.out.write("SUCCESS")
+	#self.response.out.write(simplejson.dumps(jsonArray))
 	#logging.info(simplejson.dumps(jsonArray))
 
 class DeletePageElement(webapp.RequestHandler):
