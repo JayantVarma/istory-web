@@ -678,6 +678,13 @@ var pageElUp = function(e) {
 			}
 		}
 	}
+	//update the order in the treeNode label
+	for (var i = 0; i < pageElements.childNodes.length; i++) {
+		pageEl = pageElements.childNodes[i];
+		treeNode = tree.getNodeByIndex(domIdToNodeIndexMap[pageEl.id]);
+		//console.log("   renaming treeNode name: (%s) (%d)", treeNode.label, treeNode.value.pageOrder);
+		treeNode.label = treeNode.label.replace(/^\d+/, treeNode.value.pageOrder);
+	}
 	tree.draw();
 }
 
@@ -774,6 +781,13 @@ var pageElDown = function(e) {
 				YAHOO.util.Connect.asyncRequest('POST', '/movePageElement', moveCallbacks, myHTML);
 			}
 		}
+	}
+	//update the order in the treeNode label
+	for (var i = 0; i < pageElements.childNodes.length; i++) {
+		pageEl = pageElements.childNodes[i];
+		treeNode = tree.getNodeByIndex(domIdToNodeIndexMap[pageEl.id]);
+		//console.log("   renaming treeNode name: (%s) (%d)", treeNode.label, treeNode.value.pageOrder);
+		treeNode.label = treeNode.label.replace(/^\d+/, treeNode.value.pageOrder);
 	}
 	tree.draw();
 }

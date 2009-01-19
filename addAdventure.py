@@ -144,6 +144,7 @@ class AddAdventure(webapp.RequestHandler):
 		if share.child:
 			memcache.delete("adventures_" + share.child.email())
 			memcache.delete("myStoriesXML" + share.child.email())
+			memcache.delete("images" + share.child.email())
 	logging.info("addAdventure: deleting memcache object: " + str(adventure.key()))
 	memcache.delete(str(adventure.key()))
 	memcache.delete('XmlPages' + str(adventure.key()))

@@ -46,6 +46,7 @@ def deleteAdventureStatus(adventureStatus):
 	for image in adventureStatus.images:
 		cnt = cnt + 1
 		image.delete()
+		memcache.delete('img' + str(image.key()))
 	output += "   deleted %d records from images<br>" % cnt
 	#delete the votes
 	cnt = 0
@@ -72,6 +73,7 @@ def deleteAdventure(adventure, deleteAdventureStatusKey = True):
 	#delete the adventure shares cache
 	for share in a:
 		memcache.delete('adventures_' + share.child.email())
+		memcache.delete('images' + share.child.email())
 	output = "Admin get: delete story: deleted %d records from Share<br>" % len(a)
 	db.delete(a)
 	#page element
