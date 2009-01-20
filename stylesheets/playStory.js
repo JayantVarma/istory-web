@@ -377,7 +377,6 @@ var playPage = function(pageKey) {
 }
 
 var storyScript = function(inputText) {
-	//disable going back, we can't really handle it when we have variables too
 	var bracketMatcher = /{{.*?}}/g;
 	var outputText = '';
 
@@ -396,6 +395,7 @@ var storyScript = function(inputText) {
 			}
 			continue;
 		}
+		//disable going back, we can't really handle it when we have variables too
 		backDisabled = true;
 		//now loop through each curly bracket
 		for (var n = 0; n < brackets.length; n++) {
@@ -444,14 +444,14 @@ var parseScript = function(bracket) {
 var parseScriptForData = function(bracket) {
 	var tokens = parseScript(bracket);
 	if (tokens.length == 0) { return 'NO TOKEN'; }
-	primaryToken = tokens.shift();
+	var primaryToken = tokens.shift();
 	
 	//just return the value of the variable
 	if (tokens.length == 0) {
 		return getValueForToken(primaryToken);
 	}
 
-	primaryOperator = tokens.shift();
+	var primaryOperator = tokens.shift();
 	
 	//see if we're doing a simple variable set
 	if (primaryOperator == '=') {
@@ -472,7 +472,7 @@ var parseScriptForData = function(bracket) {
 var parseScriptForIfs = function(tokens) {
 	var tokens = parseScript(bracket);
 	if (tokens.length == 0) { return 'NO TOKEN'; }
-	primaryToken = tokens.shift();
+	var primaryToken = tokens.shift();
 	if (primaryToken == 'ifequal' || primaryToken == 'ifgt' || primaryToken == 'iflt' || primaryToken == 'ifge' || primaryToken == 'ifle') {
 		if (ifBlocked) {
 			ifBlockResult.unshift(-1);
@@ -560,7 +560,7 @@ var combineArrayOfTokens = function(tokens) {
 		//console.log("TOKENS: ");
 		//console.log(tokens);
 		//shift off the first token, we will add to this if there are any more
-		firstToken = tokens.shift();
+		var firstToken = tokens.shift();
 
 		//we need to have at least 1 tokens left
 		if (tokens.length < 1) {
@@ -573,7 +573,7 @@ var combineArrayOfTokens = function(tokens) {
 				alert("ERROR: hide requires 1 argument, the page element to hide");
 				return("ERROR: hide requires 1 argument, the page element to hide");
 			}
-			secondToken = tokens.shift();
+			var secondToken = tokens.shift();
 			page.elements[secondToken].hidden = true;
 			return '';
 		}
@@ -582,7 +582,7 @@ var combineArrayOfTokens = function(tokens) {
 				alert("ERROR: show requires 1 argument, the page element to hide");
 				return("ERROR: show requires 1 argument, the page element to hide");
 			}
-			secondToken = tokens.shift();
+			var secondToken = tokens.shift();
 			page.elements[secondToken].hidden = false;
 			return '';
 		}
@@ -593,8 +593,8 @@ var combineArrayOfTokens = function(tokens) {
 		}
 
 		//this means we have atleast 2 tokens left, so we must be trying to do something like 3 + 4 or random 3 4
-		secondToken = tokens.shift();
-		thirdToken = tokens.shift();
+		var secondToken = tokens.shift();
+		var thirdToken = tokens.shift();
 		//check primary token for reserved keywords
 		if (firstToken == 'random') {
 			var runningValue = randomTokens(secondToken, thirdToken);
@@ -602,9 +602,9 @@ var combineArrayOfTokens = function(tokens) {
 		}
 		else if (secondToken == 'random') {
 			if (tokens.length >= 1) {
-				fourthToken = tokens.shift();
+				var fourthToken = tokens.shift();
 				var runningValue = randomTokens(thirdToken, fourthToken);
-				tokens.unshift(secondToken);
+				tokens.unshift(runningValue);
 				tokens.unshift(firstToken);
 			}
 			else {
@@ -614,8 +614,8 @@ var combineArrayOfTokens = function(tokens) {
 		}
 		else if (thirdToken == 'random') {
 			if (tokens.length >= 2) {
-				fourthToken = tokens.shift();
-				fifthToken = tokens.shift();
+				var fourthToken = tokens.shift();
+				var fifthToken = tokens.shift();
 				var runningValue = randomTokens(fourthToken, fifthToken);
 				tokens.unshift(runningValue);
 				tokens.unshift(secondToken);
