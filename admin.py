@@ -20,21 +20,27 @@ def deleteAdventureStatus(adventureStatus):
 	logging.info("deleteAdventureStatus: start " + str(adventureStatus.key()))
 	output = "deleteAdventureStatus: start " + str(adventureStatus.key())
 	#loop through all the adventures and delete them
-	adventure = adventureStatus.submittedAdventure
-	if adventure:
+	if adventureStatus.submittedAdventure:
 		logging.info("deleteAdventureStatus: deleting submittedAdventure")
 		adventureStatus.submittedAdventure = None
-		output += deleteAdventure(adventure, False)
-	adventure = adventureStatus.editableAdventure
-	if adventure:
+		try:
+			output += deleteAdventure(adventureStatus.submittedAdventure, False)
+		except Exception, e:
+			None
+	if adventureStatus.editableAdventure:
 		logging.info("deleteAdventureStatus: deleting editableAdventure")
 		adventureStatus.editableAdventure = None
-		output += deleteAdventure(adventure, False)
-	adventure = adventureStatus.publishedAdventure
-	if adventure:
+		try:
+			output += deleteAdventure(adventureStatus.editableAdventure, False)
+		except Exception, e:
+			None
+	if adventureStatus.publishedAdventure:
 		logging.info("deleteAdventureStatus: deleting publishedAdventure")
 		adventureStatus.publishedAdventure = None
-		output += deleteAdventure(adventure, False)
+		try:
+			output += deleteAdventure(adventureStatus.publishedAdventure, False)
+		except Exception, e:
+			None
 	#delete the ratings
 	cnt = 0
 	for rating in adventureStatus.ratings:
@@ -46,7 +52,10 @@ def deleteAdventureStatus(adventureStatus):
 	for image in adventureStatus.images:
 		cnt = cnt + 1
 		image.delete()
-		memcache.delete('img' + str(image.key()))
+		try:
+			memcache.delete('img' + str(image.key()))
+		except Exception, e:
+			None
 	output += "   deleted %d records from images<br>" % cnt
 	#delete the votes
 	cnt = 0
@@ -93,25 +102,32 @@ def deleteAdventure(adventure, deleteAdventureStatusKey = True):
 	db.delete(a)
 	#adventure status
 	#we need to go through the adventure status record and set this adventure to null
-	adventureStatus = db.Model.get(adventure.adventureStatus)
-	thisAdventure = adventureStatus.submittedAdventure
-	if adventure:
-		adventureStatus.submittedAdventure = None
-	thisAdventure = adventureStatus.editableAdventure
-	if adventure:
-		adventureStatus.editableAdventure = None
-	thisAdventure = adventureStatus.publishedAdventure
-	if adventure:
-		adventureStatus.publishedAdventure = None
-	adventureStatus.put()
-	#now figure out how many adventures this adventureStatus has left
 	foundAdventures = 0
-	if adventureStatus.editableAdventure:
-		foundAdventures = foundAdventures + 1
-	if adventureStatus.submittedAdventure:
-		foundAdventures = foundAdventures + 1
-	if adventureStatus.publishedAdventure:
-		foundAdventures = foundAdventures + 1
+	adventureStatus = db.Model.get(adventure.adventureStatus)
+	if adventureStatus:
+		try:
+			if adventureStatus.submittedAdventure and adventureStatus.submittedAdventure == adventure:
+				adventureStatus.submittedAdventure = None
+		except Exception, e:
+			None
+		try:
+			if adventureStatus.editableAdventure and adventureStatus.editableAdventure == adventure:
+				adventureStatus.editableAdventure = None
+		except Exception, e:
+			None
+		try:
+			if adventureStatus.publishedAdventure and adventureStatus.publishedAdventure == adventure:
+				adventureStatus.publishedAdventure = None
+		except Exception, e:
+			None
+		adventureStatus.put()
+		#now figure out how many adventures this adventureStatus has left
+		if adventureStatus.editableAdventure:
+			foundAdventures = foundAdventures + 1
+		if adventureStatus.submittedAdventure:
+			foundAdventures = foundAdventures + 1
+		if adventureStatus.publishedAdventure:
+			foundAdventures = foundAdventures + 1
 	output += "Admin get: delete story: this adventureStatus has %d adventures left<br>" % foundAdventures
 	#if we only have 0 adventures left in this adventureStatus, we need to delete it
 	#we'll do that at the end
@@ -139,7 +155,7 @@ def deleteAdventure(adventure, deleteAdventureStatusKey = True):
 	if adventure.adventureStatus:
 		memcache.delete(adventure.adventureStatus)
 	adventure.delete()
-	if foundAdventures == 0 and deleteAdventureStatusKey:
+	if foundAdventures == 0 and deleteAdventureStatusKey and adventureStatus:
 		#delete the adventureStatus record
 		logging.info("deleteAdventure: deleting adventureStatus record as well")
 		output += "DELETING ADVENTURE STATUS NOW"
