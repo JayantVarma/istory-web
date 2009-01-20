@@ -428,7 +428,38 @@ class Admin(webapp.RequestHandler):
 		memcache.delete('pages' + var2)
 		memcache.delete('XmlPages' + var)
 		memcache.delete('XmlPages' + var2)
-			
+	elif command == 'purge unused images':
+		#this will check every image to make sure it is used
+		#if not, it deletes it
+		q = adventureModel.Image.all()
+		images = q.fetch(9999)
+		n = 0
+		for image in images:
+			n = n + 1
+			myOutput = None
+			#if adventure or adventureStatus is null, delete it
+			try:
+				if image.adventure and image.adventureStatus:
+					myOutput = "%d: not going to delete: %s<br>" % (n, image.imageName)
+				else:
+					myOutput = "%d: going to delete: %s<br>" % (n, image.imageName)
+					memcache.delete('img' + str(image.key()))
+					image.delete()
+			except Exception, e:
+				myOutput = "%d: *** exception ***: %s<br>" % (n, image.imageName)
+				memcache.delete('img' + str(image.key()))
+				image.delete()
+			output += myOutput
+		#remove cached images
+		q = adventureModel.Share.all()
+		roles = q.fetch(9999)
+		n = 0
+		for role in roles:
+			if role.child:
+				n = n + 1
+				memcache.delete("images" + role.child.email())
+		output += "<br>removed %d user images cache entries<br>" % n
+
 	#show any stories waiting to be approved
 	q = adventureModel.AdventureStatus.all().filter('status =', 2)
 	adventureStatuses = q.fetch(9999)

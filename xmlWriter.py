@@ -82,7 +82,7 @@ class XmlWriter(webapp.RequestHandler):
 		if output:
 			logging.info("XmlWriter: got pages for adventure %s from cache" % myAdventureKey)
 		else:
-			output = "<version>%f</version>\n" % adventure.version
+			output = "<version>%.4f</version>\n" % adventure.version
 			adventureStatus = main.getAdventure(adventure.adventureStatus)
 			if not adventureStatus:
 				logging.warn("XmlWriter: could not fetch adventureStatus with key: " + adventure.adventureStatus)

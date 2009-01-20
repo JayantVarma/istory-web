@@ -126,9 +126,9 @@ class Share(db.Model):
 	<desc>%s</desc>
 	<author>%s</author>
 	<pages>%d</pages>
-	<version>%f</version>
+	<version>%.4f</version>
 	<coverImage>%s</coverImage>
-	<rating>%f</rating>
+	<rating>%.4f</rating>
 	<plays>%d</plays>
 </adventure>
 ''' % (escape(str(self.adventure.key())), escape(self.adventure.title), escape(self.adventure.desc), escape(self.adventure.author), self.adventure.getPageCount(), self.adventure.version, myCoverImage, myRating, myPlays)
@@ -229,9 +229,9 @@ class AdventureRating(db.Model):
 	<desc>%s</desc>
 	<author>%s</author>
 	<pages>%d</pages>
-	<version>%f</version>
+	<version>%.4f</version>
 	<coverImage>%s</coverImage>
-	<rating>%f</rating>
+	<rating>%.4f</rating>
 	<plays>%d</plays>
 </adventure>
 ''' % (escape(str(adventure.key())), escape(adventure.title), escape(adventure.desc), escape(adventure.author), adventure.getPageCount(), self.adventureStatus.version, myCoverImage, self.rating, self.plays)

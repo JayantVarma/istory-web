@@ -220,7 +220,7 @@ class SavePageElement(webapp.RequestHandler):
 	pageElement.enabled = 1;
 	logging.info("SavePageElement: saving page element to DB")
 	pageElement.put()
-	adventure.version = adventure.version + .000001
+	adventure.version = adventure.version + .0001
 	adventure.put()
 	logging.info("SavePageElement: getting imageRef")
 	myImgRef = self.request.get('imageRef')
@@ -241,6 +241,8 @@ class SavePageElement(webapp.RequestHandler):
 	memcache.delete("pages" + str(adventure.key()))
 	memcache.delete('XmlPages' + str(adventure.key()))
 	memcache.delete('myStoriesXML' + users.get_current_user().email())
+	memcache.delete('adventures_' + users.get_current_user().email())
+	memcache.delete(str(adventure.key()))
 	#logging.info("SavePageElement: returning json: " + simplejson.dumps(pageElement.toDict()))
 	logging.info("SavePageElement: returning json")
 	self.response.out.write(simplejson.dumps(pageElement.toDict()))
@@ -287,10 +289,12 @@ class AddPageElement(webapp.RequestHandler):
 	pageElement.dataB = self.request.get('dataB')
 	pageElement.enabled = 1;
 	pageElement.put()
-	adventure.version = adventure.version + .000001
+	adventure.version = adventure.version + .0001
 	adventure.put()
 	memcache.delete("pages" + str(adventure.key()))
 	memcache.delete('XmlPages' + str(adventure.key()))
 	memcache.delete('myStoriesXML' + users.get_current_user().email())
+	memcache.delete('adventures_' + users.get_current_user().email())
+	memcache.delete(str(adventure.key()))
 	logging.info("AddPageElement: returning json: " + simplejson.dumps(pageElement.toDict()))
 	self.response.out.write(simplejson.dumps(pageElement.toDict()))
