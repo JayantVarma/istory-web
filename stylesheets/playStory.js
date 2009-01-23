@@ -129,13 +129,13 @@ var voteCallbacks = {
 }
 
 var loadStoryForge = function() {
-	window.location.replace('/storyEditor?myAdventureKey=' + adventureKey);
+	window.location = '/storyEditor?myAdventureKey=' + adventureKey;
 }
 var loadShareStory = function() {
-	window.location.replace('/share?myAdventureKey=' + adventureKey);
+	window.location = '/share?myAdventureKey=' + adventureKey;
 }
 var loadSubmitStory = function() {
-	window.location.replace('/submit?myAdventureKey=' + adventureKey);
+	window.location = '/submit?myAdventureKey=' + adventureKey;
 }
 var restartStory = function() {
 	resetSS();

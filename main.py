@@ -156,6 +156,7 @@ def getDefaultTemplateValues(self):
 application = webapp.WSGIApplication(
 	[
 		('/', index.Index),
+		('/help', index.Help),
 		('/signup', signup.SignupDone),
 		('/xml/signup', signup.Signup),
 		('/xml/vote', ratings.Vote),
@@ -170,6 +171,7 @@ application = webapp.WSGIApplication(
 		('/share', share.ViewSharing),
 		('/removeShare', share.RemoveShare),
 		('/shareInvite', share.ShareInvite),
+		(r'^/play/(\w+)/*.*?$', playStory.Play),
 		('/playStory', playStory.Play),
 		('/createStory', addAdventure.AddAdventure),
 		('/myStories', myStories.MyStories),

@@ -27,6 +27,7 @@
 		{{ currentUser }}
 		| <a href="{{ myStoriesURL }}">{{ myStories }}</a>
 		{% endif %}
+		| <a href="http://groups.google.com/group/istoryweb/web/istory-resources">Help</a>
 	</td></tr></table>
 </td></tr>
 {% endblock %}
@@ -59,7 +60,7 @@
 	{% for rating in ratings %}
 		<span class="book"><div>
 			<center>
-				<b><a href="/playStory?myAdventureKey={{ rating.adventureStatus.publishedAdventure.key }}">{{ rating.adventureStatus.publishedAdventure.title|escape }}</a></b><br>
+				<b><a href="/play/{{ rating.adventureStatus.publishedAdventure.key }}/{{ rating.adventureStatus.publishedAdventure.title|escape }}">{{ rating.adventureStatus.publishedAdventure.title|escape }}</a></b><br>
 				<i>{{ rating.adventureStatus.publishedAdventure.author|escape }}</i><br>
 				{{ rating.adventureStatus.publishedAdventure.created.date }}<hr>
 				{% if rating.adventureStatus.publishedAdventure.coverImage %}<img src="/images/{{ rating.adventureStatus.publishedAdventure.coverImage }}.png"><hr>

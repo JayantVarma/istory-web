@@ -603,8 +603,14 @@ img { vertical-align: bottom; }
 	width: 50%;
 	vertical-align: top;
 }
-
-
+.newstory {
+	font-size: large;
+	font-weight: bold;
+}
+.book3 li {
+	list-style-position: inside;
+	list-style-type: square;
+}
 
 
 

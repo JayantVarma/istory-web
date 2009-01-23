@@ -24,7 +24,6 @@ def getRatings():
 		return ratings
 
 class Index(webapp.RequestHandler):
-
   def get(self):
 	ratings = getRatings()
 
@@ -36,4 +35,15 @@ class Index(webapp.RequestHandler):
 	templateValues = dict(defaultTemplateValues, **templateValues)
 
 	path = os.path.join(os.path.dirname(__file__), 'index.html')
+	self.response.out.write(template.render(path, templateValues))
+
+class Help(webapp.RequestHandler):
+  def get(self):
+	defaultTemplateValues = main.getDefaultTemplateValues(self)
+	templateValues = {
+		'title': 'Home'
+	}
+	templateValues = dict(defaultTemplateValues, **templateValues)
+
+	path = os.path.join(os.path.dirname(__file__), 'help.html')
 	self.response.out.write(template.render(path, templateValues))

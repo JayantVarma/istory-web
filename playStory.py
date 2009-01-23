@@ -16,14 +16,15 @@ import ratings
 import admin
 
 class Play(webapp.RequestHandler):
-  def get(self):
+  def get(self, myAdventureKey=None):
 	adventure = None
 	page = None
 	error = None
 	title = None
 	userVote = None
-
-	myAdventureKey = self.request.get('myAdventureKey')
+	
+	if not myAdventureKey:
+		myAdventureKey = self.request.get('myAdventureKey')
 	if myAdventureKey:
 		adventure = memcache.get(myAdventureKey)
 		if adventure:
@@ -31,11 +32,12 @@ class Play(webapp.RequestHandler):
 		else:
 			logging.info("Play: got adventure from db")
 			adventure = main.getAdventure(myAdventureKey)
-			memcache.add(myAdventureKey, adventure, 3600)
+			if adventure:
+				memcache.add(myAdventureKey, adventure, 3600)
 	else:
 		error = 'Error: no adventure key passed in'
 	if adventure == None:
-		error = 'Error: could not find Adventure ' + myAdventureKey + ' in the database'
+		error = 'Error: could not find Adventure [' + myAdventureKey + '] in the database'
 	elif not main.isUserReader(users.get_current_user(), adventure):
 		error = 'Error: You are not a reader of this adventure'
 	else:
