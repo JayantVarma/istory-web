@@ -147,6 +147,63 @@ def addAdventureVoteIphone(adventureStatus, vote, iphone, comment):
 	output = addAdventureStat(adventureStatus, 0, vote, None, iphone, comment)
 	return output
 
+class Play(webapp.RequestHandler):
+  def post(self):
+	myAdventureKey = self.request.get('myAdventureKey')
+	myiphone = self.request.get('iphone')
+	myIP = os.environ['REMOTE_ADDR']
+	if not myiphone:
+		logging.warn("Play: iphone is required")
+		self.response.out("Error: iphone ID is required")
+		return
+	if not myIP:
+		logging.warn("Play: IP is required")
+		self.response.out("Error: IP is required")
+		return
+	if not myAdventureKey:
+		logging.warn("Play: myAdventureKey is required")
+		self.response.out("Error: adventure key is required for Play")
+		return
+	logging.info("Play: myAdventureKey(%s) myIphone(%s) myIP(%s)" % (myAdventureKey, myiphone, myIP))
+
+	# make sure this is a unique play (once every hour)
+	# unique on IP address + adventure key
+	alreadyVoted = False
+	ipKey = "%s-%s" % (myIP, myAdventureKey)
+	cacheGet = memcache.get(ipKey)
+	if (cacheGet):
+		logging.info("Play: already played in the last hour IP (%s)" % ipKey)
+		alreadyVoted = True
+	else:
+		# unique on phone + adventure key
+		phoneKey = "%s-%s" % (myiphone, myAdventureKey)
+		cacheGet = memcache.get(phoneKey)
+		if (cacheGet):
+			logging.info("Play: already played in the last hour PHONE (%s)" % phoneKey)
+			alreadyVoted = True
+
+	# if it wasn't unique, return success still
+	if alreadyVoted:
+		self.response.out.write("SUCCESS")
+		return
+	memcache.add(ipKey, 1, 3600)
+	memcache.add(phoneKey, 1, 3600)
+	
+	adventure = main.getAdventure(myAdventureKey)
+	if not adventure:
+		logging.warn("Vote: adventure key did not exist in db: " + myAdventureKey)
+		output = "Error: Adventure key did not exist in database."
+		self.response.out.write(output)
+		return
+	#we should be good, lets get the adventureStatus object now
+	adventureStatus = admin.getAdventureStatus(adventure.adventureStatus)
+	if not adventureStatus:
+		logging.warn("Vote: could not get the adventureStatus record: " + myAdventureKey)
+		return
+	addAdventurePlay(adventureStatus)
+	self.response.out.write("SUCCESS")
+	return
+
 class Vote(webapp.RequestHandler):
   def post(self):
 	myAdventureKey = self.request.get('myAdventureKey')
