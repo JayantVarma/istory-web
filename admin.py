@@ -20,27 +20,27 @@ def deleteAdventureStatus(adventureStatus):
 	logging.info("deleteAdventureStatus: start " + str(adventureStatus.key()))
 	output = "deleteAdventureStatus: start " + str(adventureStatus.key())
 	#loop through all the adventures and delete them
-	if adventureStatus.submittedAdventure:
-		logging.info("deleteAdventureStatus: deleting submittedAdventure")
-		adventureStatus.submittedAdventure = None
-		try:
+	try:
+		if adventureStatus.submittedAdventure:
+			logging.info("deleteAdventureStatus: deleting submittedAdventure")
+			adventureStatus.submittedAdventure = None
 			output += deleteAdventure(adventureStatus.submittedAdventure, False)
-		except Exception, e:
-			None
-	if adventureStatus.editableAdventure:
-		logging.info("deleteAdventureStatus: deleting editableAdventure")
-		adventureStatus.editableAdventure = None
-		try:
+	except Exception, e:
+		None
+	try:
+		if adventureStatus.editableAdventure:
+			logging.info("deleteAdventureStatus: deleting editableAdventure")
+			adventureStatus.editableAdventure = None
 			output += deleteAdventure(adventureStatus.editableAdventure, False)
-		except Exception, e:
-			None
-	if adventureStatus.publishedAdventure:
-		logging.info("deleteAdventureStatus: deleting publishedAdventure")
-		adventureStatus.publishedAdventure = None
-		try:
+	except Exception, e:
+		None
+	try:
+		if adventureStatus.publishedAdventure:
+			logging.info("deleteAdventureStatus: deleting publishedAdventure")
+			adventureStatus.publishedAdventure = None
 			output += deleteAdventure(adventureStatus.publishedAdventure, False)
-		except Exception, e:
-			None
+	except Exception, e:
+		None
 	#delete the ratings
 	cnt = 0
 	for rating in adventureStatus.ratings:
@@ -64,6 +64,7 @@ def deleteAdventureStatus(adventureStatus):
 		vote.delete()
 	output += "   deleted %d records from votes<br>" % cnt
 	#finish up
+	memcache.delete("xmlMainRatings")
 	memcache.delete("adventures")
 	adventureStatus.delete()
 	output += "   done"
@@ -122,12 +123,21 @@ def deleteAdventure(adventure, deleteAdventureStatusKey = True):
 			None
 		adventureStatus.put()
 		#now figure out how many adventures this adventureStatus has left
-		if adventureStatus.editableAdventure:
-			foundAdventures = foundAdventures + 1
-		if adventureStatus.submittedAdventure:
-			foundAdventures = foundAdventures + 1
-		if adventureStatus.publishedAdventure:
-			foundAdventures = foundAdventures + 1
+		try:
+			if adventureStatus.editableAdventure:
+				foundAdventures = foundAdventures + 1
+		except Exception, e:
+			None
+		try:
+			if adventureStatus.submittedAdventure:
+				foundAdventures = foundAdventures + 1
+		except Exception, e:
+			None
+		try:
+			if adventureStatus.publishedAdventure:
+				foundAdventures = foundAdventures + 1
+		except Exception, e:
+			None
 	output += "Admin get: delete story: this adventureStatus has %d adventures left<br>" % foundAdventures
 	#if we only have 0 adventures left in this adventureStatus, we need to delete it
 	#we'll do that at the end
@@ -152,6 +162,7 @@ def deleteAdventure(adventure, deleteAdventureStatusKey = True):
 	memcache.delete('pages' + str(adventure.key()))
 	memcache.delete('XmlPages' + str(adventure.key()))
 	memcache.delete("adventures")
+	memcache.delete("xmlMainRatings")
 	if adventure.adventureStatus:
 		memcache.delete(adventure.adventureStatus)
 	adventure.delete()
@@ -373,6 +384,8 @@ class Admin(webapp.RequestHandler):
 	var2 = self.request.get('var2')
 	logging.info("Admin get: myAdventureKey(%s)" % (myAdventureKey))
 	output = "Admin get: myAdventureKey(%s) command(%s) var(%s) var2(%s)<br>" % (myAdventureKey, command, var, var2)
+	memcache.delete("adventures")
+	memcache.delete("xmlMainRatings")
 
 	if command == 'delete story collection' and var:
 		#this will delete all story data for a given adventureStatus
