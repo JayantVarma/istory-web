@@ -47,3 +47,7 @@ class Help(webapp.RequestHandler):
 
 	path = os.path.join(os.path.dirname(__file__), 'help.html')
 	self.response.out.write(template.render(path, templateValues))
+
+class Hello(webapp.RequestHandler):
+  def get(self):
+	self.response.out.write("hello")
