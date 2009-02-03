@@ -14,7 +14,7 @@ body hr {
 }
 
 .layout_container {
-	width: 800px;
+	width: 900px;
 	height: 100%;
 	background: #333333;
 	margin: 0 auto;
@@ -27,7 +27,7 @@ body hr {
 	border-bottom-style: solid;
 	border-bottom-color: #000000;
 	background: #DDDDDD; 
-	padding: 10px;
+	padding: 5px;
 } 
 .layout_header h1 {
 	font-style:oblique;
@@ -40,8 +40,10 @@ body hr {
 .layout_sidebar {
 	background: #EBEBEB;
 	vertical-align:top;
+	width: 260px;
 }
 .layout_sidebar .sb1 div {
+	width: 235px;
 	margin-left: 5px;
 	margin-right: 5px;
 	margin-top: 6px;
@@ -76,7 +78,7 @@ body hr {
 
 .layout_mainContent {
 	height:100%;
-	width:540px;
+	width:640px;
 	vertical-align:top;
 	padding: 10px;
 }
@@ -96,7 +98,7 @@ body hr {
 	display: inline-block;
 	text-align:center;
 	vertical-align:top;
-	width: 240px;
+	width: 280px;
 	margin-right:4px;
 	margin-left:12px;
 	padding:3px;
@@ -123,8 +125,8 @@ body hr {
 	text-align: center;
 }
 .layout_mainContent .book img {
-	width: 230px;
-	height: 108px;
+	width: 270px;
+	height: 127px;
 }
 .layout_mainContent .book .ratings {
 	margin-left: auto;
@@ -138,7 +140,7 @@ body hr {
 
 /* book3 is for createStory and for featured stories on the main page */
 .layout_mainContent .book3 {
-	width:520px;
+	width:600px;
 	margin-top:10px;
 	margin-right:5px;
 	margin-left:9px;
@@ -153,6 +155,12 @@ body hr {
 	border-color: #000000;
 	text-align: center;
 	padding: 5px;
+}
+.layout_mainContent .book3 .ad {
+	text-align: center;
+	margin-left: auto;
+	margin-right: auto;
+	vertical-align: bottom;
 }
 .layout_mainContent .book3 td {
 	text-align: left;
@@ -480,6 +488,15 @@ img { vertical-align: bottom; }
 	background: #DDDDFF;
 	cursor: pointer;
 }
+.playerSmallChoiceAd {
+	width: 234px;
+	height: 60px;
+	padding: 5px;
+	margin-left: auto;
+	margin-right: auto;
+	margin-top: 2px;
+	margin-bottom: 2px;
+}
 #player {
 	width:330px;
 	padding:5px;
@@ -611,6 +628,11 @@ img { vertical-align: bottom; }
 	list-style-position: inside;
 	list-style-type: square;
 }
-
+.g {
+	display: none;
+}
+.gg {
+	display: inline;
+}
 
 

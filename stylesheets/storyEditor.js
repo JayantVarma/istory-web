@@ -485,7 +485,8 @@ var cropImageCallbacks = {
 		setLoaded();
 	},
 	failure : function (o) {
-		alert("cropImage was not successful.");
+		alert("Crop image failed! " + o.responseText);
+		setLoaded();
 	},
 	argument : {
 		"idx": null
@@ -555,8 +556,8 @@ var processImageCallback = function(o) {
 	var m = [];
 	try { m = YAHOO.lang.JSON.parse(o.responseText); }
 	catch (x) {
-		//alert("JSON Parse failed! " + x);
-		alert(o.responseText);
+		alert("Process image failed! " + o.responseText);
+		setLoaded();
 		return;
 	}
 	var idx = o.argument.nodeIndex;
@@ -593,7 +594,8 @@ var uploadImageCallbacks = {
 		setLoaded();
 	},
 	failure : function (o) {
-		alert("uploadImage was not successful.");
+		alert("UploadImage was not successful. Please try again. You may need to refresh the page.");
+		setLoaded();
 	},
 	argument : {
 		"nodeIndex": null
@@ -703,11 +705,13 @@ var moveCallbacks = {
 			setLoaded();
 		}
 		else {
-			alert("Move Page Element Failed");
+			alert("Move Page Element Failed. Please make sure all page elements are saved, refresh the page, and try again. It *should* work!");
+			setLoaded();
 		}
 	},
 	failure : function (o) {
 		alert("MovePageElement was not successful.");
+		setLoaded();
 	},
 	argument : { },
 	timeout : 30000
@@ -828,7 +832,8 @@ var pageElDisableCallbacks = {
 		var m = [];
 		try { m = YAHOO.lang.JSON.parse(o.responseText); }
 		catch (x) {
-			alert("JSON Parse failed! " + x);
+			alert("Disable element failed! Please try again. " + o.responseText);
+			setLoaded();
 			return;
 		}
 		markPageElAsDisabled(o.argument.nodeIndex);
@@ -836,6 +841,7 @@ var pageElDisableCallbacks = {
 	},
 	failure : function (o) {
 		alert("disablePageElement was not successful.");
+		setLoaded();
 	},
 	argument : {
 		"nodeIndex": null,
@@ -892,7 +898,8 @@ var pageElDeleteCallbacks = {
 			m = YAHOO.lang.JSON.parse(o.responseText);
 		}
 		catch (x) {
-			alert("JSON Parse failed! " + x);
+			alert("Delete element failed! Please try again. " + o.responseText);
+			setLoaded();
 			return;
 		}
 		removePageElementNodeFromTree(o.argument.nodeIndex);
@@ -900,6 +907,7 @@ var pageElDeleteCallbacks = {
 	},
 	failure : function (o) {
 		alert("deletePageElement was not successful.");
+		setLoaded();
 	},
 	argument : {
 		"nodeIndex": null,
@@ -1005,7 +1013,8 @@ var pageElSaveCallbacks = {
 			pageElement = YAHOO.lang.JSON.parse(o.responseText);
 		}
 		catch (x) {
-			alert("JSON Parse failed! " + x);
+			alert("Save failed! Please try again. " + o.responseText);
+			setLoaded();
 			return;
 		}
 		{
@@ -1018,6 +1027,7 @@ var pageElSaveCallbacks = {
 	},
 	failure : function (o) {
 		alert("savePageElement was not successful.");
+		setLoaded();
 	},
 	argument : {
 		"nodeIndex": null,
@@ -1071,14 +1081,15 @@ var addPageElementCallbacks = {
 			m = YAHOO.lang.JSON.parse(o.responseText);
 		}
 		catch (x) {
-			alert("JSON Parse failed!");
-			alert(x);
+			alert("Add page element failed! " + o.responseText);
+			setLoaded();
 			return;
 		}
 		setLoaded();
 	},
 	failure : function (o) {
 		alert("addPageElement was not successful.");
+		setLoaded();
 	},
 	argument : { "nodeIndex": null },
 	timeout : 30000
@@ -1210,8 +1221,8 @@ var addPageCallbacks = {
 			m = YAHOO.lang.JSON.parse(o.responseText);
 		}
 		catch (x) {
-			alert("JSON Parse failed!");
-			alert(x);
+			alert("Add page failed! " + o.responseText);
+			setLoaded();
 			return;
 		}
 		{
@@ -1246,6 +1257,7 @@ var addPageCallbacks = {
 	},
 	failure : function (o) {
 		alert("addPage was not successful.");
+		setLoaded();
 	},
 	argument : {
 		"nodeIndex": null,
@@ -1270,8 +1282,8 @@ var deletePageCallbacks = {
 			m = YAHOO.lang.JSON.parse(o.responseText);
 		}
 		catch (x) {
-			alert("JSON Parse failed!");
-			alert(x);
+			alert("Delete page failed! " + o.responseText);
+			setLoaded();
 			return;
 		}
 		{
@@ -1306,8 +1318,8 @@ var callbacks = {
 			messages = YAHOO.lang.JSON.parse(o.responseText);
 		}
 		catch (x) {
-			alert("JSON Parse failed!");
-			alert(x);
+			alert("Get Pages failed! " + o.responseText);
+			setLoaded();
 			return;
 		}
 		tree = new YAHOO.widget.TreeView("treeDiv1");
@@ -1357,8 +1369,9 @@ var callbacks = {
        },
 	failure : function (o) {
 		if (!YAHOO.util.Connect.isCallInProgress(o)) {
-			alert("Async call failed!");
+			alert("Get Pages failed!");
 		}
+		setLoaded();
 	},		
 	timeout : 30000
 }
@@ -1398,7 +1411,8 @@ var imagesByUserCallbacks = {
 			images = YAHOO.lang.JSON.parse(o.responseText);
 		}
 		catch (x) {
-			alert("imagesByUserCallbacks JSON Parse failed! " + x);
+			alert("Get User Images failed! " + o.responseText);
+			setLoaded();
 			return;
 		}
 		for (var i = 0, len = images.length; i < len; ++i) {
@@ -1410,6 +1424,7 @@ var imagesByUserCallbacks = {
 	},
 	failure : function (o) {
 		alert("imagesByUserCallbacks was not successful.");
+		setLoaded();
 	},
 	argument : {
 	},

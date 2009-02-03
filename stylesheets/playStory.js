@@ -34,6 +34,10 @@ var page;
 var SS = {};
 var ifBlocked = false;
 var ifBlockResult = [];
+var adShown = false;
+
+//google ads
+var googleAd = YUD.get('g');
 
 var backDisabled = false;
 
@@ -312,6 +316,7 @@ var back = function() {
 }
 
 var playPage = function(pageKey) {
+	adShown = false;
 	//console.log('playPage: ' + pageKey);
 	workArea = YUD.get('player');
 	page = pages[keyToPageIdMap[pageKey]];
@@ -366,6 +371,14 @@ var playPage = function(pageKey) {
 		}
 		if (pageElement.dataType == 3) {
 			//choice element
+			//if we dont have an ad shown already, lets show one
+			if (adShown == false && false) {
+				adShown = true;
+				var ad = document.createElement('div');
+				ad.id = "pageElement" + i + "ad";
+				YUD.insertBefore(ad, newDiv);
+				ad.innerHTML = '<div class="playerSmallChoiceAd">' + googleAd.innerHTML + '</div>';
+			}
 			//console.log("page element choice: " + pageElement.dataA + ", " + pageElement.dataB + ', ' + i);
 			if (pageElement.dataA) {
 				newDiv.innerHTML = '<div class="playerSmallChoice" id="choiceClick' + i + '"><table width="100%"><tr><td align="left">' + pageElement.dataA + '</td><td align="right" width="25px">--></td></tr></table></div>';
