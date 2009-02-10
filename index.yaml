@@ -10,7 +10,7 @@ indexes:
 # automatically uploaded to the admin console when you next deploy
 # your application using appcfg.py.
 
-# Used 2 times in query history.
+# Used 3 times in query history.
 - kind: AdventureRating
   properties:
   - name: approved
@@ -18,13 +18,13 @@ indexes:
     direction: desc
   - name: created
 
-# Unused in query history -- copied from input.
+# Used once in query history.
 - kind: Image
   properties:
   - name: realAuthor
   - name: imageName
 
-# Used once in query history.
+# Used 2 times in query history.
 - kind: Page
   properties:
   - name: adventure
@@ -37,7 +37,7 @@ indexes:
   - name: page
   - name: pageOrder
 
-# Used once in query history.
+# Used 2 times in query history.
 - kind: PageElement
   properties:
   - name: adventure
@@ -73,7 +73,7 @@ indexes:
     direction: desc
   - name: created
 
-# Used 2 times in query history.
+# Used 3 times in query history.
 - kind: Share
   properties:
   - name: child
@@ -84,7 +84,7 @@ indexes:
   - name: created
     direction: desc
 
-# Used once in query history.
+# Used 2 times in query history.
 - kind: Share
   properties:
   - name: childEmail

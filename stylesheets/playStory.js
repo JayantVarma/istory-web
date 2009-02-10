@@ -34,11 +34,6 @@ var page;
 var SS = {};
 var ifBlocked = false;
 var ifBlockResult = [];
-var adShown = false;
-
-//google ads
-var googleAd = YUD.get('g');
-
 var backDisabled = false;
 
 function treeInit() {
@@ -316,7 +311,6 @@ var back = function() {
 }
 
 var playPage = function(pageKey) {
-	adShown = false;
 	//console.log('playPage: ' + pageKey);
 	workArea = YUD.get('player');
 	page = pages[keyToPageIdMap[pageKey]];
@@ -371,14 +365,6 @@ var playPage = function(pageKey) {
 		}
 		if (pageElement.dataType == 3) {
 			//choice element
-			//if we dont have an ad shown already, lets show one
-			if (adShown == false && false) {
-				adShown = true;
-				var ad = document.createElement('div');
-				ad.id = "pageElement" + i + "ad";
-				YUD.insertBefore(ad, newDiv);
-				ad.innerHTML = '<div class="playerSmallChoiceAd">' + googleAd.innerHTML + '</div>';
-			}
 			//console.log("page element choice: " + pageElement.dataA + ", " + pageElement.dataB + ', ' + i);
 			if (pageElement.dataA) {
 				newDiv.innerHTML = '<div class="playerSmallChoice" id="choiceClick' + i + '"><table width="100%"><tr><td align="left">' + pageElement.dataA + '</td><td align="right" width="25px">--></td></tr></table></div>';
@@ -540,19 +526,19 @@ var processIf = function(ifType, tokens) {
 	var retval = false;
 	var firstToken = getValueForToken(tokens.shift());
 	var secondToken = getValueForToken(tokens.shift());
-	if (primaryToken == 'ifequal') {
+	if (ifType == 'ifequal') {
 		if (firstToken == secondToken) { retval = true; }
 	}
-	else if (primaryToken == 'ifgt') {
+	else if (ifType == 'ifgt') {
 		if (firstToken > secondToken) { retval = true; }
 	}
-	else if (primaryToken == 'ifge') {
+	else if (ifType == 'ifge') {
 		if (firstToken >= secondToken) { retval = true; }
 	}
-	else if (primaryToken == 'iflt') {
+	else if (ifType == 'iflt') {
 		if (firstToken < secondToken) { retval = true; }
 	}
-	else if (primaryToken == 'ifle') {
+	else if (ifType == 'ifle') {
 		if (firstToken <= secondToken) { retval = true; }
 	}
 	else {
